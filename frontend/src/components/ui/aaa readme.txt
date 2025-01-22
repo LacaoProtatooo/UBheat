@@ -1,0 +1,1 @@
+Aceternity UI components Reside here (/ui)
