@@ -4,6 +4,8 @@ import './index.css';
 
 // Admin Pages
 
+// Auth Pages
+
 // User / Guest Pages
 import About from './components/pages/about';
 
