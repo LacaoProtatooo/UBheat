@@ -5,6 +5,6 @@ import { getChatResponse } from "../controllers/groqcloud_controller.js";
 
 const router = express.Router();
 
-router.post("/chat", getChatResponse);
+router.post("/", getChatResponse);
 
 export default router;

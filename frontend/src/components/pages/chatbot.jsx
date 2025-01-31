@@ -10,7 +10,6 @@ const Chatbot = () => {
   const handleSend = async () => {
     if (!input.trim()) return;
 
-    // Add user message to the conversation
     const userMessage = { sender: 'user', text: input };
     setMessages((prevMessages) => [...prevMessages, userMessage]);
 

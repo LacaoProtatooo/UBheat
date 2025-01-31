@@ -33,7 +33,7 @@ app.use((req, res, next) => {
 });
 
 // Router Connection
-app.use("/api", chatRoutes);
+app.use("/api/chat", chatRoutes);
 
 // -----------------
 
