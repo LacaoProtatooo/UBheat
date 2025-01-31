@@ -8,6 +8,7 @@ import './index.css';
 
 // User / Guest Pages
 import About from './components/pages/about';
+import Chatbot from './components/pages/chatbot';
 
 function App() {
 
@@ -16,6 +17,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/about" element={<About />} />
+        <Route path="/chatbot" element={<Chatbot />} />
       </Routes>
     </Router>
   )

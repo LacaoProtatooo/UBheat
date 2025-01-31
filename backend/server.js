@@ -1,4 +1,3 @@
-
 import express from "express";
 import dotenv from "dotenv";
 import path from "path";
@@ -14,13 +13,19 @@ app.use(express.json());  // Allows to accept JSON data in the req.body
 
 console.log(process.env.MONGO_URI);
 
-// if(process.env.NODE_ENV === "production"){
-//     app.use(express.static(path.join(__dirname, "/frontend/dist")));
+if(process.env.NODE_ENV === "production"){
+    app.use(express.static(path.join(__dirname, "/frontend/dist")));
 
-//     app.get("*", (req, res)=>{
-//         res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"))
-//     })
-// }
+    app.get("*", (req, res)=>{
+        res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"))
+    })
+}
+
+process.on("unhandledRejection", (err) => {
+    console.error(`Unhandled Rejection: ${err.message}`);
+    process.exit(1);
+});
+  
 
 app.listen(PORT, () => {
     connectDB();
