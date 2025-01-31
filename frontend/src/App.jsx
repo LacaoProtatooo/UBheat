@@ -8,6 +8,7 @@ import './index.css';
 
 // User / Guest Pages
 import About from './components/pages/about';
+import Chatbot from './components/pages/chatbot';
 import Heatmap from './components/pages/Heatmap'; // Import the Heatmap component
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/about" element={<About />} />
+        <Route path="/chatbot" element={<Chatbot />} />
         <Route path="/heatmap" element={<Heatmap />} /> {/* Add Heatmap route */}
       </Routes>
     </Router>
