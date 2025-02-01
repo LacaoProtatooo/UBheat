@@ -9,7 +9,8 @@ import './index.css';
 // User / Guest Pages
 import About from './components/pages/about';
 import Chatbot from './components/pages/chatbot';
-import Heatmap from './components/pages/Heatmap'; // Import the Heatmap component
+import Heatmap from './components/pages/Heatmap'; 
+import Main from './components/pages/main';
 
 function App() {
   return (
@@ -17,7 +18,8 @@ function App() {
       <Routes>
         <Route path="/about" element={<About />} />
         <Route path="/chatbot" element={<Chatbot />} />
-        <Route path="/heatmap" element={<Heatmap />} /> {/* Add Heatmap route */}
+        <Route path="/heatmap" element={<Heatmap />} />
+        <Route path="/" element={<Main />} />
       </Routes>
     </Router>
   );
