@@ -4,12 +4,13 @@ import TileLayer from 'ol/layer/Tile';
 import OSM from 'ol/source/OSM';
 import { Heatmap as HeatmapLayer } from 'ol/layer';
 import VectorSource from 'ol/source/Vector';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { fromLonLat } from 'ol/proj';
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
 import Overlay from 'ol/Overlay';
+import { IconMessage, IconTemperature, IconDroplet } from '@tabler/icons-react'; // Icons for the message, temperature, and water level
 
 const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
   const mapRef = useRef();
@@ -17,6 +18,8 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
   const canvasRef = useRef(null);
   const smokeParticlesRef = useRef([]);
   const clockRef = useRef(null); // Ref for the clock element
+  const [averageTemperature, setAverageTemperature] = useState(null); // State for average temperature
+  const [hazardousWaterLevels, setHazardousWaterLevels] = useState([]); // State for hazardous water levels
 
   useEffect(() => {
     // Initialize the map
@@ -167,6 +170,19 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
         }
       }
 
+      // Calculate average temperature
+      const temperatures = weatherData.map((data) => data.temperature);
+      const averageTemp = (temperatures.reduce((a, b) => a + b, 0) / temperatures.length).toFixed(2);
+      setAverageTemperature(averageTemp);
+
+      // Simulate hazardous water levels (for demonstration purposes)
+      const hazardousAreas = [
+        { name: 'Manila', waterLevel: 'High' },
+        { name: 'Cebu', waterLevel: 'Medium' },
+        { name: 'Davao', waterLevel: 'Low' },
+      ];
+      setHazardousWaterLevels(hazardousAreas);
+
       // Clear overlays
       overlaysRef.current.forEach((overlay) => map.removeOverlay(overlay));
       overlaysRef.current = [];
@@ -249,7 +265,54 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
     };
   }, []);
 
-  return <div ref={mapRef} style={{ ...style, position: 'relative' }} />;
+  return (
+    <div ref={mapRef} style={{ ...style, position: 'relative' }}>
+      {/* Message Icon */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '20px',
+          right: '20px',
+          zIndex: 1000,
+          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+          borderRadius: '50%',
+          padding: '10px',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        onClick={() => window.location.href = '/chatbot'}
+      >
+        <IconMessage size={24} color="#000" />
+      </div>
+
+      {/* Average Temperature and Water Level Overlay */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '80px',
+          right: '20px',
+          zIndex: 1000,
+          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+          borderRadius: '10px',
+          padding: '10px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '10px',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <IconTemperature size={20} color="#000" />
+          <span>Avg Temp: {averageTemperature}°C</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <IconDroplet size={20} color="#000" />
+          <span>Hazardous Areas: {hazardousWaterLevels.map(area => area.name).join(', ')}</span>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default Heatmap;
