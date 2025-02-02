@@ -4,6 +4,7 @@ import { IconClipboardCopy, IconFileBroken } from "@tabler/icons-react";
 import { SkeletonOne } from "../ui/bento-grid";
 
 import Heatmap from "./Heatmap";
+import FloatingDockUBheat from "../common/floatingdock";
 
 const Main = () => {
   const items = [
@@ -61,7 +62,10 @@ const Main = () => {
           />
         ))}
       </BentoGrid>
+
+      <FloatingDockUBheat />
     </div>
+
   );
 };
 
