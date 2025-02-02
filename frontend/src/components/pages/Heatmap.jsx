@@ -268,7 +268,7 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
   return (
     <div ref={mapRef} style={{ ...style, position: 'relative' }}>
       {/* Message Icon */}
-      <div
+      {/* <div
         style={{
           position: 'absolute',
           bottom: '20px',
@@ -285,7 +285,7 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
         onClick={() => window.location.href = '/chatbot'}
       >
         <IconMessage size={24} color="#000" />
-      </div>
+      </div> */}
 
       {/* Average Temperature and Water Level Overlay */}
       <div
