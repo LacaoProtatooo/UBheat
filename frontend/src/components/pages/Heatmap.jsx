@@ -16,6 +16,7 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
   const overlaysRef = useRef([]);
   const canvasRef = useRef(null);
   const smokeParticlesRef = useRef([]);
+  const clockRef = useRef(null); // Ref for the clock element
 
   useEffect(() => {
     // Initialize the map
@@ -27,18 +28,47 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
         }),
       ],
       view: new View({
-        center: fromLonLat([122, 12]),
+        center: fromLonLat([122, 12]), // Center on the Philippines
         zoom: 6,
       }),
     });
 
+    // Create a clock element
+    const clockElement = document.createElement('div');
+    clockElement.style.position = 'absolute';
+    clockElement.style.bottom = '10px';
+    clockElement.style.left = '10px';
+    clockElement.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+    clockElement.style.padding = '5px 10px';
+    clockElement.style.borderRadius = '5px';
+    clockElement.style.fontFamily = 'Arial, sans-serif';
+    clockElement.style.fontSize = '16px';
+    clockElement.style.zIndex = '1000';
+    mapRef.current.appendChild(clockElement);
+    clockRef.current = clockElement;
+
+    // Function to update the clock
+    const updateClock = () => {
+      const now = new Date();
+      const philippineTime = new Date(now.getTime() + (8 * 60 * 60 * 1000)); // Convert to UTC+8
+      const hours = philippineTime.getUTCHours().toString().padStart(2, '0');
+      const minutes = philippineTime.getUTCMinutes().toString().padStart(2, '0');
+      const seconds = philippineTime.getUTCSeconds().toString().padStart(2, '0');
+      clockRef.current.textContent = `Philippine Time: ${hours}:${minutes}:${seconds}`;
+    };
+
+    // Update the clock every second
+    const clockIntervalId = setInterval(updateClock, 1000);
+    updateClock(); // Initial call to display the clock immediately
+
+    // Expanded list of cities
     const philippineCities = [
       'Manila', 'Cebu', 'Davao', 'Cagayan de Oro', 'Zamboanga',
       'Baguio', 'Iloilo', 'Bacolod', 'General Santos', 'Legazpi',
       'Puerto Princesa', 'Tacloban', 'Tuguegarao', 'Butuan', 'Dumaguete'
     ];
 
-    // Create fog effect canvas
+    // Create canvas for fog effects
     const canvas = document.createElement('canvas');
     canvas.style.position = 'absolute';
     canvas.style.top = '0';
@@ -56,7 +86,7 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
       smokeParticlesRef.current = [];
       weatherData.forEach((data) => {
         const color = data.temperature <= 16 ? 'blue' : data.temperature <= 30 ? 'yellow' : 'red';
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < 20; i++) { // Create 20 particles per city
           smokeParticlesRef.current.push({
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height,
@@ -69,36 +99,41 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
       });
     };
 
-    // Animate the fog effect
+    // Function to animate fog/smoke
     const animateSmoke = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
       smokeParticlesRef.current.forEach((particle) => {
+        // Move particle
         particle.x += particle.velocityX;
         particle.y += particle.velocityY;
-
+    
+        // Add slight randomness to velocity for natural movement
         particle.velocityX += (Math.random() - 0.5) * 0.1;
         particle.velocityY += (Math.random() - 0.5) * 0.1;
-
+    
+        // Reset particle if it goes offscreen
         if (particle.x < 0 || particle.x > canvas.width || particle.y < 0 || particle.y > canvas.height) {
           particle.x = Math.random() * canvas.width;
           particle.y = Math.random() * canvas.height;
           particle.velocityX = (Math.random() - 0.5) * 1;
           particle.velocityY = (Math.random() - 0.5) * 1;
         }
-
+    
+        // Draw particle with smoother opacity
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
         ctx.fillStyle = particle.color;
-        ctx.globalAlpha = 0.3 + Math.random() * 0.3;
+        ctx.globalAlpha = 0.3 + Math.random() * 0.3; // Add some flickering effect
         ctx.fill();
       });
-
+    
       requestAnimationFrame(animateSmoke);
     };
 
     animateSmoke();
 
-    // Function to get heatmap gradient
+    // Function to get a dynamic heatmap gradient
     const getGradient = (minTemp, maxTemp) => {
       if (minTemp < 10) {
         return ['#0000FF', '#00FFFF', '#FFFF00', '#FF4500', '#FF0000'];
@@ -108,12 +143,12 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
       return ['#0000FF', '#FFFF00', '#FF0000'];
     };
 
-    // Fetch weather data and update heatmap
+    // Fetch weather data
     const fetchWeatherData = async () => {
       const apiKey = 'b05f228625b60990de863e6193f998af';
       const weatherData = [];
       canvas.className = 'smoke-canvas';
-
+      
       for (const city of philippineCities) {
         try {
           const response = await axios.get(
@@ -132,9 +167,11 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
         }
       }
 
+      // Clear overlays
       overlaysRef.current.forEach((overlay) => map.removeOverlay(overlay));
       overlaysRef.current = [];
 
+      // Create heatmap features
       const heatmapFeatures = weatherData.map((data) => {
         return new Feature({
           geometry: new Point(fromLonLat(data.location)),
@@ -142,10 +179,12 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
         });
       });
 
+      // Get dynamic gradient
       const minTemp = Math.min(...weatherData.map(d => d.temperature));
       const maxTemp = Math.max(...weatherData.map(d => d.temperature));
       const gradient = getGradient(minTemp, maxTemp);
 
+      // Update heatmap
       const heatmapLayer = new HeatmapLayer({
         source: new VectorSource({ features: heatmapFeatures }),
         blur: 20,
@@ -154,6 +193,7 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
         opacity: 0.7,
       });
 
+      // Remove old heatmap layer
       map.getLayers().forEach((layer) => {
         if (layer instanceof HeatmapLayer) {
           map.removeLayer(layer);
@@ -162,11 +202,13 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
 
       map.addLayer(heatmapLayer);
 
+      // Add overlays for city data
       weatherData.forEach((data) => {
         const overlayElement = document.createElement('div');
         overlayElement.className = 'temperature-overlay';
         overlayElement.innerHTML = `${data.city}: ${data.temperature}°C`;
 
+        // Click event to show details
         overlayElement.addEventListener('click', () => {
           alert(`Weather in ${data.city}:
           Temperature: ${data.temperature}°C
@@ -174,6 +216,7 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
           Wind Speed: ${data.windSpeed} km/h`);
         });
 
+        // Color based on temperature
         overlayElement.style.backgroundColor =
           data.temperature <= 16 ? 'rgba(0, 0, 255, 0.7)' :
           data.temperature <= 30 ? 'rgba(255, 255, 0, 0.7)' :
@@ -190,15 +233,19 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
         overlaysRef.current.push(overlay);
       });
 
+      // Create fog based on weather
       createSmokeParticles(weatherData);
     };
 
+    // Fetch data on mount and refresh every 5 minutes
     fetchWeatherData();
     const intervalId = setInterval(fetchWeatherData, 300000);
 
     return () => {
       clearInterval(intervalId);
+      clearInterval(clockIntervalId); // Clear the clock interval
       mapRef.current.removeChild(canvas);
+      mapRef.current.removeChild(clockRef.current); // Remove the clock element
     };
   }, []);
 

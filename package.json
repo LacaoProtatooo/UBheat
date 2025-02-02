@@ -28,6 +28,7 @@
     "npm": "^10.9.2"
   },
   "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
     "nodemon": "^3.1.9",
     "vite": "^6.0.11"
   }
