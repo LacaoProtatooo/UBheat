@@ -24,8 +24,9 @@ export const useModal = () => {
 };
 
 export function Modal({ children }) {
-  return <ModalProvider>{children}</ModalProvider>;
+  return <>{children}</>;
 }
+
 
 export const ModalTrigger = ({ children, className }) => {
   const { setOpen } = useModal();
