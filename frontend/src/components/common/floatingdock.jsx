@@ -8,14 +8,15 @@ import {
   IconTerminal2,
 } from "@tabler/icons-react";
 import { Modal, ModalBody, ModalContent, useModal } from "../ui/animated-modal";
+import { ChatbotComponent, UBHeatComponent } from "./floatingdockcomponents";
 
 const FloatingDockUBheat = () => {
   const { setOpen } = useModal(); // Use context to open modal
-  const [activeCard, setActiveCard] = useState(null);
+  const [ActiveComponent, setActiveComponent] = useState(null); // Use uppercase for components
 
-  const openModal = (card) => {
-    setActiveCard(card);
-    setOpen(true); // Use the Modal Context state
+  const openModal = (Component) => {
+    setActiveComponent(() => Component); // Store component reference
+    setOpen(true);
   };
 
   const links = [
@@ -26,7 +27,11 @@ const FloatingDockUBheat = () => {
     },
     { 
       title: "Chatbot", 
-      icon: <IconTerminal2 className="h-8 w-8 text-neutral-500 dark:text-neutral-300" />, 
+      icon: (
+        <button onClick={() => openModal(ChatbotComponent)}>
+          <IconTerminal2 className="h-8 w-8 text-neutral-500 dark:text-neutral-300" />
+        </button>
+      ), 
       href: "#" 
     },
     { 
@@ -37,12 +42,8 @@ const FloatingDockUBheat = () => {
     {
       title: "UBHeat",
       icon: (
-        <button onClick={() => openModal({
-          title: "UBHeat",
-          description: "UBHeat is an AI-driven chatbot designed to assist users with various queries.",
-          
-        })}>
-          <img src="../../../public/UB_Logo.png" width="32" height="32" alt="UBHeat Logo" />
+        <button onClick={() => openModal(UBHeatComponent)}>
+          <img src="/UB_Logo.png" width="32" height="32" alt="UBHeat Logo" />
         </button>
       ),
       href: "#",
@@ -72,15 +73,7 @@ const FloatingDockUBheat = () => {
               onClick={() => setOpen(false)} 
               className="absolute top-2 right-2 text-gray-600 dark:text-gray-400"
             />
-            {activeCard && (
-              <div className="text-black dark:text-white">
-                <h2 className="text-2xl font-semibold">{activeCard.title}</h2>
-                <p className="mt-2">{activeCard.description}</p>
-                {activeCard.src && (
-                  <img src={activeCard.src} alt={activeCard.title} className="mt-4 w-full h-auto rounded-md" />
-                )}
-              </div>
-            )}
+            {ActiveComponent && <ActiveComponent />} 
           </ModalContent>
         </ModalBody>
       </Modal>
