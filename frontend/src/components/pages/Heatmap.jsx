@@ -249,6 +249,9 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
       });
 
       map.addLayer(heatmapLayer);
+      
+      // Start heatmap animation
+      animateHeatmap(heatmapLayer);
 
       // Add overlays for city data
       weatherData.forEach((data) => {
