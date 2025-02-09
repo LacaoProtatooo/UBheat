@@ -35,7 +35,11 @@ const HeatmapDashboard = () => {
   const [weatherData, setWeatherData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedData, setSelectedData] = useState("temperature"); // Default selected data
-  const API_KEY = "b05f228625b60990de863e6193f998af";
+  const [news, setNews] = useState([]); // State for storing news articles
+  const [city, setCity] = useState("");
+  const [cityWeather, setCityWeather] = useState(null);
+  const API_KEY = "b05f228625b60990de863e6193f998af"; // OpenWeather API key
+  const NEWS_API_KEY = "934c0580d10f4bb393731591d07b3515"; // Replace with your NewsAPI key
 
   // Fetch weather data from OpenWeather API
   const fetchWeatherData = async () => {
@@ -86,8 +90,38 @@ const HeatmapDashboard = () => {
     }
   };
 
+  // Fetch weather-related news from NewsAPI
+  const fetchWeatherNews = async () => {
+    try {
+      const response = await axios.get(
+        `https://newsapi.org/v2/everything?q=weather+Philippines&apiKey=${NEWS_API_KEY}`
+      );
+      setNews(response.data.articles.slice(0, 5)); // Get top 5 articles
+    } catch (error) {
+      console.error("Error fetching news:", error);
+    }
+  };
+
+  // Fetch weather data for a specific city
+  const fetchCityWeather = async () => {
+    try {
+      const response = await axios.get(
+        `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${API_KEY}`
+      );
+      setCityWeather(response.data);
+    } catch (error) {
+      console.error("Error fetching city weather data:", error);
+    }
+  };
+
   useEffect(() => {
     fetchWeatherData();
+    fetchWeatherNews();
+
+    // Refresh news every 24 hours
+    const newsInterval = setInterval(fetchWeatherNews, 24 * 60 * 60 * 1000);
+
+    return () => clearInterval(newsInterval); // Cleanup interval on unmount
   }, []);
 
   // Prepare data for the line chart
@@ -223,6 +257,35 @@ const HeatmapDashboard = () => {
               </div>
             ))}
           </div>
+
+          {/* Interactive City Weather Search */}
+          <div className="mt-4">
+            <h4 className="text-lg font-semibold mb-2">Search City Weather</h4>
+            <div className="flex space-x-2">
+              <input
+                type="text"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                placeholder="Enter city name"
+                className="px-4 py-2 border border-gray-300 rounded-md"
+              />
+              <button
+                onClick={fetchCityWeather}
+                className="px-4 py-2 bg-blue-500 text-white rounded-md"
+              >
+                Search
+              </button>
+            </div>
+            {cityWeather && (
+              <div className="mt-4 p-4 border border-gray-200 rounded-md">
+                <h4 className="text-lg font-semibold mb-2">{cityWeather.name}</h4>
+                <p>Temperature: {cityWeather.main.temp}°C</p>
+                <p>Humidity: {cityWeather.main.humidity}%</p>
+                <p>Wind Speed: {cityWeather.wind.speed} kph</p>
+                <p>Condition: {cityWeather.weather[0].description}</p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Charts */}
@@ -230,10 +293,36 @@ const HeatmapDashboard = () => {
           <h4 className="text-lg font-semibold mb-2">Weather Trends</h4>
           <Line data={lineChartData} options={lineChartOptions} />
 
-          <h4 className="text-lg font-semibold mt-4 mb-2">
-            Temperature Distribution
-          </h4>
-          <Pie data={pieChartData} options={pieChartOptions} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div>
+              <h4 className="text-lg font-semibold mb-2">
+                Temperature Distribution
+              </h4>
+              <div className="w-650 h-64 mx-auto">
+                <Pie data={pieChartData} options={pieChartOptions} />
+              </div>
+            </div>
+
+            {/* Real-time Weather News */}
+            <div>
+              <h4 className="text-lg font-semibold mb-2">Latest Weather News</h4>
+              <div className="space-y-4">
+                {news.map((article, index) => (
+                  <div key={index} className="p-4 border border-gray-200 rounded-md">
+                    <a
+                      href={article.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium text-blue-600 hover:underline"
+                    >
+                      {article.title}
+                    </a>
+                    <p className="text-sm text-gray-600">{article.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
