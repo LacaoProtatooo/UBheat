@@ -12,6 +12,7 @@ import About from './components/pages/about';
 import Chatbot from './components/pages/chatbot';
 import Heatmap from './components/pages/Heatmap'; 
 import Main from './components/pages/main';
+import HeatmapDashboard from './components/pages/HeatmapDashboard';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/chatbot" element={<Chatbot />} />
         <Route path="/heatmap" element={<Heatmap />} />
+        <Route path="/dashboard" element={<HeatmapDashboard />} />
         <Route path="/" element={<Main />} />
       </Routes>
       </ModalProvider>

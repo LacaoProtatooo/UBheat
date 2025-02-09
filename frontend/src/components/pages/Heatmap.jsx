@@ -10,7 +10,7 @@ import { fromLonLat } from 'ol/proj';
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
 import Overlay from 'ol/Overlay';
-import { IconMessage, IconTemperature, IconDroplet } from '@tabler/icons-react'; // Icons for the message, temperature, and water level
+import { IconMessage, IconTemperature, IconDroplet, IconSearch } from '@tabler/icons-react'; // Icons for the message, temperature, water level, and search
 
 const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
   const mapRef = useRef();
@@ -20,6 +20,8 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
   const clockRef = useRef(null); // Ref for the clock element
   const [averageTemperature, setAverageTemperature] = useState(null); // State for average temperature
   const [hazardousWaterLevels, setHazardousWaterLevels] = useState([]); // State for hazardous water levels
+  const [searchCity, setSearchCity] = useState(""); // State for the search input
+  const [searchResult, setSearchResult] = useState(null); // State for the search result
   const heatmapLayerRef = useRef(null); // Ref for the heatmap layer
 
   useEffect(() => {
@@ -302,8 +304,41 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
     };
   }, []);
 
+  // Function to fetch weather data for a searched city
+  const fetchSearchCityWeather = async () => {
+    const apiKey = 'b05f228625b60990de863e6193f998af';
+    try {
+      const response = await axios.get(
+        `https://api.openweathermap.org/data/2.5/weather?q=${searchCity}&appid=${apiKey}&units=metric`
+      );
+      setSearchResult(response.data);
+    } catch (error) {
+      console.error(`Error fetching data for ${searchCity}:`, error);
+      setSearchResult(null);
+    }
+  };
+
   return (
     <div ref={mapRef} style={{ ...style, position: 'relative' }}>
+      {/* Message Icon */}
+      {/* <div
+        style={{
+          position: 'absolute',
+          bottom: '20px',
+          right: '20px',
+          zIndex: 1000,
+          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+          borderRadius: '50%',
+          padding: '10px',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        onClick={() => window.location.href = '/chatbot'}
+      >
+        <IconMessage size={24} color="#000" />
+      </div> */}
 
       {/* Average Temperature and Water Level Overlay */}
       <div
@@ -329,6 +364,42 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
           <span>Hazardous Areas: {hazardousWaterLevels.map(area => area.name).join(', ')}</span>
         </div>
       </div>
+
+      {/* Search Result Overlay */}
+      {searchResult && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '60px',
+            right: '20px',
+            zIndex: 1000,
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            borderRadius: '10px',
+            padding: '10px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <span>{searchResult.name}</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <IconTemperature size={20} color="#000" />
+            <span>Temperature: {searchResult.main.temp}°C</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <IconDroplet size={20} color="#000" />
+            <span>Humidity: {searchResult.main.humidity}%</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <span>Wind Speed: {searchResult.wind.speed} km/h</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <span>Condition: {searchResult.weather[0].description}</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
