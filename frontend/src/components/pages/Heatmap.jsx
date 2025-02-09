@@ -22,7 +22,6 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
   const [hazardousWaterLevels, setHazardousWaterLevels] = useState([]); // State for hazardous water levels
   const [searchCity, setSearchCity] = useState(""); // State for the search input
   const [searchResult, setSearchResult] = useState(null); // State for the search result
-  const heatmapLayerRef = useRef(null); // Ref for the heatmap layer
 
   useEffect(() => {
     // Initialize the map
@@ -242,9 +241,6 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
         opacity: 0.7,
       });
 
-      // Store the heatmap layer in the ref
-      heatmapLayerRef.current = heatmapLayer;
-
       // Remove old heatmap layer
       map.getLayers().forEach((layer) => {
         if (layer instanceof HeatmapLayer) {
@@ -253,9 +249,6 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
       });
 
       map.addLayer(heatmapLayer);
-
-      // Start heatmap animation
-      animateHeatmap(heatmapLayer);
 
       // Add overlays for city data
       weatherData.forEach((data) => {
@@ -320,11 +313,11 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
 
   return (
     <div ref={mapRef} style={{ ...style, position: 'relative' }}>
-      {/* Message Icon */}
-      {/* <div
+      {/* Search Icon */}
+      <div
         style={{
           position: 'absolute',
-          bottom: '20px',
+          top: '20px',
           right: '20px',
           zIndex: 1000,
           backgroundColor: 'rgba(255, 255, 255, 0.8)',
@@ -335,10 +328,16 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
           alignItems: 'center',
           justifyContent: 'center',
         }}
-        onClick={() => window.location.href = '/chatbot'}
+        onClick={() => {
+          const city = prompt("Enter city name:");
+          if (city) {
+            setSearchCity(city);
+            fetchSearchCityWeather();
+          }
+        }}
       >
-        <IconMessage size={24} color="#000" />
-      </div> */}
+        <IconSearch size={24} color="#000" />
+      </div>
 
       {/* Average Temperature and Water Level Overlay */}
       <div
