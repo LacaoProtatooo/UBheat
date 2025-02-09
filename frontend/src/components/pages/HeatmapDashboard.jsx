@@ -146,8 +146,8 @@ const HeatmapDashboard = () => {
     fetchWeatherNews();
     fetchPhilippineCitiesWeather();
 
-    // Refresh news every 24 hours
-    const newsInterval = setInterval(fetchWeatherNews, 24 * 60 * 60 * 1000);
+    // Refresh news every 6 hours
+    const newsInterval = setInterval(fetchWeatherNews, 6 * 60 * 60 * 1000);
 
     return () => clearInterval(newsInterval); // Cleanup interval on unmount
   }, []);
