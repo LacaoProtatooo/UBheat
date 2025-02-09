@@ -20,6 +20,7 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
   const clockRef = useRef(null); // Ref for the clock element
   const [averageTemperature, setAverageTemperature] = useState(null); // State for average temperature
   const [hazardousWaterLevels, setHazardousWaterLevels] = useState([]); // State for hazardous water levels
+  const heatmapLayerRef = useRef(null); // Ref for the heatmap layer
 
   useEffect(() => {
     // Initialize the map
@@ -68,7 +69,8 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
     const philippineCities = [
       'Manila', 'Cebu', 'Davao', 'Cagayan de Oro', 'Zamboanga',
       'Baguio', 'Iloilo', 'Bacolod', 'General Santos', 'Legazpi',
-      'Puerto Princesa', 'Tacloban', 'Tuguegarao', 'Butuan', 'Dumaguete'
+      'Puerto Princesa', 'Tacloban', 'Tuguegarao', 'Butuan', 'Dumaguete',
+      'Tagaytay', 'Olongapo', 'Naga', 'Laoag', 'Cotabato',
     ];
 
     // Create canvas for fog effects
@@ -146,6 +148,35 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
       return ['#0000FF', '#FFFF00', '#FF0000'];
     };
 
+    // Heatmap animation function
+    let opacityIncreasing = true;
+    let radiusIncreasing = true;
+
+    const animateHeatmap = (heatmapLayer) => {
+      let opacity = 0.7;
+      let radius = 25;
+
+      const animate = () => {
+        // Adjust opacity
+        opacity += opacityIncreasing ? 0.01 : -0.01;
+        if (opacity >= 1) opacityIncreasing = false;
+        if (opacity <= 0.5) opacityIncreasing = true;
+
+        // Adjust radius
+        radius += radiusIncreasing ? 0.2 : -0.2;
+        if (radius >= 30) radiusIncreasing = false;
+        if (radius <= 20) radiusIncreasing = true;
+
+        // Apply changes
+        heatmapLayer.setOpacity(opacity);
+        heatmapLayer.setRadius(radius);
+
+        requestAnimationFrame(animate);
+      };
+
+      animate();
+    };
+
     // Fetch weather data
     const fetchWeatherData = async () => {
       const apiKey = 'b05f228625b60990de863e6193f998af';
@@ -209,6 +240,9 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
         opacity: 0.7,
       });
 
+      // Store the heatmap layer in the ref
+      heatmapLayerRef.current = heatmapLayer;
+
       // Remove old heatmap layer
       map.getLayers().forEach((layer) => {
         if (layer instanceof HeatmapLayer) {
@@ -217,6 +251,9 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
       });
 
       map.addLayer(heatmapLayer);
+
+      // Start heatmap animation
+      animateHeatmap(heatmapLayer);
 
       // Add overlays for city data
       weatherData.forEach((data) => {
@@ -267,25 +304,6 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
 
   return (
     <div ref={mapRef} style={{ ...style, position: 'relative' }}>
-      {/* Message Icon */}
-      {/* <div
-        style={{
-          position: 'absolute',
-          bottom: '20px',
-          right: '20px',
-          zIndex: 1000,
-          backgroundColor: 'rgba(255, 255, 255, 0.8)',
-          borderRadius: '50%',
-          padding: '10px',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-        onClick={() => window.location.href = '/chatbot'}
-      >
-        <IconMessage size={24} color="#000" />
-      </div> */}
 
       {/* Average Temperature and Water Level Overlay */}
       <div
