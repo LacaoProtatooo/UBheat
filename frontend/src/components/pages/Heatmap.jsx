@@ -70,7 +70,8 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
     const philippineCities = [
       'Manila', 'Cebu', 'Davao', 'Cagayan de Oro', 'Zamboanga',
       'Baguio', 'Iloilo', 'Bacolod', 'General Santos', 'Legazpi',
-      'Puerto Princesa', 'Tacloban', 'Tuguegarao', 'Butuan', 'Dumaguete'
+      'Puerto Princesa', 'Tacloban', 'Tuguegarao', 'Butuan', 'Dumaguete',
+      'Tagaytay', 'Olongapo', 'Naga', 'Laoag', 'Cotabato',
     ];
 
     // Create canvas for fog effects
@@ -146,6 +147,35 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
         return ['#0000FF', '#00FFFF', '#FFFF00', '#FF0000', '#8B0000'];
       }
       return ['#0000FF', '#FFFF00', '#FF0000'];
+    };
+
+    // Heatmap animation function
+    let opacityIncreasing = true;
+    let radiusIncreasing = true;
+
+    const animateHeatmap = (heatmapLayer) => {
+      let opacity = 0.7;
+      let radius = 25;
+
+      const animate = () => {
+        // Adjust opacity
+        opacity += opacityIncreasing ? 0.01 : -0.01;
+        if (opacity >= 1) opacityIncreasing = false;
+        if (opacity <= 0.5) opacityIncreasing = true;
+
+        // Adjust radius
+        radius += radiusIncreasing ? 0.2 : -0.2;
+        if (radius >= 30) radiusIncreasing = false;
+        if (radius <= 20) radiusIncreasing = true;
+
+        // Apply changes
+        heatmapLayer.setOpacity(opacity);
+        heatmapLayer.setRadius(radius);
+
+        requestAnimationFrame(animate);
+      };
+
+      animate();
     };
 
     // Fetch weather data
