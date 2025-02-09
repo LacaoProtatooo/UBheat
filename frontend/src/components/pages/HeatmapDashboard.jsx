@@ -38,6 +38,7 @@ const HeatmapDashboard = () => {
   const [news, setNews] = useState([]); // State for storing news articles
   const [city, setCity] = useState("");
   const [cityWeather, setCityWeather] = useState(null);
+  const [philippineCitiesWeather, setPhilippineCitiesWeather] = useState([]);
   const API_KEY = "b05f228625b60990de863e6193f998af"; // OpenWeather API key
   const NEWS_API_KEY = "934c0580d10f4bb393731591d07b3515"; // Replace with your NewsAPI key
 
@@ -114,9 +115,36 @@ const HeatmapDashboard = () => {
     }
   };
 
+  // Fetch weather data for multiple cities in the Philippines
+  const fetchPhilippineCitiesWeather = async () => {
+    const cities = [
+      'Manila', 'Cebu', 'Davao', 'Cagayan de Oro', 'Zamboanga',
+      'Baguio', 'Iloilo', 'Bacolod', 'General Santos', 'Legazpi',
+      'Puerto Princesa', 'Tacloban', 'Tuguegarao', 'Butuan', 'Dumaguete'
+    ];
+    const weatherData = [];
+
+    for (const city of cities) {
+      try {
+        const response = await axios.get(
+          `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${API_KEY}`
+        );
+        weatherData.push({
+          city: city,
+          temperature: response.data.main.temp,
+        });
+      } catch (error) {
+        console.error(`Error fetching data for ${city}:`, error);
+      }
+    }
+
+    setPhilippineCitiesWeather(weatherData);
+  };
+
   useEffect(() => {
     fetchWeatherData();
     fetchWeatherNews();
+    fetchPhilippineCitiesWeather();
 
     // Refresh news every 24 hours
     const newsInterval = setInterval(fetchWeatherNews, 24 * 60 * 60 * 1000);
@@ -285,6 +313,19 @@ const HeatmapDashboard = () => {
                 <p>Condition: {cityWeather.weather[0].description}</p>
               </div>
             )}
+          </div>
+
+          {/* Philippine Cities Temperatures */}
+          <div className="mt-4">
+            <h4 className="text-lg font-semibold mb-2">Philippine Cities Temperatures</h4>
+            <div className="space-y-2">
+              {philippineCitiesWeather.map((cityWeather, index) => (
+                <div key={index} className="p-2 border border-gray-200 rounded-md">
+                  <p className="font-medium">{cityWeather.city}</p>
+                  <p>Temperature: {cityWeather.temperature}°C</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
