@@ -1,5 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { TextGenerateEffect } from "../ui/text-generate"; // Import the TextGenerateEffect component
+
+// Function to format the chatbot response text
+const formatResponseText = (text) => {
+  return text
+    .replace(/\*\*/g, '') 
+    .replace(/(\d+\.\s)/g, '\n$1'); 
+};
 
 export const ChatbotComponent = () => {
   const [messages, setMessages] = useState([]);
@@ -15,7 +23,7 @@ export const ChatbotComponent = () => {
 
     try {
       const response = await axios.post(API_URL, { message: input });
-      const botMessage = { sender: "bot", text: response.data.reply };
+      const botMessage = { sender: "bot", text: formatResponseText(response.data.reply) };
       setMessages((prevMessages) => [...prevMessages, botMessage]);
     } catch (error) {
       console.error("Error sending message:", error);
@@ -37,7 +45,12 @@ export const ChatbotComponent = () => {
                 : "bg-gray-200 text-left"
             }`}
           >
-            <strong>{msg.sender === "user" ? "You" : "Bot"}:</strong> {msg.text}
+            <strong>{msg.sender === "user" ? "You" : "Bot"}:</strong>{" "}
+            {msg.sender === "bot" ? (
+              <TextGenerateEffect words={msg.text} className="inline-block" />
+            ) : (
+              msg.text
+            )}
           </div>
         ))}
       </div>

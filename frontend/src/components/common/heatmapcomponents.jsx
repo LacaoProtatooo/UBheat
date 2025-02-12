@@ -299,21 +299,23 @@ const getGradient = (minTemp, maxTemp) => {
 
 // Helper function for heatmap animation
 const animateHeatmap = (heatmapLayer) => {
+  let opacity = 0.7;
+  let radius = 25;
   let opacityIncreasing = true;
   let radiusIncreasing = true;
 
   const animate = () => {
-    let opacity = 0.7;
-    let radius = 25;
-
+    // Adjust opacity
     opacity += opacityIncreasing ? 0.01 : -0.01;
     if (opacity >= 1) opacityIncreasing = false;
     if (opacity <= 0.5) opacityIncreasing = true;
 
+    // Adjust radius
     radius += radiusIncreasing ? 0.2 : -0.2;
     if (radius >= 30) radiusIncreasing = false;
     if (radius <= 20) radiusIncreasing = true;
 
+    // Apply changes
     heatmapLayer.setOpacity(opacity);
     heatmapLayer.setRadius(radius);
 

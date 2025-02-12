@@ -108,8 +108,8 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
       {mapInstance && (
         <>
           <Clock mapRef={mapRef} />
-          <SmokeEffect mapRef={mapRef} weatherData={weatherData} /> {/* Pass weatherData */}
-          <HeatmapComponent map={mapInstance} weatherData={weatherData} /> {/* Pass weatherData */}
+          <SmokeEffect mapRef={mapRef} weatherData={weatherData} />
+          <HeatmapComponent map={mapInstance} weatherData={weatherData} /> 
         </>
       )}
       <SearchComponent setSearchCity={setSearchCity} fetchSearchCityWeather={fetchSearchCityWeather} />
