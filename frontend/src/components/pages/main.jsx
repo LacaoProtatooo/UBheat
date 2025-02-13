@@ -42,13 +42,19 @@ const Main = () => {
         <div className="space-y-2 overflow-y-auto text-xs" style={{ maxHeight: '100%' }}>
           <span className="text-xs">AI-powered analytics for CO2 emissions.</span>
           <SliderSizes onEmissionRateChange={handleEmissionRateChange} />
-          <CO2EmissionsModal
-            emissionRate={emissionRate}
-            baseMtCO2={baseMtCO2}
-            result={result}
-            handleEmissionRateChange={handleEmissionRateChange}
-            handleBaseMtCO2Change={handleBaseMtCO2Change}
-          />
+          <div className="flex items-center space-x-2">
+            <CO2EmissionsModal
+              emissionRate={emissionRate}
+              baseMtCO2={baseMtCO2}
+              result={result}
+              handleEmissionRateChange={handleEmissionRateChange}
+              handleBaseMtCO2Change={handleBaseMtCO2Change}
+            />
+            <div className="text-sm">
+              <p>Base MtCO₂: {baseMtCO2}</p>
+              <p>Result MtCO₂: {result}</p>
+            </div>
+          </div>
         </div>
       ),
       header: <SkeletonOne />,
