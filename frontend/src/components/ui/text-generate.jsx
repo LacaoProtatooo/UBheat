@@ -2,6 +2,14 @@ import { useEffect } from "react";
 import { motion, stagger, useAnimate } from "framer-motion";
 import { cn } from "../../utils/cn";
 
+// Text formatting function
+const formatResponseText = (text) => {
+  return text
+    .replace(/\*\*/g, '') // Remove bold markers
+    .replace(/:\s*/g, ':\n\n') // Add newline after colon
+    .replace(/(\d+\.\s)/g, '\n\n\t$1'); // Add newlines before each numbered item
+};
+
 export const TextGenerateEffect = ({
   words,
   className,
@@ -9,7 +17,10 @@ export const TextGenerateEffect = ({
   duration = 0.1,
 }) => {
   const [scope, animate] = useAnimate();
-  let wordsArray = words.split(" ");
+
+  // Format the text before splitting into words
+  const formattedText = formatResponseText(words);
+  let wordsArray = formattedText.split(" ");
 
   useEffect(() => {
     animate(

@@ -13,7 +13,7 @@ export const BentoGridItem = ({ title, description, header, className, icon }) =
           {icon}
           <h3 className="text-lg font-semibold">{title}</h3>
         </div>
-        {/* Add margin for spacing and remove overflow-hidden */}
+        {/* Remove overflow-hidden */}
         <div className="text-sm text-gray-500 mb-4">{description}</div>
         <div className="mt-4">{header}</div>
       </div>

@@ -1,18 +1,29 @@
-import React from "react";
+import React, { useState } from "react";
 import { BentoGrid, BentoGridItem } from "../ui/bento-grid";
 import { IconClipboardCopy, IconFileBroken } from "@tabler/icons-react";
 import { SkeletonOne } from "../ui/bento-grid";
-
 import Heatmap from "./Heatmap";
 import FloatingDockUBheat from "../common/floatingdock";
+import SliderSizes from "../ui/custom-slider";
+import TextField from '@mui/material/TextField';
+import { Modal, ModalBody, ModalContent, ModalTrigger } from "../ui/animated-modal";
+import { useCO2Emissions, CO2EmissionsModal } from "../common/mainlayoutcomponents";
 
 const Main = () => {
+  const {
+    emissionRate,
+    baseMtCO2,
+    result,
+    handleEmissionRateChange,
+    handleBaseMtCO2Change,
+  } = useCO2Emissions();
+
   const items = [
     {
       title: "",
       description: (
-        <div className="mb-4 overflow-hidden"> 
-            <Heatmap />
+        <div className="mb-4 overflow-hidden">
+          <Heatmap />
         </div>
       ),
       header: <SkeletonOne />,
@@ -27,7 +38,19 @@ const Main = () => {
     },
     {
       title: "CO2 Emission Rate",
-      description: <span className="text-sm">AI-powered analytics for CO2 emissions.</span>,
+      description: (
+        <div className="space-y-2 overflow-y-auto text-xs" style={{ maxHeight: '100%' }}>
+          <span className="text-xs">AI-powered analytics for CO2 emissions.</span>
+          <SliderSizes onEmissionRateChange={handleEmissionRateChange} />
+          <CO2EmissionsModal
+            emissionRate={emissionRate}
+            baseMtCO2={baseMtCO2}
+            result={result}
+            handleEmissionRateChange={handleEmissionRateChange}
+            handleBaseMtCO2Change={handleBaseMtCO2Change}
+          />
+        </div>
+      ),
       header: <SkeletonOne />,
       className: "md:col-span-1 md:row-span-1",
       icon: <IconFileBroken className="h-4 w-4 text-neutral-500" />,
@@ -65,7 +88,6 @@ const Main = () => {
 
       <FloatingDockUBheat />
     </div>
-
   );
 };
 

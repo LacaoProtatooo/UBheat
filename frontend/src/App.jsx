@@ -16,22 +16,22 @@ import HeatmapDashboard from './components/pages/HeatmapDashboard';
 
 function App() {
   return (
-    <Router
-        future={{
-          v7_startTransition: true, // Enable React.startTransition for smoother updates
-          v7_relativeSplatPath: true, // Enable updated relative splat path resolution
-        }}
-    >
-      <ModalProvider>
-      <Routes>
-        <Route path="/about" element={<About />} />
-        <Route path="/chatbot" element={<Chatbot />} />
-        <Route path="/heatmap" element={<Heatmap />} />
-        <Route path="/dashboard" element={<HeatmapDashboard />} />
-        <Route path="/" element={<Main />} />
-      </Routes>
-      </ModalProvider>
-    </Router>
+    <ModalProvider>
+      <Router
+          future={{
+            v7_startTransition: true, // Enable React.startTransition for smoother updates
+            v7_relativeSplatPath: true, // Enable updated relative splat path resolution
+          }}
+      >
+        <Routes>
+          <Route path="/about" element={<About />} />
+          <Route path="/chatbot" element={<Chatbot />} />
+          <Route path="/heatmap" element={<Heatmap />} />
+          <Route path="/dashboard" element={<HeatmapDashboard />} />
+          <Route path="/" element={<Main />} />
+        </Routes>
+      </Router>
+    </ModalProvider>
   );
 }
 
