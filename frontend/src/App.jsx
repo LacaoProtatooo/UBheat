@@ -14,6 +14,7 @@ import Heatmap from './components/pages/Heatmap';
 import Main from './components/pages/main';
 import HeatmapDashboard from './components/pages/HeatmapDashboard';
 import Signup from './components/pages/signup';
+import Login from './components/pages/login';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
           <Route path="/heatmap" element={<Heatmap />} />
           <Route path="/dashboard" element={<HeatmapDashboard />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/" element={<Main />} />
         </Routes>
       </Router>
