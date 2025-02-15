@@ -1,11 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { BentoGrid, BentoGridItem } from "../ui/bento-grid";
 import { IconClipboardCopy, IconFileBroken } from "@tabler/icons-react";
 import { SkeletonOne } from "../ui/bento-grid";
 import Heatmap from "./Heatmap";
 import FloatingDockUBheat from "../common/floatingdock";
 import SliderSizes from "../ui/custom-slider";
-import { useCO2Emissions, CO2EmissionsModal, YearSelectSlider, GoodEffectsTextArea, BadEffectsTextArea } from "../common/mainlayoutcomponents";
+import { useCO2Emissions, CO2EmissionsModal, YearSelectSlider } from "../common/mainlayoutcomponents";
+import { GoodEffectsTextField } from "../ui/good-effects-textfield"; // Import the new component
+import { BadEffectsTextField } from "../ui/bad-effects-textfield"; // Import the new component
 
 const Main = () => {
   const {
@@ -20,17 +23,32 @@ const Main = () => {
   const [goodEffects, setGoodEffects] = useState("");
   const [badEffects, setBadEffects] = useState("");
 
+  const fetchChatbotResponse = async (year) => {
+    try {
+      const response = await axios.post("api/chat", { message: `Good effects in the Philippines for the year ${year}` });
+      const botMessage = response.data.reply;
+      setGoodEffects(botMessage);
+    } catch (error) {
+      console.error("Error fetching chatbot response:", error);
+    }
+  };
+
+  const fetchBadEffectsResponse = async (year) => {
+    try {
+      const response = await axios.post("api/chat", { message: `Bad effects in the Philippines for the year ${year}` });
+      const botMessage = response.data.reply;
+      setBadEffects(botMessage);
+    } catch (error) {
+      console.error("Error fetching chatbot response:", error);
+    }
+  };
+
   const handleYearChange = (newYear) => {
     setSelectedYear(newYear);
-    // Additional logic for year change can be added here
-  };
-
-  const handleGoodEffectsChange = (event) => {
-    setGoodEffects(event.target.value);
-  };
-
-  const handleBadEffectsChange = (event) => {
-    setBadEffects(event.target.value);
+    setGoodEffects(""); // Clear the text box
+    setBadEffects(""); // Clear the text box
+    fetchChatbotResponse(newYear);
+    fetchBadEffectsResponse(newYear);
   };
 
   const items = [
@@ -86,7 +104,13 @@ const Main = () => {
       title: "Good Effects",
       description: (
         <div className="text-sm h-full">
-          <GoodEffectsTextArea value={goodEffects} onChange={handleGoodEffectsChange} />
+          <GoodEffectsTextField
+            text={goodEffects}
+            speed={5} // Adjust typing speed
+            label="Positive Environmental Impacts"
+            variant="outlined"
+            fullWidth
+          />
         </div>
       ),
       header: <SkeletonOne />,
@@ -97,7 +121,13 @@ const Main = () => {
       title: "Bad Effects",
       description: (
         <div className="text-sm h-full">
-          <BadEffectsTextArea value={badEffects} onChange={handleBadEffectsChange} />
+          <BadEffectsTextField
+            text={badEffects}
+            speed={5} // Adjust typing speed
+            label="Negative Environmental Impacts"
+            variant="outlined"
+            fullWidth
+          />
         </div>
       ),
       header: <SkeletonOne />,

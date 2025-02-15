@@ -107,7 +107,6 @@ export const GoodEffectsTextArea = ({ value }) => (
     variant="outlined"
     multiline // Allow multiple lines
     rows={10} 
-    maxRows={10}
     sx={{
       width: '100%',
       mt: 2,
@@ -128,7 +127,6 @@ export const BadEffectsTextArea = ({ value }) => (
     variant="outlined"
     multiline 
     rows={10}
-    maxRows={10} 
     sx={{
       width: '100%',
       mt: 2,
