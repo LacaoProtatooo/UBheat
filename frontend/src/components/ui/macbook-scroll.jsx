@@ -59,7 +59,8 @@ export const MacbookScroll = ({ src, showGradient, title, badge }) => {
           translateY: textTransform,
           opacity: textOpacity,
         }}
-        className="dark:text-white text-neutral-800 text-3xl font-bold mb-20 text-center"
+        className="text-white text-3xl font-bold mb-20 text-center"
+
       >
         {title || (
           <span>
@@ -132,7 +133,7 @@ export const Lid = ({ scaleX, scaleY, rotate, translate, src }) => {
       >
         <div className="absolute inset-0 bg-[#272729] rounded-lg" />
         <img
-          src="https://i.pinimg.com/originals/02/fd/b7/02fdb7fadcdb4c24bd910626a0b631d9.jpg"
+          src="https://i.pinimg.com/736x/c3/b3/9f/c3b39f17f5a01dcd99f49fe2955829c6.jpg"
           alt="aceternity logo"
           className="object-cover object-left-top absolute rounded-lg inset-0 h-full w-full"
         />

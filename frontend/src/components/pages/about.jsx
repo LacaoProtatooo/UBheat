@@ -2,6 +2,7 @@ import React, { Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { TextGenerateEffect } from '../ui/text-generate'; // Import the TextGenerateEffect component
+import { MacbookScroll } from '../ui/macbook-scroll'; // Import the MacbookScroll component
 
 const World = React.lazy(() => import('../ui/globe').then((m) => ({ default: m.World, ssr: false })));
 const Vortex = React.lazy(() => import('../ui/vortex').then((m) => ({ default: m.Vortex, ssr: false })));
@@ -100,6 +101,16 @@ function About() {
                 <TextGenerateEffect className="text-neutral-200 mb-4" words="UBheat is more than just a project for us—it's a testament to the power of teamwork, innovation, and perseverance. We hope that our platform will inspire others to explore the possibilities of data and technology." />
               </div>
             </div>
+          </div>
+
+          {/* MACBOOK SCROLL SECTION */}
+          <div className="py-20">
+            <MacbookScroll
+              src="https://assets.pinterest.com/ext/embed.html?id=1010706341372473758"
+              showGradient={true}
+              title="Explore UBheat on Laptop"
+              badge={<span className="text-white">New</span>}
+            />
           </div>
 
           {/* FOOTER */}
