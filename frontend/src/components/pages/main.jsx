@@ -5,7 +5,7 @@ import { SkeletonOne } from "../ui/bento-grid";
 import Heatmap from "./Heatmap";
 import FloatingDockUBheat from "../common/floatingdock";
 import SliderSizes from "../ui/custom-slider";
-import { useCO2Emissions, CO2EmissionsModal, YearSelectSlider } from "../common/mainlayoutcomponents";
+import { useCO2Emissions, CO2EmissionsModal, YearSelectSlider, GoodEffectsTextArea, BadEffectsTextArea } from "../common/mainlayoutcomponents";
 
 const Main = () => {
   const {
@@ -17,10 +17,20 @@ const Main = () => {
   } = useCO2Emissions();
 
   const [selectedYear, setSelectedYear] = useState(2022); // State for selected year
+  const [goodEffects, setGoodEffects] = useState("");
+  const [badEffects, setBadEffects] = useState("");
 
   const handleYearChange = (newYear) => {
     setSelectedYear(newYear);
     // Additional logic for year change can be added here
+  };
+
+  const handleGoodEffectsChange = (event) => {
+    setGoodEffects(event.target.value);
+  };
+
+  const handleBadEffectsChange = (event) => {
+    setBadEffects(event.target.value);
   };
 
   const items = [
@@ -74,23 +84,31 @@ const Main = () => {
     },
     {
       title: "Good Effects",
-      description: <span className="text-sm">Positive environmental impacts.</span>,
+      description: (
+        <div className="text-sm h-full">
+          <GoodEffectsTextArea value={goodEffects} onChange={handleGoodEffectsChange} />
+        </div>
+      ),
       header: <SkeletonOne />,
-      className: "md:col-span-2 md:row-span-2",
+      className: "md:col-span-2 md:row-span-2 p-4 overflow-hidden",
       icon: <IconFileBroken className="h-4 w-4 text-neutral-500" />,
     },
     {
       title: "Bad Effects",
-      description: <span className="text-sm">Negative environmental effects.</span>,
+      description: (
+        <div className="text-sm h-full">
+          <BadEffectsTextArea value={badEffects} onChange={handleBadEffectsChange} />
+        </div>
+      ),
       header: <SkeletonOne />,
-      className: "md:col-span-2 md:row-span-2",
+      className: "md:col-span-2 md:row-span-2 p-4 overflow-hidden",
       icon: <IconFileBroken className="h-4 w-4 text-neutral-500" />,
     },
   ];
 
   return (
     <div className="w-screen h-screen flex flex-col items-center p-4">
-      <BentoGrid className="md:grid-cols-5 md:grid-rows-5 gap-4 overflow-hidden w-full">
+      <BentoGrid className="md:grid-cols-5 md:grid-rows-5 gap-4 overflow-hidden w-full h-full">
         {items.map((item, i) => (
           <BentoGridItem
             key={i}

@@ -96,3 +96,45 @@ export const YearSelectSlider = ({ onYearChange }) => {
     </Box>
   );
 };
+
+export const GoodEffectsTextArea = ({ value }) => (
+  <TextField
+    label="Positive Environmental Impacts"
+    value={value}
+    InputProps={{
+      readOnly: true, 
+    }}
+    variant="outlined"
+    multiline // Allow multiple lines
+    rows={10} 
+    maxRows={10}
+    sx={{
+      width: '100%',
+      mt: 2,
+      '& .MuiOutlinedInput-root': {
+        overflowY: 'auto', // Enable vertical scrolling
+      },
+    }}
+  />
+);
+
+export const BadEffectsTextArea = ({ value }) => (
+  <TextField
+    label="Negative Environmental Effects"
+    value={value}
+    InputProps={{
+      readOnly: true, 
+    }}
+    variant="outlined"
+    multiline 
+    rows={10}
+    maxRows={10} 
+    sx={{
+      width: '100%',
+      mt: 2,
+      '& .MuiOutlinedInput-root': {
+        overflowY: 'auto', // Enable vertical scrolling
+      },
+    }}
+  />
+);
