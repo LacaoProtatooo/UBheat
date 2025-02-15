@@ -5,9 +5,7 @@ import { SkeletonOne } from "../ui/bento-grid";
 import Heatmap from "./Heatmap";
 import FloatingDockUBheat from "../common/floatingdock";
 import SliderSizes from "../ui/custom-slider";
-import TextField from '@mui/material/TextField';
-import { Modal, ModalBody, ModalContent, ModalTrigger } from "../ui/animated-modal";
-import { useCO2Emissions, CO2EmissionsModal } from "../common/mainlayoutcomponents";
+import { useCO2Emissions, CO2EmissionsModal, YearSelectSlider } from "../common/mainlayoutcomponents";
 
 const Main = () => {
   const {
@@ -17,6 +15,13 @@ const Main = () => {
     handleEmissionRateChange,
     handleBaseMtCO2Change,
   } = useCO2Emissions();
+
+  const [selectedYear, setSelectedYear] = useState(2022); // State for selected year
+
+  const handleYearChange = (newYear) => {
+    setSelectedYear(newYear);
+    // Additional logic for year change can be added here
+  };
 
   const items = [
     {
@@ -31,7 +36,13 @@ const Main = () => {
     },
     {
       title: "Year Select",
-      description: <span className="text-sm">Select a year for analysis.</span>,
+      description: (
+        <div className="space-y-2 overflow-y-auto text-xs p-3" style={{ maxHeight: '100%' }}>
+          <span className="text-xs">Select a year for analysis.</span>
+          <YearSelectSlider onYearChange={handleYearChange} />
+          <span className="text-sm">Selected Year: {selectedYear}</span>
+        </div>
+      ),
       header: <SkeletonOne />,
       className: "md:col-span-1 md:row-span-1",
       icon: <IconFileBroken className="h-4 w-4 text-neutral-500" />,

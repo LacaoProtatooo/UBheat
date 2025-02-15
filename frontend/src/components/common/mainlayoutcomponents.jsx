@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import SliderSizes from "../ui/custom-slider";
 import TextField from '@mui/material/TextField';
 import MuiModal from "../ui/mui-modal";
+import Box from '@mui/material/Box';
+import Slider from '@mui/material/Slider';
 
 export const useCO2Emissions = () => {
   const [emissionRate, setEmissionRate] = useState(70); // State for emission rate
@@ -40,7 +41,7 @@ export const CO2EmissionsModal = ({ emissionRate, baseMtCO2, result, handleEmiss
 
   return (
     <>
-      <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md cursor-pointer" onClick={handleOpen}>
+      <button className="mt-3 px-4 py-2 bg-blue-500 text-white rounded-md cursor-pointer" onClick={handleOpen}>
         Open Details
       </button>
       <MuiModal
@@ -69,5 +70,29 @@ export const CO2EmissionsModal = ({ emissionRate, baseMtCO2, result, handleEmiss
         }
       />
     </>
+  );
+};
+
+export const YearSelectSlider = ({ onYearChange }) => {
+  const minYear = 2022;
+  const maxYear = 2030;
+
+  const handleYearChange = (event, newValue) => {
+    onYearChange(newValue); // Pass the selected year to the parent component
+  };
+
+  return (
+    <Box sx={{ width: "90%" }}>
+      <Slider
+        aria-label="Year Select"
+        defaultValue={minYear}
+        valueLabelDisplay="auto"
+        step={1}
+        marks
+        min={minYear}
+        max={maxYear}
+        onChange={handleYearChange}
+      />
+    </Box>
   );
 };
