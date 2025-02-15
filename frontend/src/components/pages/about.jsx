@@ -3,12 +3,19 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { TextGenerateEffect } from '../ui/text-generate'; // Import the TextGenerateEffect component
 import { MacbookScroll } from '../ui/macbook-scroll'; // Import the MacbookScroll component
+import { AnimatedTestimonials } from '../ui/animated-testimonial'; // Import the AnimatedTestimonials component
 
 const World = React.lazy(() => import('../ui/globe').then((m) => ({ default: m.World, ssr: false })));
 const Vortex = React.lazy(() => import('../ui/vortex').then((m) => ({ default: m.Vortex, ssr: false })));
 const TracingBeam = React.lazy(() => import('../ui/tracing-beam').then((m) => ({ default: m.TracingBeam, ssr: false })));
 
 function About() {
+  const testimonials = [
+    { src: 'https://i.pinimg.com/736x/b2/ae/40/b2ae40091e18730921c79241f25e7cff.jpg', name: 'Testimonial 1' },
+    { src: 'https://i.pinimg.com/236x/09/5e/0c/095e0c548ac5c72bcd1dabcb2acfcaef.jpg', name: 'Testimonial 2' },
+    { src: 'https://i.pinimg.com/474x/35/13/0d/35130d0926050c336efb011e637ba4ca.jpg', name: 'Testimonial 3' },
+  ];
+
   return (
     <div className='bg-zinc-900 w-full'>
       <Suspense fallback={<div>Loading tracing beam...</div>}>
@@ -103,16 +110,25 @@ function About() {
             </div>
           </div>
 
-          {/* MACBOOK SCROLL SECTION */}
+         
+
+          {/* ANIMATED TESTIMONIALS SECTION */}
           <div className="py-20">
-            <MacbookScroll
-              src="https://assets.pinterest.com/ext/embed.html?id=1010706341372473758"
-              showGradient={true}
-              title="Explore UBheat on Laptop"
-              badge={<span className="text-white">New</span>}
+            <AnimatedTestimonials
+              testimonials={testimonials}
+              autoplay={true}
             />
           </div>
 
+ {/* MACBOOK SCROLL SECTION */}
+ <div className="py-20">
+            <MacbookScroll
+              src="https://your-new-image-url.jpg" // Update this URL to your desired image
+              showGradient={true}
+              title="Explore UBheat on Macbook"
+              badge={<span className="text-white">New</span>}
+            />
+          </div>
           {/* FOOTER */}
           {/* <ResponsiveFooter /> */}
         </TracingBeam>
