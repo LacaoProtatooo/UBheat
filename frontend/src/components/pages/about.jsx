@@ -1,6 +1,7 @@
 import React, { Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { TextGenerateEffect } from '../ui/text-generate'; // Import the TextGenerateEffect component
 
 const World = React.lazy(() => import('../ui/globe').then((m) => ({ default: m.World, ssr: false })));
 const Vortex = React.lazy(() => import('../ui/vortex').then((m) => ({ default: m.Vortex, ssr: false })));
@@ -94,15 +95,9 @@ function About() {
               {/* History of UBheat */}
               <div className="max-w-2xl mx-auto p-4">
                 <h2 className="text-3xl font-bold text-white mb-4">Our Story</h2>
-                <p className="text-neutral-200 mb-4">
-                  We are a group of students from TUP Taguig who are passionate about leveraging technology to solve real-world problems. UBheat was born out of our desire to create a tool that could help people visualize and understand data in a more intuitive way.
-                </p>
-                <p className="text-neutral-200 mb-4">
-                  Our journey began with a simple idea: to build a heatmap that could be used by everyone, regardless of their technical expertise. We wanted to make data visualization accessible, interactive, and impactful. After months of hard work, collaboration, and learning, we are proud to present UBheat to the world.
-                </p>
-                <p className="text-neutral-200 mb-4">
-                  UBheat is more than just a project for us—it's a testament to the power of teamwork, innovation, and perseverance. We hope that our platform will inspire others to explore the possibilities of data and technology.
-                </p>
+                <TextGenerateEffect className="text-neutral-200 mb-4" words="We are a group of students from TUP Taguig who are passionate about leveraging technology to solve real-world problems. UBheat was born out of our desire to create a tool that could help people visualize and understand data in a more intuitive way." />
+                <TextGenerateEffect className="text-neutral-200 mb-4" words="Our journey began with a simple idea: to build a heatmap that could be used by everyone, regardless of their technical expertise. We wanted to make data visualization accessible, interactive, and impactful. After months of hard work, collaboration, and learning, we are proud to present UBheat to the world." />
+                <TextGenerateEffect className="text-neutral-200 mb-4" words="UBheat is more than just a project for us—it's a testament to the power of teamwork, innovation, and perseverance. We hope that our platform will inspire others to explore the possibilities of data and technology." />
               </div>
             </div>
           </div>

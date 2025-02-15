@@ -1,6 +1,6 @@
-import { useEffect } from "react";
-import { motion, stagger, useAnimate } from "framer-motion";
-import { cn } from "../../utils/cn";
+import React, { useEffect, useRef } from 'react';
+import { motion, stagger, useAnimate } from 'framer-motion';
+import { cn } from '../../utils/cn';
 
 // Text formatting function
 const formatResponseText = (text) => {
@@ -17,23 +17,42 @@ export const TextGenerateEffect = ({
   duration = 0.1,
 }) => {
   const [scope, animate] = useAnimate();
+  const ref = useRef(null);
 
   // Format the text before splitting into words
   const formattedText = formatResponseText(words);
   let wordsArray = formattedText.split(" ");
 
   useEffect(() => {
-    animate(
-      "span",
-      {
-        opacity: 1,
-        filter: filter ? "blur(0px)" : "none",
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          animate(
+            "span",
+            {
+              opacity: 1,
+              filter: filter ? "blur(0px)" : "none",
+            },
+            {
+              duration: duration ? duration : 1,
+              delay: stagger(0.05),
+            }
+          );
+          observer.disconnect();
+        }
       },
-      {
-        duration: duration ? duration : 1,
-        delay: stagger(0.05),
-      }
+      { threshold: 0.1 }
     );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => {
+      if (ref.current) {
+        observer.unobserve(ref.current);
+      }
+    };
   }, [scope.current]);
 
   const renderWords = () => {
@@ -43,7 +62,7 @@ export const TextGenerateEffect = ({
           return (
             <motion.span
               key={word + idx}
-              className="dark:text-white text-black opacity-0"
+              className="text-white opacity-0"
               style={{
                 filter: filter ? "blur(10px)" : "none",
               }}
@@ -57,9 +76,9 @@ export const TextGenerateEffect = ({
   };
 
   return (
-    <div className={cn("font-bold", className)}>
+    <div className={cn("font-bold", className)} ref={ref}>
       <div className="mt-4">
-        <div className="dark:text-white text-black text-sm leading-snug tracking-wide">
+        <div className="text-white text-sm leading-snug tracking-wide">
           {renderWords()}
         </div>
       </div>
