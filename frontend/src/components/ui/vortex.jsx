@@ -22,7 +22,7 @@ export const Vortex = (props) => {
   const xOff = 0.00125;
   const yOff = 0.00125;
   const zOff = 0.0005;
-  const backgroundColor = "rgba(205, 111, 200, 0.1)";
+  const backgroundColor = props.backgroundColor || "#000000";
   let tick = 0;
   const noise3D = createNoise3D();
   let particleProps = new Float32Array(particlePropsLength);
@@ -31,8 +31,8 @@ export const Vortex = (props) => {
   const HALF_PI = 0.5 * Math.PI;
   const TAU = 2 * Math.PI;
   const TO_RAD = Math.PI / 180;
-  const rand = (n) => n * Math.random();
-  const randRange = (n) => n - rand(2 * n);
+  const rand = n => n * Math.random();
+  const randRange = n => n - rand(2 * n);
   const fadeInOut = (t, m) => {
     let hm = 0.5 * m;
     return Math.abs(((t + hm) % m) - hm) / hm;
@@ -55,6 +55,7 @@ export const Vortex = (props) => {
 
   const initParticles = () => {
     tick = 0;
+    // simplex = new SimplexNoise();
     particleProps = new Float32Array(particlePropsLength);
 
     for (let i = 0; i < particlePropsLength; i += particlePropCount) {
@@ -142,12 +143,21 @@ export const Vortex = (props) => {
     (checkBounds(x, y, canvas) || life > ttl) && initParticle(i);
   };
 
-  const drawParticle = (x, y, x2, y2, life, ttl, radius, hue, ctx) => {
+  const drawParticle = (
+    x,
+    y,
+    x2,
+    y2,
+    life,
+    ttl,
+    radius,
+    hue,
+    ctx
+  ) => {
     ctx.save();
     ctx.lineCap = "round";
     ctx.lineWidth = radius;
-    // ctx.strokeStyle = `hsla(${hue},100%,60%,${fadeInOut(life, ttl)})`;
-    ctx.strokeStyle = `hsla(${hue}, 100%, 40%, ${fadeInOut(life, ttl)})`; // Darker hue
+    ctx.strokeStyle = `hsla(${hue},100%,60%,${fadeInOut(life, ttl)})`;
     ctx.beginPath();
     ctx.moveTo(x, y);
     ctx.lineTo(x2, y2);
@@ -160,7 +170,10 @@ export const Vortex = (props) => {
     return x > canvas.width || x < 0 || y > canvas.height || y < 0;
   };
 
-  const resize = (canvas, ctx) => {
+  const resize = (
+    canvas,
+    ctx
+  ) => {
     const { innerWidth, innerHeight } = window;
 
     canvas.width = innerWidth;
@@ -170,7 +183,10 @@ export const Vortex = (props) => {
     center[1] = 0.5 * canvas.height;
   };
 
-  const renderGlow = (canvas, ctx) => {
+  const renderGlow = (
+    canvas,
+    ctx
+  ) => {
     ctx.save();
     ctx.filter = "blur(8px) brightness(200%)";
     ctx.globalCompositeOperation = "lighter";
@@ -184,7 +200,10 @@ export const Vortex = (props) => {
     ctx.restore();
   };
 
-  const renderToScreen = (canvas, ctx) => {
+  const renderToScreen = (
+    canvas,
+    ctx
+  ) => {
     ctx.save();
     ctx.globalCompositeOperation = "lighter";
     ctx.drawImage(canvas, 0, 0);
@@ -203,20 +222,17 @@ export const Vortex = (props) => {
   }, []);
 
   return (
-    <div className={cn("vortex-background relative h-full w-full", props.containerClassName)}>
+    (<div className={cn("relative h-full w-full", props.containerClassName)}>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         ref={containerRef}
-        className="absolute h-full w-full inset-0 z-0 flex items-center justify-center"
-      >
+        className="absolute h-full w-full inset-0 z-0 bg-transparent flex items-center justify-center">
         <canvas ref={canvasRef}></canvas>
       </motion.div>
       <div className={cn("relative z-10", props.className)}>
         {props.children}
       </div>
-    </div>
+    </div>)
   );
 };
-
-export default Vortex;
