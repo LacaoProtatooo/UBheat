@@ -15,7 +15,7 @@ import Main from './components/pages/main';
 import HeatmapDashboard from './components/pages/HeatmapDashboard';
 import Signup from './components/pages/signup';
 import Login from './components/pages/login';
-
+import ProfilePage from './components/pages/ProfilePage';
 function App() {
   return (
     <ModalProvider>
@@ -32,6 +32,7 @@ function App() {
           <Route path="/dashboard" element={<HeatmapDashboard />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/" element={<Main />} />
         </Routes>
       </Router>
