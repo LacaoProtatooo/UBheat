@@ -2,6 +2,7 @@ import React, { Suspense } from 'react';
 import { TracingBeam } from '../ui/tracing-beam';
 import { TypewriterEffect } from '../ui/typewriter-effect';
 import { Vortex } from '../ui/vortex';
+import { Card } from '../ui/card'; // Import the Card component
 
 const ProfilePage = () => {
   // Sample data for skills and team members
@@ -27,6 +28,13 @@ const ProfilePage = () => {
       designation: 'Backend Developer',
       image: 'https://example.com/jane-smith.jpg',
     },
+
+    {
+      id: 3,
+      name: 'Spider Smith',
+      designation: 'Fullstack Developer',
+      image: 'https://example.com/jane-smith.jpg',
+    },
   ];
 
   return (
@@ -45,9 +53,9 @@ const ProfilePage = () => {
           <TypewriterEffect
             words={[
               { text: 'Hello,', className: 'text-white' },
-              { text: "I'm", className: 'text-white' },
-              { text: 'John', className: 'text-blue-500' },
-              { text: 'Doe', className: 'text-blue-500' },
+              { text: "We're", className: 'text-white' },
+              { text: 'The', className: 'text-blue-500' },
+              { text: 'UBheat', className: 'text-blue-500' },
             ]}
             cursorClassName="bg-blue-500"
           />
@@ -104,16 +112,17 @@ const ProfilePage = () => {
       <div className="py-20">
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-8">Team</h2>
-          <div className="flex justify-center gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {teamMembers.map((member) => (
-              <div key={member.id} className="flex flex-col items-center">
+              <Card key={member.id} className="flex flex-col items-center p-4 bg-white dark:bg-zinc-800 rounded-lg shadow-md">
                 <img
-                  src={member.image}
+                  src='https://i.pinimg.com/736x/b2/ae/40/b2ae40091e18730921c79241f25e7cff.jpg'
                   alt={member.name}
-                  className="w-20 h-20 rounded-full object-cover"
+                  className="w-20 h-20 rounded-full object-cover mb-4"
                 />
-                <p className="mt-2 text-neutral-300">{member.designation}</p>
-              </div>
+                <h3 className="text-xl font-bold mb-2">{member.name}</h3>
+                <p className="text-neutral-600 dark:text-neutral-300">{member.designation}</p>
+              </Card>
             ))}
           </div>
         </div>
