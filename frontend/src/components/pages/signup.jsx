@@ -9,9 +9,33 @@ import {
 } from "@tabler/icons-react";
 
 export function SignupFormDemo() {
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted");
+    const { firstname, lastname, email, password } = e.target.elements;
+  
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: firstname.value,
+          lastName: lastname.value,
+          email: email.value,
+          password: password.value,
+        }),
+      });
+  
+      const data = await response.json();
+      if (response.ok) {
+        console.log('Signup successful:', data);
+        // Redirect to login or handle as needed
+        window.location.href = '/login'; // Redirect to login page
+      } else {
+        console.error('Signup failed:', data.msg);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
   return (
