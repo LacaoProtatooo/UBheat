@@ -16,6 +16,8 @@ import HeatmapDashboard from './components/pages/HeatmapDashboard';
 import Signup from './components/pages/signup';
 import Login from './components/pages/login';
 import ProfilePage from './components/pages/ProfilePage';
+import Prediction from './components/pages/prediction';
+
 function App() {
   return (
     <ModalProvider>
@@ -26,6 +28,7 @@ function App() {
           }}
       >
         <Routes>
+          <Route path="/prediction" element={<Prediction />} />
           <Route path="/about" element={<About />} />
           <Route path="/chatbot" element={<Chatbot />} />
           <Route path="/heatmap" element={<Heatmap />} />
