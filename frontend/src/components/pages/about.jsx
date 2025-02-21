@@ -1,183 +1,170 @@
 import React, { Suspense } from 'react';
-import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { TextGenerateEffect } from '../ui/text-generate'; // Import the TextGenerateEffect component
-import { MacbookScroll } from '../ui/macbook-scroll'; // Import the MacbookScroll component
-import { AnimatedTestimonials } from '../ui/animated-testimonial'; // Import the AnimatedTestimonials component
+import { TracingBeam } from '../ui/tracing-beam';
+import { TypewriterEffect } from '../ui/typewriter-effect';
+import { Vortex } from '../ui/vortex';
+import { Card } from '../ui/card'; // Import the Card component
+import { CardHenrich } from '../ui/CardHenrich'; // Import the CardHenrich component
+import { CardJuliana } from '../ui/CardJuliana'; // Import the CardJuliana component
 
-const World = React.lazy(() => import('../ui/globe').then((m) => ({ default: m.World, ssr: false })));
-const Vortex = React.lazy(() => import('../ui/vortex').then((m) => ({ default: m.Vortex, ssr: false })));
-const TracingBeam = React.lazy(() => import('../ui/tracing-beam').then((m) => ({ default: m.TracingBeam, ssr: false })));
+const ProfilePage = () => {
+  // Sample data for skills and team members
+  const skills = [
+    { title: 'React', description: 'Building interactive UIs with React.' },
+    { title: 'Node.js', description: 'Developing scalable backend systems.' },
+    { title: 'Tailwind CSS', description: 'Creating beautiful, responsive designs.' },
+    { title: 'Figma', description: 'Designing user-friendly interfaces.' },
+    { title: 'Python', description: 'Data analysis and automation.' },
+    { title: 'MongoDB', description: 'NoSQL database management.' },
+  ];
 
-function About() {
-  const testimonials = [
-    { src: 'https://i.pinimg.com/736x/b2/ae/40/b2ae40091e18730921c79241f25e7cff.jpg', name: 'Testimonial 1' },
-    { src: 'https://i.pinimg.com/236x/09/5e/0c/095e0c548ac5c72bcd1dabcb2acfcaef.jpg', name: 'Testimonial 2' },
-    { src: 'https://i.pinimg.com/474x/35/13/0d/35130d0926050c336efb011e637ba4ca.jpg', name: 'Testimonial 3' },
+  const teamMembers = [
+    {
+      id: 1,
+      name: 'Donn Baldoza',
+      designation: 'Frontend Developer',
+      image: 'https://pin.it/2PuZ1QY5v',
+    },
+    {
+      id: 2,
+      name: 'Henrich Lacao',
+      designation: 'Backend Developer',
+      image: 'https://example.com/henrich-lacao.jpg',
+    },
+    {
+      id: 3,
+      name: 'Juliana Mae Ines',
+      designation: 'Resource Manager',
+      image: 'https://example.com/juliana-mae-ines.jpg',
+    },
   ];
 
   return (
-    <div className='bg-zinc-900 w-full'>
-      <div className="fixed top-0 left-0 w-full z-50 bg-white dark:bg-black">
-        {/* <MainNavbar /> */}
-      </div>
-
-      {/* HERO SECTION */}
+    <div className="bg-white w-full min-h-screen text-zinc-900"> {/* Changed background to white and text to dark */}
+      {/* Hero Section */}
       <div className="h-screen flex items-center justify-center relative overflow-hidden">
-        {/* Vortex as a background effect */}
-        <Suspense fallback={<div>Loading vortex...</div>}>
-          <div className="absolute inset-0 z-0">
-            <Vortex
-              backgroundColor="transparent"
-              particleCount={500}
-              baseHue={200} // Adjust the hue for the desired color
-              className="w-full h-full"
-            />
-          </div>
+        <Suspense fallback={<div>Loading...</div>}>
+          <Vortex
+            backgroundColor="transparent"
+            particleCount={500}
+            baseHue={200} // Blue hue
+            className="w-full h-full"
+          />
         </Suspense>
-
-        {/* Content */}
-        <motion.div
-          initial={{
-            opacity: 0,
-            y: -80,
-          }}
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
-          transition={{
-            duration: 0.6,
-          }}
-          className="z-50 flex flex-col justify-center items-center"
-        >
-          <motion.p className="font-bold text-xl md:text-6xl text-center bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 py-4">
-            Welcome to UBheat
-          </motion.p>
-          <Link to="/">
-            <button className="px-4 py-2 backdrop-blur-sm border bg-emerald-300/10 border-emerald-500/20 text-white mx-auto text-center rounded-full relative mt-4">
-              <span>Explore →</span>
-              <div className="absolute inset-x-0 h-px -bottom-px bg-gradient-to-r w-3/4 mx-auto from-transparent via-emerald-500 to-transparent" />
-            </button>
-          </Link>
-        </motion.div>
+        <div className="z-50 text-center">
+          <TypewriterEffect
+            words={[
+              { text: 'Hello,', className: 'text-blue-600' }, // Changed to blue
+              { text: "We're", className: 'text-blue-600' }, // Changed to blue
+              { text: 'The', className: 'text-blue-600' }, // Changed to blue
+              { text: 'UBheat', className: 'text-blue-600' }, // Changed to blue
+            ]}
+            cursorClassName="bg-blue-600" // Changed cursor color to blue
+          />
+          <p className="mt-4 text-zinc-600 text-lg"> {/* Changed text color to dark gray */}
+            A passionate developer building amazing web experiences.
+          </p>
+        </div>
       </div>
 
-      {/* GLOBE SECTION */}
-      <div className="flex flex-row items-center justify-center py-20 h-screen md:h-auto bg-transparent dark:bg-black relative w-full">
-        <div className="max-w-7xl mx-auto w-full relative overflow-hidden h-full md:h-[40rem] px-4">
-          <motion.div
-            initial={{
-              opacity: 0,
-              y: 20,
-            }}
-            animate={{
-              opacity: 1,
-              y: 0,
-            }}
-            transition={{
-              duration: 1,
-            }}
-          >
-            <h2 className="text-center text-xl md:text-4xl font-bold text-white dark:text-white">
-              We Operate Worldwide
-            </h2>
-            <p className="text-center text-base md:text-lg font-normal text-neutral-200 dark:text-neutral-200 max-w-md mt-2 mx-auto">
-              Ubheat is a global platform dedicated to bringing you the best in [your niche].
+      {/* About Section */}
+      <div className="py-20">
+        <TracingBeam>
+          <div className="max-w-2xl mx-auto p-4">
+            <h2 className="text-3xl font-bold mb-4 text-blue-600">About Me</h2> {/* Changed to blue */}
+            <p className="text-zinc-600 mb-4"> {/* Changed text color to dark gray */}
+              I'm a full-stack developer with a passion for creating beautiful and functional web
+              applications. I specialize in React, Node.js, and Tailwind CSS, and I love working on
+              projects that challenge me to learn and grow.
             </p>
-          </motion.div>
-          <div className="absolute w-full bottom-0 inset-x-0 h-40 bg-gradient-to-b pointer-events-none select-none from-transparent to-zinc-900" />
-          <div className="absolute w-full -bottom-20 h-72 md:h-full z-10">
-            <Suspense fallback={<div>Loading globe...</div>}>
-              <World data={sampleArcs} globeConfig={globeConfig} />
-            </Suspense>
+            <p className="text-zinc-600 mb-4"> {/* Changed text color to dark gray */}
+              I'm a full-stack developer with a passion for creating beautiful and functional web
+              applications. I specialize in React, Node.js, and Tailwind CSS, and I love working on
+              projects that challenge me to learn and grow.
+            </p>
+            <p className="text-zinc-600 mb-4"> {/* Changed text color to dark gray */}
+              I'm a full-stack developer with a passion for creating beautiful and functional web
+              applications. I specialize in React, Node.js, and Tailwind CSS, and I love working on
+              projects that challenge me to learn and grow.
+            </p>
+            <p className="text-zinc-600"> {/* Changed text color to dark gray */}
+              When I'm not coding, you can find me exploring new technologies, contributing to
+              open-source projects, or playing video games.
+            </p>
+          </div>
+        </TracingBeam>
+      </div>
+
+      {/* Skills Section */}
+      <div className="py-20 bg-blue-50"> {/* Changed background to light blue */}
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-8 text-blue-600">Skills</h2> {/* Changed to blue */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {skills.map((skill, index) => (
+              <div key={index} className="p-4 bg-white rounded-lg shadow-md border border-blue-100"> {/* Added blue border */}
+                <h3 className="text-xl font-bold mb-2 text-blue-600">{skill.title}</h3> {/* Changed to blue */}
+                <p className="text-zinc-600">{skill.description}</p> {/* Changed text color to dark gray */}
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* TRACING BEAM SECTION (History of UBheat) */}
-      <Suspense fallback={<div>Loading tracing beam...</div>}>
-        <TracingBeam>
-          <div className="flex flex-row items-center justify-center py-20 h-screen md:h-auto bg-transparent dark:bg-black relative w-full">
-            <div className="max-w-7xl mx-auto w-full relative overflow-hidden h-full md:h-[40rem] px-4">
-              {/* History of UBheat */}
-              <div className="max-w-2xl mx-auto p-4">
-                <h2 className="text-3xl font-bold text-white mb-4">Our Story</h2>
-                <TextGenerateEffect className="text-neutral-200 mb-4" words="We are a group of students from TUP Taguig who are passionate about leveraging technology to solve real-world problems. UBheat was born out of our desire to create a tool that could help people visualize and understand data in a more intuitive way." />
-                <TextGenerateEffect className="text-neutral-200 mb-4" words="Our journey began with a simple idea: to build a heatmap that could be used by everyone, regardless of their technical expertise. We wanted to make data visualization accessible, interactive, and impactful. After months of hard work, collaboration, and learning, we are proud to present UBheat to the world." />
-                <TextGenerateEffect className="text-neutral-200 mb-4" words="UBheat is more than just a project for us—it's a testament to the power of teamwork, innovation, and perseverance. We hope that our platform will inspire others to explore the possibilities of data and technology." />
-              </div>
-            </div>
+      {/* Team Section */}
+      <div className="py-20">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-8 text-blue-600">Team</h2> {/* Changed to blue */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Card key={teamMembers[0].id} className="flex flex-col items-center p-4 bg-white rounded-lg shadow-md border border-blue-100"> {/* Added blue border */}
+              <img
+                src='https://i.pinimg.com/736x/b2/ae/40/b2ae40091e18730921c79241f25e7cff.jpg'
+                alt={teamMembers[0].name}
+                className="w-20 h-20 rounded-full object-cover mb-4"
+                style={{ marginBottom: '1rem' }} // Add margin to separate the images
+              />
+              <h3 className="text-xl font-bold mb-2 text-blue-600">{teamMembers[0].name}</h3> {/* Changed to blue */}
+              <p className="text-red-100">{teamMembers[0].designation}</p> {/* Changed text color to dark gray */}
+            </Card>
+            <CardHenrich key={teamMembers[1].id} className="flex flex-col items-center p-4 bg-white rounded-lg shadow-md border border-blue-100"> {/* Added blue border */}
+              <img
+                src='https://i.pinimg.com/736x/6d/a0/80/6da080bd51bee5b43437aa47256625c9.jpg'
+                alt={teamMembers[1].name}
+                className="w-20 h-20 rounded-full object-cover mb-4"
+                style={{ marginBottom: '1rem' }} // Add margin to separate the images
+              />
+              <h3 className="text-xl font-bold mb-2 text-blue-600">{teamMembers[1].name}</h3> {/* Changed to blue */}
+              <p className="text-red-600">{teamMembers[1].designation}</p> {/* Changed text color to dark gray */}
+            </CardHenrich>
+            <CardJuliana key={teamMembers[2].id} className="flex flex-col items-center p-4 bg-white rounded-lg shadow-md border border-blue-100"> {/* Added blue border */}
+              <img
+                src='https://i.pinimg.com/736x/67/28/1b/67281b6fc7082231dc3a62fefb04ad77.jpg'
+                alt={teamMembers[2].name}
+                className="w-20 h-20 rounded-full object-cover mb-4"
+                style={{ marginBottom: '1rem' }} // Add margin to separate the images
+              />
+              <h3 className="text-xl font-bold mb-2 text-blue-600">{teamMembers[2].name}</h3> {/* Changed to blue */}
+              <p className="text-green-600">{teamMembers[2].designation}</p> {/* Changed text color to dark gray */}
+            </CardJuliana>
           </div>
-        </TracingBeam>
-      </Suspense>
-
-      {/* ANIMATED TESTIMONIALS SECTION */}
-      <div className="py-20">
-        <AnimatedTestimonials
-          testimonials={testimonials}
-          autoplay={true}
-        />
+        </div>
       </div>
 
-      {/* MACBOOK SCROLL SECTION */}
-      <div className="py-20">
-        <MacbookScroll
-          src="https://your-new-image-url.jpg" // Update this URL to your desired image
-          showGradient={true}
-          title="Explore UBheat on Macbook"
-          badge={<span className="text-white">New</span>}
-        />
+      {/* Contact Section */}
+      <div className="py-20 bg-blue-50"> {/* Changed background to light blue */}
+        <div className="max-w-2xl mx-auto p-4 text-center">
+          <h2 className="text-3xl font-bold mb-4 text-blue-600">Get in Touch</h2> {/* Changed to blue */}
+          <p className="text-zinc-600 mb-4"> {/* Changed text color to dark gray */}
+            Have a project in mind or just want to say hi? Feel free to reach out!
+          </p>
+          <a
+            href="mailto:john.doe@example.com"
+            className="px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors" // Changed button color to blue
+          >
+            Contact Me
+          </a>
+        </div>
       </div>
-
-      {/* FOOTER */}
-      {/* <ResponsiveFooter /> */}
     </div>
   );
-}
-
-const globeConfig = {
-  pointSize: 4,
-  globeColor: "#062056",
-  showAtmosphere: true,
-  atmosphereColor: "#FFFFFF",
-  atmosphereAltitude: 0.1,
-  emissive: "#062056",
-  emissiveIntensity: 0.1,
-  shininess: 0.9,
-  polygonColor: "rgba(255,255,255,0.7)",
-  ambientLight: "#38bdf8",
-  directionalLeftLight: "#ffffff",
-  directionalTopLight: "#ffffff",
-  pointLight: "#ffffff",
-  arcTime: 1000,
-  arcLength: 0.9,
-  rings: 1,
-  maxRings: 3,
-  initialPosition: { lat: 22.3193, lng: 114.1694 },
-  autoRotate: true,
-  autoRotateSpeed: 0.5,
 };
 
-const colors = ["#06b6d4", "#3b82f6", "#6366f1"];
-const sampleArcs = [
-  {
-    startLat: -19.885592,
-    startLng: -43.951191,
-    endLat: -22.9068,
-    endLng: -43.1729,
-    arcAlt: 0.1,
-    color: colors[Math.floor(Math.random() * (colors.length - 1))],
-  },
-  {
-    startLat: 28.6139,
-    startLng: 77.209,
-    endLat: 3.139,
-    endLng: 101.6869,
-    arcAlt: 0.2,
-    color: colors[Math.floor(Math.random() * (colors.length - 1))],
-  },
-  // Add more arcs as needed
-];
-
-export default About;
+export default ProfilePage;
