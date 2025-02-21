@@ -1,122 +1,231 @@
 import 'ol/ol.css';
 import { Map, View } from 'ol';
 import TileLayer from 'ol/layer/Tile';
+import VectorLayer from 'ol/layer/Vector';
+import VectorSource from 'ol/source/Vector';
+import { Style, Fill, Stroke } from 'ol/style';
 import OSM from 'ol/source/OSM';
+import { GeoJSON } from 'ol/format';
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { fromLonLat } from 'ol/proj';
-import { Clock, SmokeEffect, HeatmapComponent, SearchComponent, WeatherInfo, SearchResult } from '../common/heatmapcomponents';
+import { Clock, HeatmapComponent, SearchComponent, WeatherInfo, SearchResult } from '../common/heatmapcomponents';
+
+import Region1 from '../../utils/regions/region-1.json';
+import Region2 from '../../utils/regions/region-2.json';
+import Region3 from '../../utils/regions/region-3.json';
+import Region4A from '../../utils/regions/region-4A.json';
+import Region4B from '../../utils/regions/region-4B.json';
+import Region5 from '../../utils/regions/region-5.json';
+import Region6 from '../../utils/regions/region-6.json';
+import Region7 from '../../utils/regions/region-7.json';
+import Region8 from '../../utils/regions/region-8.json';
+import Region9 from '../../utils/regions/region-9.json';
+import Region10 from '../../utils/regions/region-10.json';
+import Region11 from '../../utils/regions/region-11.json';
+import Region12 from '../../utils/regions/region-12.json';
+import Region13 from '../../utils/regions/region-13.json';
+import RegionCAR from '../../utils/regions/region-car.json';
+import RegionNCR from '../../utils/regions/region-ncr.json';
+import RegionBARMM from '../../utils/regions/region-barmm.json';
+
+// Custom color palette for Philippine regions
+const REGION_COLORS = {
+    'NCR': '#ff4757',
+    'CAR': '#2ed573',
+    'Region 1': '#ffa502', // Ilocos
+    'Region 2': '#70a1ff', // Cagayan Valley
+    'Region 3': '#7bed9f', // Central Luzon
+    'Region 4A': '#ff6b81', // Calabarzon
+    'Region 4B': '#5352ed', // Mimaropa
+    'Region 5': '#2f3542', // Bicol
+    'Region 6': '#eccc68', // Western Visayas
+    'Region 7': '#ff7f50', // Central Visayas
+    'Region 8': '#747d8c', // Eastern Visayas
+    'Region 9': '#2ed573', // Zamboanga Peninsula
+    'Region 10': '#ffa502', // Northern Mindanao
+    'Region 11': '#70a1ff', // Davao
+    'Region 12': '#7bed9f', // Soccsksargen
+    'Region 13': '#ff6b81', // Caraga
+    'BARMM': '#5352ed' // Bangsamoro
+};
+
+const regionGeoJSON = {
+    'NCR': RegionNCR,
+    'CAR': RegionCAR,
+    'Region 1': Region1,
+    'Region 2': Region2,
+    'Region 3': Region3,
+    'Region 4A': Region4A,
+    'Region 4B': Region4B,
+    'Region 5': Region5,
+    'Region 6': Region6,
+    'Region 7': Region7,
+    'Region 8': Region8,
+    'Region 9': Region9,
+    'Region 10': Region10,
+    'Region 11': Region11,
+    'Region 12': Region12,
+    'Region 13': Region13,
+    'BARMM': RegionBARMM
+};
+
+// Define a function that creates a vector layer for a given region
+const createRegionLayer = (regionName, geojsonData) => {
+    return new VectorLayer({
+        source: new VectorSource({
+            format: new GeoJSON(),
+            features: new GeoJSON().readFeatures(geojsonData, {
+                featureProjection: 'EPSG:3857' // Correct projection
+            })
+        }),
+        style: new Style({
+            fill: new Fill({
+                color: `${REGION_COLORS[regionName]}33` // Add opacity
+            }),
+            stroke: new Stroke({
+                color: REGION_COLORS[regionName],
+                width: 1
+            })
+        }),
+        zIndex: 1
+    });
+};
 
 const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
-  const mapRef = useRef(null);
-  const [mapInstance, setMapInstance] = useState(null);
-  const [averageTemperature, setAverageTemperature] = useState(null);
-  const [hazardousWaterLevels, setHazardousWaterLevels] = useState([]);
-  const [searchCity, setSearchCity] = useState("");
-  const [searchResult, setSearchResult] = useState(null);
-  const [weatherData, setWeatherData] = useState([]); // Add weatherData state
+    const mapRef = useRef(null);
+    const [mapInstance, setMapInstance] = useState(null);
+    const [averageTemperature, setAverageTemperature] = useState(null);
+    const [hazardousWaterLevels, setHazardousWaterLevels] = useState([]);
+    const [searchCity, setSearchCity] = useState("");
+    const [searchResult, setSearchResult] = useState(null);
+    const [weatherData, setWeatherData] = useState([]);
 
-  useEffect(() => {
-    if (!mapRef.current) return;
+    useEffect(() => {
+        if (!mapRef.current) return;
 
-    const map = new Map({
-      target: mapRef.current,
-      layers: [
-        new TileLayer({
-          source: new OSM(),
-        }),
-      ],
-      view: new View({
-        center: fromLonLat([122, 12]),
-        zoom: 6,
-      }),
-    });
+        const map = new Map({
+            target: mapRef.current,
+            layers: [
+                new TileLayer({
+                    source: new OSM(),
+                }),
+                ...Object.entries(regionGeoJSON).map(([region, geojson]) => createRegionLayer(region, geojson))
+            ],
+            view: new View({
+                center: fromLonLat([122, 12]),
+                zoom: 6,
+            }),
+        });
 
-    setMapInstance(map);
-    
-    return () => map.setTarget(null);
-  }, []);
+        setMapInstance(map);
+        
+        return () => map.setTarget(null);
+    }, []);
 
-  useEffect(() => {
-    if (!mapInstance) return;
+    useEffect(() => {
+        if (!mapInstance) return;
 
-    const philippineCities = [
-      'Manila', 'Cebu', 'Davao', 'Cagayan de Oro', 'Zamboanga',
-      'Baguio', 'Iloilo', 'Bacolod', 'General Santos', 'Legazpi',
-      'Puerto Princesa', 'Tacloban', 'Tuguegarao', 'Butuan', 'Dumaguete',
-      'Tagaytay', 'Olongapo', 'Naga', 'Laoag', 'Cotabato',
-    ];
+        const philippineCities = [
+            'Manila', 'Cebu', 'Davao', 'Cagayan de Oro', 'Zamboanga',
+            'Baguio', 'Iloilo', 'Bacolod', 'General Santos', 'Legazpi',
+            'Puerto Princesa', 'Tacloban', 'Tuguegarao', 'Butuan', 'Dumaguete',
+            'Tagaytay', 'Olongapo', 'Naga', 'Laoag', 'Cotabato',
+        ];
 
-    const fetchWeatherData = async () => {
-      const apiKey = 'b05f228625b60990de863e6193f998af';
-      const weatherData = [];
+        const fetchWeatherData = async () => {
+            const apiKey = 'b05f228625b60990de863e6193f998af';
+            const weatherData = [];
 
-      for (const city of philippineCities) {
+            for (const city of philippineCities) {
+                try {
+                    const response = await axios.get(
+                        `https://api.openweathermap.org/data/2.5/weather?q=${city},PH&appid=${apiKey}&units=metric`
+                    );
+                    const { coord, main, wind } = response.data;
+                    weatherData.push({
+                        location: [coord.lon, coord.lat],
+                        temperature: main.temp,
+                        humidity: main.humidity,
+                        windSpeed: wind.speed,
+                        city: city,
+                    });
+                } catch (error) {
+                    console.error(`Error fetching data for ${city}:`, error);
+                }
+            }
+
+            const temperatures = weatherData.map((data) => data.temperature);
+            const averageTemp = (temperatures.reduce((a, b) => a + b, 0) / temperatures.length).toFixed(2);
+            setAverageTemperature(averageTemp);
+
+            const hazardousAreas = [
+                { name: 'Manila', waterLevel: 'High' },
+                { name: 'Cebu', waterLevel: 'Medium' },
+                { name: 'Davao', waterLevel: 'Low' },
+            ];
+            setHazardousWaterLevels(hazardousAreas);
+
+            setWeatherData(weatherData);
+        };
+
+        fetchWeatherData();
+        const intervalId = setInterval(fetchWeatherData, 300000);
+
+        return () => clearInterval(intervalId);
+    }, [mapInstance]);
+
+    const fetchSearchCityWeather = async () => {
+        const apiKey = 'b05f228625b60990de863e6193f998af';
         try {
-          const response = await axios.get(
-            `https://api.openweathermap.org/data/2.5/weather?q=${city},PH&appid=${apiKey}&units=metric`
-          );
-          const { coord, main, wind } = response.data;
-          weatherData.push({
-            location: [coord.lon, coord.lat],
-            temperature: main.temp,
-            humidity: main.humidity,
-            windSpeed: wind.speed,
-            city: city,
-          });
+            const response = await axios.get(
+                `https://api.openweathermap.org/data/2.5/weather?q=${searchCity}&appid=${apiKey}&units=metric`
+            );
+            setSearchResult(response.data);
         } catch (error) {
-          console.error(`Error fetching data for ${city}:`, error);
+            console.error(`Error fetching data for ${searchCity}:`, error);
+            setSearchResult(null);
         }
-      }
-
-      const temperatures = weatherData.map((data) => data.temperature);
-      const averageTemp = (temperatures.reduce((a, b) => a + b, 0) / temperatures.length).toFixed(2);
-      setAverageTemperature(averageTemp);
-
-      const hazardousAreas = [
-        { name: 'Manila', waterLevel: 'High' },
-        { name: 'Cebu', waterLevel: 'Medium' },
-        { name: 'Davao', waterLevel: 'Low' },
-      ];
-      setHazardousWaterLevels(hazardousAreas);
-
-      // Update weatherData state
-      setWeatherData(weatherData);
     };
 
-    fetchWeatherData();
-    const intervalId = setInterval(fetchWeatherData, 300000);
-
-    return () => clearInterval(intervalId);
-  }, [mapInstance]);
-
-  const fetchSearchCityWeather = async () => {
-    const apiKey = 'b05f228625b60990de863e6193f998af';
-    try {
-      const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?q=${searchCity}&appid=${apiKey}&units=metric`
-      );
-      setSearchResult(response.data);
-    } catch (error) {
-      console.error(`Error fetching data for ${searchCity}:`, error);
-      setSearchResult(null);
-    }
-  };
-
-  return (
-    <div ref={mapRef} style={{ ...style, position: 'relative' }}>
-      {mapInstance && (
-        <>
-          <Clock mapRef={mapRef} />
-          <SmokeEffect mapRef={mapRef} weatherData={weatherData} />
-          <HeatmapComponent map={mapInstance} weatherData={weatherData} /> 
-        </>
-      )}
-      <SearchComponent setSearchCity={setSearchCity} fetchSearchCityWeather={fetchSearchCityWeather} />
-      <WeatherInfo averageTemperature={averageTemperature} hazardousWaterLevels={hazardousWaterLevels} />
-      <SearchResult searchResult={searchResult} />
-    </div>
-  );
+    return (
+        <div ref={mapRef} style={{ ...style, position: 'relative' }}>
+            {mapInstance && (
+                <>
+                    <Clock mapRef={mapRef} />
+                    <HeatmapComponent map={mapInstance} weatherData={weatherData} /> 
+                </>
+            )}
+            <SearchComponent setSearchCity={setSearchCity} fetchSearchCityWeather={fetchSearchCityWeather} />
+            <WeatherInfo averageTemperature={averageTemperature} hazardousWaterLevels={hazardousWaterLevels} />
+            <SearchResult searchResult={searchResult} />
+            
+            {/* Legend Component */}
+            <div style={{
+                position: 'absolute',
+                bottom: '20px',
+                right: '20px',
+                backgroundColor: 'white',
+                padding: '10px',
+                borderRadius: '5px',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+            }}>
+                <h4>Philippine Regions</h4>
+                {Object.entries(REGION_COLORS).map(([region, color]) => (
+                    <div key={region} style={{ display: 'flex', alignItems: 'center', margin: '5px 0' }}>
+                        <div style={{
+                            width: '20px',
+                            height: '20px',
+                            backgroundColor: color,
+                            marginRight: '10px',
+                            border: `1px solid ${color}`
+                        }}></div>
+                        <span>{region}</span>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
 };
 
 export default Heatmap;

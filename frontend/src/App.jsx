@@ -17,12 +17,14 @@ import Signup from './components/pages/signup';
 import Login from './components/pages/login';
 import ProfilePage from './components/pages/ProfilePage';
 import Prediction from './components/pages/prediction';
+import SampleHeatmap from './components/pages/sampleheatmap';
 
 function App() {
   return (
     <ModalProvider>
       <Router
           future={{
+
             v7_startTransition: true, // Enable React.startTransition for smoother updates
             v7_relativeSplatPath: true, // Enable updated relative splat path resolution
           }}
@@ -32,6 +34,7 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/chatbot" element={<Chatbot />} />
           <Route path="/heatmap" element={<Heatmap />} />
+          <Route path="/sampleheatmap" element={<SampleHeatmap />} />
           <Route path="/dashboard" element={<HeatmapDashboard />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
