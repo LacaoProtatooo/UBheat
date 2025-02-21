@@ -8,7 +8,7 @@ import {
   IconTerminal2,
 } from "@tabler/icons-react";
 import { Modal, ModalBody, ModalContent, useModal } from "../ui/animated-modal";
-import { ChatbotComponent, UBHeatComponent } from "./floatingdockcomponents";
+import { ChatbotComponent, UBHeatComponent, PredictionComponent } from "./floatingdockcomponents";
 
 const FloatingDockUBheat = () => {
   const { setOpen } = useModal(); // Use context to open modal
@@ -35,8 +35,12 @@ const FloatingDockUBheat = () => {
       href: "#" 
     },
     { 
-      title: "Components", 
-      icon: <IconNewSection className="h-8 w-8 text-neutral-500 dark:text-neutral-300" />, 
+      title: "Prediction", 
+      icon: (
+        <button onClick={() => openModal(PredictionComponent)}>
+          <IconNewSection className="h-8 w-8 text-neutral-500 dark:text-neutral-300" />
+        </button>
+      ), 
       href: "#" 
     },
     {
@@ -68,7 +72,7 @@ const FloatingDockUBheat = () => {
 
       <Modal>
         <ModalBody>
-          <ModalContent>
+          <ModalContent className="overflow-auto max-h-full">
             <button 
               onClick={() => setOpen(false)} 
               className="absolute top-2 right-2 text-gray-600 dark:text-gray-400"

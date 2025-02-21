@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { TextGenerateEffect } from "../ui/text-generate"; // Import the TextGenerateEffect component
+import PredictionChart from "../pages/prediction"; // Import the PredictionChart component
 
 export const ChatbotComponent = () => {
   const [messages, setMessages] = useState([]);
@@ -77,5 +78,11 @@ export const UBHeatComponent = () => (
       alt="UBHeat Logo"
       className="mt-4 w-full h-auto rounded-md"
     />
+  </div>
+);
+
+export const PredictionComponent = () => (
+  <div>
+    <PredictionChart />
   </div>
 );
