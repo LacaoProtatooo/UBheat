@@ -1,4 +1,3 @@
-
 import { cn } from "../../utils/cn";
 import { AnimatePresence, motion } from "framer-motion";
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
@@ -26,7 +25,6 @@ export const useModal = () => {
 export function Modal({ children }) {
   return <>{children}</>;
 }
-
 
 export const ModalTrigger = ({ children, className }) => {
   const { setOpen } = useModal();
@@ -72,12 +70,12 @@ export const ModalBody = ({ children, className }) => {
             opacity: 0,
             backdropFilter: "blur(0px)",
           }}
-          className="fixed [perspective:800px] [transform-style:preserve-3d] inset-0 h-full w-full flex items-center justify-center z-50">
+          className="fixed inset-0 h-full w-full flex items-center justify-center z-50 overflow-auto">
           <Overlay />
           <motion.div
             ref={modalRef}
             className={cn(
-              "min-h-[50%] max-h-[90%] md:max-w-[40%] bg-white dark:bg-neutral-950 border border-transparent dark:border-neutral-800 md:rounded-2xl relative z-50 flex flex-col flex-1 overflow-hidden",
+              "min-h-[70%] max-h-[95%] md:max-w-[60%] bg-white dark:bg-neutral-950 border border-transparent dark:border-neutral-800 md:rounded-2xl relative z-50 flex flex-col flex-1 overflow-auto",
               className
             )}
             initial={{
