@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Label } from "../../components/ui/label";
 import { Input } from "../../components/ui/input";
 import { cn } from "../../utils/cn";
@@ -7,12 +7,34 @@ import {
   IconBrandGoogle,
   IconBrandFacebook,
 } from "@tabler/icons-react";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export function LoginForm() {
+  const [errors, setErrors] = useState({});
+
+  const validate = (email, password) => {
+    const newErrors = {};
+    if (!email) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = "Email address is invalid";
+    }
+    if (!password) newErrors.password = "Password is required";
+    return newErrors;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { email, password } = e.target.elements;
-  
+
+    const newErrors = validate(email.value, password.value);
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      // Object.values(newErrors).forEach(error => toast.error(error));
+      return;
+    }
+
     try {
       const response = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
@@ -22,7 +44,7 @@ export function LoginForm() {
           password: password.value,
         }),
       });
-  
+
       const data = await response.json();
       if (response.ok) {
         console.log('Login successful:', data);
@@ -30,14 +52,17 @@ export function LoginForm() {
         window.location.href = '/'; // Redirect to main page
       } else {
         console.error('Login failed:', data.msg);
+        toast.error(data.msg);
       }
     } catch (error) {
       console.error('Error:', error);
+      toast.error('An error occurred. Please try again.');
     }
   };
 
   return (
     <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
+      <ToastContainer />
       <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
         Welcome Back to UBheat
       </h2>
@@ -49,10 +74,12 @@ export function LoginForm() {
         <LabelInputContainer className="mb-4">
           <Label htmlFor="email">Email Address</Label>
           <Input id="email" placeholder="abc@gmail.com" type="email" />
+          {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
         </LabelInputContainer>
         <LabelInputContainer className="mb-8">
           <Label htmlFor="password">Password</Label>
           <Input id="password" placeholder="••••••••" type="password" />
+          {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
         </LabelInputContainer>
 
         <button

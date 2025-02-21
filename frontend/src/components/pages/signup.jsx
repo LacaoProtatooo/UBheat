@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Label } from "../../components/ui/label";
 import { Input } from "../../components/ui/input";
 import { cn } from "../../utils/cn";
@@ -7,12 +7,36 @@ import {
   IconBrandGoogle,
   IconBrandOnlyfans,
 } from "@tabler/icons-react";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export function SignupFormDemo() {
+  const [errors, setErrors] = useState({});
+
+  const validate = (firstname, lastname, email, password) => {
+    const newErrors = {};
+    if (!firstname) newErrors.firstname = "First name is required";
+    if (!lastname) newErrors.lastname = "Last name is required";
+    if (!email) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = "Email address is invalid";
+    }
+    if (!password) newErrors.password = "Password is required";
+    return newErrors;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { firstname, lastname, email, password } = e.target.elements;
-  
+
+    const newErrors = validate(firstname.value, lastname.value, email.value, password.value);
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      // Object.values(newErrors).forEach(error => toast.error(error));
+      return;
+    }
+
     try {
       const response = await fetch('http://localhost:5000/api/auth/signup', {
         method: 'POST',
@@ -24,7 +48,7 @@ export function SignupFormDemo() {
           password: password.value,
         }),
       });
-  
+
       const data = await response.json();
       if (response.ok) {
         console.log('Signup successful:', data);
@@ -32,14 +56,17 @@ export function SignupFormDemo() {
         window.location.href = '/login'; // Redirect to login page
       } else {
         console.error('Signup failed:', data.msg);
+        toast.error(data.msg);
       }
     } catch (error) {
       console.error('Error:', error);
+      toast.error('An error occurred. Please try again.');
     }
   };
 
   return (
     <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
+      <ToastContainer />
       <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
         Welcome to UBheat
       </h2>
@@ -52,24 +79,25 @@ export function SignupFormDemo() {
           <LabelInputContainer>
             <Label htmlFor="firstname">First name</Label>
             <Input id="firstname" placeholder="John" type="text" />
+            {errors.firstname && <p className="text-red-500 text-sm">{errors.firstname}</p>}
           </LabelInputContainer>
           <LabelInputContainer>
             <Label htmlFor="lastname">Last name</Label>
             <Input id="lastname" placeholder="Doe" type="text" />
+            {errors.lastname && <p className="text-red-500 text-sm">{errors.lastname}</p>}
           </LabelInputContainer>
         </div>
         <LabelInputContainer className="mb-4">
           <Label htmlFor="email">Email Address</Label>
           <Input id="email" placeholder="abc@gmail.com" type="email" />
+          {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
         </LabelInputContainer>
         <LabelInputContainer className="mb-4">
           <Label htmlFor="password">Password</Label>
           <Input id="password" placeholder="••••••••" type="password" />
+          {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
         </LabelInputContainer>
-        <LabelInputContainer className="mb-8">
-          <Label htmlFor="Phonepassword">Your Phone password</Label>
-          <Input id="Phonepassword" placeholder="••••••••" type="password" />
-        </LabelInputContainer>
+       
 
         <button
           className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
@@ -84,7 +112,6 @@ export function SignupFormDemo() {
         <div className="flex flex-col space-y-4">
           <SocialButton Icon={IconBrandGithub} label="GitHub" />
           <SocialButton Icon={IconBrandGoogle} label="Google" />
-          <SocialButton Icon={IconBrandOnlyfans} label="OnlyFans" />
         </div>
       </form>
     </div>
