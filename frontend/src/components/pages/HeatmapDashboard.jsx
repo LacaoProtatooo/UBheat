@@ -198,7 +198,7 @@ const HeatmapDashboard = () => {
 
   return (
     <div className="w-full mx-auto p-4 border border-gray-300 rounded-md bg-gradient-to-r from-blue-100 to-blue-200 shadow-md">
-      <h3 className="text-xl font-semibold mb-3">Weather Dashboard</h3>
+      <h3 className="text-xl font-semibold mb-3">UBheat Dashboard</h3>
 
       {/* Interactive Filters */}
       <div className="flex space-x-4 mb-4">
