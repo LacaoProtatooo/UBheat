@@ -5,8 +5,13 @@ import { Vortex } from '../ui/vortex';
 import { Card } from '../ui/card'; // Import the Card component
 import { CardHenrich } from '../ui/CardHenrich'; // Import the CardHenrich component
 import { CardJuliana } from '../ui/CardJuliana'; // Import the CardJuliana component
+import { Button } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import Heatmap from './Heatmap'; // Import the Heatmap component
 
 const ProfilePage = () => {
+  const navigate = useNavigate(); // Initialize the navigate function
+
   // Sample data for skills and team members
   const skills = [
     { title: 'React', description: 'Building interactive UIs with React.' },
@@ -63,6 +68,14 @@ const ProfilePage = () => {
           <p className="mt-4 text-zinc-600 text-lg"> {/* Changed text color to dark gray */}
             A passionate developer building amazing web experiences.
           </p>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => navigate('/')} // Navigate to the root route
+            sx={{ mt: 2 }}
+          >
+            Go to Main Page
+          </Button>
         </div>
       </div>
 
@@ -70,7 +83,7 @@ const ProfilePage = () => {
       <div className="py-20">
         <TracingBeam>
           <div className="max-w-2xl mx-auto p-4">
-            <h2 className="text-3xl font-bold mb-4 text-blue-600">About Me</h2> {/* Changed to blue */}
+            <h2 className="text-3xl font-bold mb-4 text-blue-600">Who are we?</h2> {/* Changed to blue */}
             <p className="text-zinc-600 mb-4"> {/* Changed text color to dark gray */}
               I'm a full-stack developer with a passion for creating beautiful and functional web
               applications. I specialize in React, Node.js, and Tailwind CSS, and I love working on
@@ -91,7 +104,45 @@ const ProfilePage = () => {
               open-source projects, or playing video games.
             </p>
           </div>
+
+          <div className="max-w-2xl mx-auto p-4">
+            <h2 className="text-3xl font-bold mb-4 text-blue-600">Our History</h2> {/* Changed to blue */}
+   
+            <p className="text-zinc-600 mb-4"> {/* Changed text color to dark gray */}
+              I'm a full-stack developer with a passion for creating beautiful and functional web
+              applications. I specialize in React, Node.js, and Tailwind CSS, and I love working on
+              projects that challenge me to learn and grow.
+            </p>
+            <p className="text-zinc-600 mb-4"> {/* Changed text color to dark gray */}
+              I'm a full-stack developer with a passion for creating beautiful and functional web
+              applications. I specialize in React, Node.js, and Tailwind CSS, and I love working on
+              projects that challenge me to learn and grow.
+            </p>
+            <p className="text-zinc-600 mb-4"> {/* Changed text color to dark gray */}
+              I'm a full-stack developer with a passion for creating beautiful and functional web
+              applications. I specialize in React, Node.js, and Tailwind CSS, and I love working on
+              projects that challenge me to learn and grow.
+            </p>
+            <p className="text-zinc-600"> {/* Changed text color to dark gray */}
+              When I'm not coding, you can find me exploring new technologies, contributing to
+              open-source projects, or playing video games.
+            </p>
+          </div>
+
+          
         </TracingBeam>
+      </div>
+
+      {/* Heatmap Section */}
+      <div className="py-10 bg-blue-50"> {/* Changed background to light blue */}
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-8 text-blue-600">Activity Heatmap</h2> {/* Changed to blue */}
+          <div className="flex justify-center">
+            <div className="w-3/4"> {/* Adjust the width of the heatmap */}
+              <Heatmap />
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Skills Section */}
