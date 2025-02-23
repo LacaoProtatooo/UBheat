@@ -1,33 +1,36 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import TextField from "@mui/material/TextField";
 
-export const BadEffectsTextField = ({ text, speed = 10, ...props }) => {
+export const BadEffectsTextField = React.memo(({ text, speed = 90, ...props }) => {
   const [displayText, setDisplayText] = useState("");
+  const intervalRef = useRef(null);
 
   useEffect(() => {
+    if (!text) return setDisplayText("");
+
     let currentIndex = 0;
-    const interval = setInterval(() => {
+    clearInterval(intervalRef.current);
+
+    intervalRef.current = setInterval(() => {
       if (currentIndex <= text.length) {
         setDisplayText(text.slice(0, currentIndex));
         currentIndex++;
       } else {
-        clearInterval(interval);
+        clearInterval(intervalRef.current);
       }
     }, speed);
 
-    return () => clearInterval(interval); // Cleanup on unmount
+    return () => clearInterval(intervalRef.current);
   }, [text, speed]);
 
   return (
     <TextField
       {...props}
       value={displayText}
-      InputProps={{
-        readOnly: true, // Make the text field uneditable
-      }}
+      InputProps={{ readOnly: true }}
       multiline
       rows={10}
       fullWidth
     />
   );
-};
+});

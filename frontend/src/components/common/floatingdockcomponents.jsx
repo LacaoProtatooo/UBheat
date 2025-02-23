@@ -29,7 +29,7 @@ export const ChatbotComponent = () => {
   return (
     <div className="w-full mx-auto p-4 border border-gray-300 rounded-md bg-white shadow-md" style={{ zIndex: 10 }}>
       <h3 className="text-xl font-semibold mb-3">Chatbot</h3>
-      <div className="h-60 overflow-y-auto p-2 border border-gray-200 rounded-md mb-3">
+      <div className="h-96 overflow-y-auto p-2 border border-gray-200 rounded-md mb-3">
         {messages.map((msg, index) => (
           <div
             key={index}

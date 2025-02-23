@@ -4,10 +4,15 @@ import MuiModal from "../ui/mui-modal";
 import Box from '@mui/material/Box';
 import Slider from '@mui/material/Slider';
 
-export const useCO2Emissions = () => {
-  const [emissionRate, setEmissionRate] = useState(70); // State for emission rate
-  const [baseMtCO2, setBaseMtCO2] = useState(135.68); // Base metric tons of CO₂
-  const [result, setResult] = useState(0); // State for the calculated result
+export const useCO2Emissions = (initialBase = 155.38) => {
+  const [emissionRate, setEmissionRate] = useState(70);
+  const [baseMtCO2, setBaseMtCO2] = useState(initialBase);
+  const [result, setResult] = useState(0);
+
+  const updateBase = (newBase) => {
+    setBaseMtCO2(newBase);
+    calculateResult(emissionRate, newBase);
+  };
 
   const handleEmissionRateChange = (newRate) => {
     setEmissionRate(newRate);
@@ -31,6 +36,7 @@ export const useCO2Emissions = () => {
     result,
     handleEmissionRateChange,
     handleBaseMtCO2Change,
+    updateBase 
   };
 };
 
@@ -101,17 +107,16 @@ export const GoodEffectsTextArea = ({ value }) => (
   <TextField
     label="Positive Environmental Impacts"
     value={value}
-    InputProps={{
-      readOnly: true, 
-    }}
+    InputProps={{ readOnly: true }}
     variant="outlined"
-    multiline // Allow multiple lines
-    rows={10} 
+    multiline
+    rows={10}
     sx={{
       width: '100%',
       mt: 2,
       '& .MuiOutlinedInput-root': {
-        overflowY: 'auto', // Enable vertical scrolling
+        overflowY: 'auto',
+        backgroundColor: '#f0fdf4', // Green background
       },
     }}
   />
@@ -121,17 +126,16 @@ export const BadEffectsTextArea = ({ value }) => (
   <TextField
     label="Negative Environmental Effects"
     value={value}
-    InputProps={{
-      readOnly: true, 
-    }}
+    InputProps={{ readOnly: true }}
     variant="outlined"
-    multiline 
+    multiline
     rows={10}
     sx={{
       width: '100%',
       mt: 2,
       '& .MuiOutlinedInput-root': {
-        overflowY: 'auto', // Enable vertical scrolling
+        overflowY: 'auto',
+        backgroundColor: '#fef2f2', // Red background
       },
     }}
   />

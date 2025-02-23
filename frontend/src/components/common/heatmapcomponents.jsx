@@ -163,6 +163,7 @@ export const Clock = ({ mapRef }) => {
 // Heatmap Component
 export const HeatmapComponent = ({ map, weatherData }) => {
   const overlaysRef = useRef([]);
+  const pointerMoveTimeoutRef = useRef(null);
 
   useEffect(() => {
     const heatmapFeatures = weatherData.map((data) => {
@@ -178,8 +179,8 @@ export const HeatmapComponent = ({ map, weatherData }) => {
 
     const heatmapLayer = new HeatmapLayer({
       source: new VectorSource({ features: heatmapFeatures }),
-      blur: 30, // Increase blur to make the hover area larger
-      radius: 35, // Increase radius to make the hover area larger
+      blur: 20,
+      radius: 25,
       gradient: gradient,
       opacity: 0.7,
     });
@@ -215,19 +216,25 @@ export const HeatmapComponent = ({ map, weatherData }) => {
     });
 
     const handlePointerMove = (event) => {
-      const pixel = map.getEventPixel(event.originalEvent);
-      const feature = map.forEachFeatureAtPixel(pixel, (feature) => feature);
+      if (pointerMoveTimeoutRef.current) {
+        clearTimeout(pointerMoveTimeoutRef.current);
+      }
 
-      overlaysRef.current.forEach((overlay) => {
-        const overlayElement = overlay.getElement();
-        if (feature && feature.getGeometry().getCoordinates().toString() === overlay.getPosition().toString()) {
-          overlayElement.style.visibility = 'visible';
-          overlayElement.style.opacity = '1';
-        } else {
-          overlayElement.style.visibility = 'hidden';
-          overlayElement.style.opacity = '0';
-        }
-      });
+      pointerMoveTimeoutRef.current = setTimeout(() => {
+        const pixel = map.getEventPixel(event.originalEvent);
+        const feature = map.forEachFeatureAtPixel(pixel, (feature) => feature);
+
+        overlaysRef.current.forEach((overlay) => {
+          const overlayElement = overlay.getElement();
+          if (feature && feature.getGeometry().getCoordinates().toString() === overlay.getPosition().toString()) {
+            overlayElement.style.visibility = 'visible';
+            overlayElement.style.opacity = '1';
+          } else {
+            overlayElement.style.visibility = 'hidden';
+            overlayElement.style.opacity = '0';
+          }
+        });
+      }, 50); // Debounce time in milliseconds
     };
 
     map.on('pointermove', handlePointerMove);
@@ -353,7 +360,7 @@ const getGradient = (minTemp, maxTemp) => {
 // Helper function for heatmap animation
 const animateHeatmap = (heatmapLayer) => {
   let opacity = 0.7;
-  let radius = 35; // Match the increased radius
+  let radius = 25;
   let opacityIncreasing = true;
   let radiusIncreasing = true;
 
@@ -365,8 +372,8 @@ const animateHeatmap = (heatmapLayer) => {
 
     // Adjust radius
     radius += radiusIncreasing ? 0.2 : -0.2;
-    if (radius >= 40) radiusIncreasing = false;
-    if (radius <= 30) radiusIncreasing = true;
+    if (radius >= 30) radiusIncreasing = false;
+    if (radius <= 20) radiusIncreasing = true;
 
     // Apply changes
     heatmapLayer.setOpacity(opacity);
