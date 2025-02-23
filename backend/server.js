@@ -6,7 +6,7 @@ import { connectDB } from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js"; // Import chatRoutes
 import cors from "cors"; // Change require to import
-
+import userRoutes from './routes/userRoutes.js'; // Import user routes
 dotenv.config();
 
 const app = express();
@@ -28,6 +28,7 @@ if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "/frontend/dist")));
   app.use("/api/auth", authRoutes);
   app.use("/api/chat", chatRoutes); // Use chatRoutes
+  app.use('/api/users', userRoutes); // Use userRoutes
   app.get("*", (req, res) => {
     res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
   });

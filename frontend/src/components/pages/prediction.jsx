@@ -65,8 +65,8 @@ const PredictionChart = () => {
       </Typography>
       
       <LineChart
-        width={1000}
-        height={500}
+        width={800}
+        height={400}
         series={[
           { 
             data: allTemps,

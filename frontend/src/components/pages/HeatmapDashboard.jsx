@@ -19,6 +19,8 @@ import {
   faWind,
   faThermometerHalf,
 } from "@fortawesome/free-solid-svg-icons";
+import Prediction from "./prediction"; // Import the Prediction component
+import UserList from "../UserList"; // Import the UserList component
 
 ChartJS.register(
   CategoryScale,
@@ -38,7 +40,6 @@ const HeatmapDashboard = () => {
   const [news, setNews] = useState([]); // State for storing news articles
   const [city, setCity] = useState("");
   const [cityWeather, setCityWeather] = useState(null);
-  const [philippineCitiesWeather, setPhilippineCitiesWeather] = useState([]);
   const API_KEY = "b05f228625b60990de863e6193f998af"; // OpenWeather API key
   const NEWS_API_KEY = "934c0580d10f4bb393731591d07b3515"; // Replace with your NewsAPI key
 
@@ -97,7 +98,7 @@ const HeatmapDashboard = () => {
       const response = await axios.get(
         `https://newsapi.org/v2/everything?q=weather+Philippines&apiKey=${NEWS_API_KEY}`
       );
-      setNews(response.data.articles.slice(0, 5)); // Get top 5 articles
+      setNews(response.data.articles.slice(0, 2)); // Get top 2 articles
     } catch (error) {
       console.error("Error fetching news:", error);
     }
@@ -115,39 +116,12 @@ const HeatmapDashboard = () => {
     }
   };
 
-  // Fetch weather data for multiple cities in the Philippines
-  const fetchPhilippineCitiesWeather = async () => {
-    const cities = [
-      'Manila', 'Cebu', 'Davao', 'Cagayan de Oro', 'Zamboanga',
-      'Baguio', 'Iloilo', 'Bacolod', 'General Santos', 'Legazpi',
-      'Puerto Princesa', 'Tacloban', 'Tuguegarao', 'Butuan', 'Dumaguete'
-    ];
-    const weatherData = [];
-
-    for (const city of cities) {
-      try {
-        const response = await axios.get(
-          `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${API_KEY}`
-        );
-        weatherData.push({
-          city: city,
-          temperature: response.data.main.temp,
-        });
-      } catch (error) {
-        console.error(`Error fetching data for ${city}:`, error);
-      }
-    }
-
-    setPhilippineCitiesWeather(weatherData);
-  };
-
   useEffect(() => {
     fetchWeatherData();
     fetchWeatherNews();
-    fetchPhilippineCitiesWeather();
 
-    // Refresh news every 6 hours
-    const newsInterval = setInterval(fetchWeatherNews, 6 * 60 * 60 * 1000);
+    // Refresh news every 5 minutes
+    const newsInterval = setInterval(fetchWeatherNews, 5 * 60 * 1000);
 
     return () => clearInterval(newsInterval); // Cleanup interval on unmount
   }, []);
@@ -223,7 +197,7 @@ const HeatmapDashboard = () => {
   }
 
   return (
-    <div className="w-full mx-auto p-4 border border-gray-300 rounded-md bg-white shadow-md">
+    <div className="w-full mx-auto p-4 border border-gray-300 rounded-md bg-gradient-to-r from-blue-100 to-blue-200 shadow-md">
       <h3 className="text-xl font-semibold mb-3">Weather Dashboard</h3>
 
       {/* Interactive Filters */}
@@ -265,7 +239,7 @@ const HeatmapDashboard = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* 3-Day Forecast */}
-        <div>
+        <div className="bg-white p-4 rounded-md shadow-md">
           <h4 className="text-lg font-semibold mb-2">3-Day Forecast</h4>
           <div className="space-y-2">
             {weatherData.map((day, index) => (
@@ -315,31 +289,25 @@ const HeatmapDashboard = () => {
             )}
           </div>
 
-          {/* Philippine Cities Temperatures */}
+          {/* Prediction Component */}
           <div className="mt-4">
-            <h4 className="text-lg font-semibold mb-2">Philippine Cities Temperatures</h4>
-            <div className="space-y-2">
-              {philippineCitiesWeather.map((cityWeather, index) => (
-                <div key={index} className="p-2 border border-gray-200 rounded-md">
-                  <p className="font-medium">{cityWeather.city}</p>
-                  <p>Temperature: {cityWeather.temperature}°C</p>
-                </div>
-              ))}
-            </div>
+            <Prediction />
           </div>
         </div>
 
         {/* Charts */}
-        <div>
+        <div className="bg-white p-4 rounded-md shadow-md">
           <h4 className="text-lg font-semibold mb-2">Weather Trends</h4>
-          <Line data={lineChartData} options={lineChartOptions} />
+          <div className="w-full h-420 mx-auto">
+            <Line data={lineChartData} options={lineChartOptions} />
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <div>
               <h4 className="text-lg font-semibold mb-2">
                 Temperature Distribution
               </h4>
-              <div className="w-650 h-64 mx-auto">
+              <div className="w-full h-250 mx-auto">
                 <Pie data={pieChartData} options={pieChartOptions} />
               </div>
             </div>
@@ -365,6 +333,11 @@ const HeatmapDashboard = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* User List */}
+      <div className="mt-8">
+        <UserList />
       </div>
     </div>
   );
