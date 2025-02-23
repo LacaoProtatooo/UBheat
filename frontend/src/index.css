@@ -19,6 +19,15 @@
   text-align: center;
   color: #000; /* Text color */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Add a subtle shadow */
+  background-color: rgba(255, 255, 255, 0.8); /* Background color */
+  visibility: hidden; /* Initially hidden */
+  transition: visibility 0.2s, opacity 0.2s; /* Smooth transition */
+  opacity: 0; /* Initially transparent */
+}
+
+.temperature-overlay.visible {
+  visibility: visible; /* Show on hover */
+  opacity: 1; /* Fully opaque on hover */
 }
 
 .weather-overlay {

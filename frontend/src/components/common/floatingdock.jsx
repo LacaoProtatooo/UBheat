@@ -72,7 +72,7 @@ const FloatingDockUBheat = () => {
 
       <Modal>
         <ModalBody>
-          <ModalContent className="overflow-auto max-h-full">
+          <ModalContent className="overflow-auto max-h-full" style={{ zIndex: 10 }}>
             <button 
               onClick={() => setOpen(false)} 
               className="absolute top-2 right-2 text-gray-600 dark:text-gray-400"

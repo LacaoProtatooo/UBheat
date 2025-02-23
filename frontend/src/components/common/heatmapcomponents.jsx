@@ -8,6 +8,118 @@ import Point from 'ol/geom/Point';
 import Overlay from 'ol/Overlay';
 import { Heatmap as HeatmapLayer } from 'ol/layer';
 import VectorSource from 'ol/source/Vector';
+import { Style, Fill, Stroke } from 'ol/style';
+import VectorLayer from 'ol/layer/Vector';
+import { GeoJSON } from 'ol/format';
+
+// Import region GeoJSON data
+import Region1 from '../../utils/regions/region-1.json';
+import Region2 from '../../utils/regions/region-2.json';
+import Region3 from '../../utils/regions/region-3.json';
+import Region4A from '../../utils/regions/region-4A.json';
+import Region4B from '../../utils/regions/region-4B.json';
+import Region5 from '../../utils/regions/region-5.json';
+import Region6 from '../../utils/regions/region-6.json';
+import Region7 from '../../utils/regions/region-7.json';
+import Region8 from '../../utils/regions/region-8.json';
+import Region9 from '../../utils/regions/region-9.json';
+import Region10 from '../../utils/regions/region-10.json';
+import Region11 from '../../utils/regions/region-11.json';
+import Region12 from '../../utils/regions/region-12.json';
+import Region13 from '../../utils/regions/region-13.json';
+import RegionCAR from '../../utils/regions/region-car.json';
+import RegionNCR from '../../utils/regions/region-ncr.json';
+import RegionBARMM from '../../utils/regions/region-barmm.json';
+
+// Custom color palette for Philippine regions
+export const REGION_COLORS = {
+    'NCR': '#FF0000',        // Dark Red
+    'CAR': '#FF7F7F',        // Light Red
+    'Region 1': '#FF7F00',   // Dark Orange
+    'Region 2': '#FFBF80',   // Light Orange
+    'Region 3': '#FFFF00',   // Dark Yellow
+    'Region 4A': '#FFFF99',  // Light Yellow
+    'Region 4B': '#00FF00',  // Dark Green
+    'Region 5': '#99FF99',   // Light Green
+    'Region 6': '#00FFFF',   // Dark Cyan
+    'Region 7': '#99FFFF',   // Light Cyan
+    'Region 8': '#0000FF',   // Dark Blue
+    'Region 9': '#8080FF',   // Light Blue
+    'Region 10': '#4B0082',  // Dark Indigo
+    'Region 11': '#9A4DFF',  // Light Indigo
+    'Region 12': '#9400D3',  // Dark Violet
+    'Region 13': '#D899FF',  // Light Violet
+    'BARMM': '#FF00FF'       // Magenta
+};
+
+export const regionGeoJSON = {
+    'NCR': RegionNCR,
+    'CAR': RegionCAR,
+    'Region 1': Region1,
+    'Region 2': Region2,
+    'Region 3': Region3,
+    'Region 4A': Region4A,
+    'Region 4B': Region4B,
+    'Region 5': Region5,
+    'Region 6': Region6,
+    'Region 7': Region7,
+    'Region 8': Region8,
+    'Region 9': Region9,
+    'Region 10': Region10,
+    'Region 11': Region11,
+    'Region 12': Region12,
+    'Region 13': Region13,
+    'BARMM': RegionBARMM
+};
+
+// Define a function that creates a vector layer for a given region
+export const createRegionLayer = (regionName, geojsonData) => {
+  return new VectorLayer({
+      source: new VectorSource({
+          format: new GeoJSON(),
+          features: new GeoJSON().readFeatures(geojsonData, {
+              featureProjection: 'EPSG:3857'
+          })
+      }),
+      style: new Style({
+          fill: new Fill({
+              color: `${REGION_COLORS[regionName]}22` // Decreased opacity to 20%
+          }),
+          stroke: new Stroke({
+              color: REGION_COLORS[regionName],
+              width: 2 // Increased stroke width
+          })
+      }),
+      zIndex: 3 // Higher zIndex to bring to foreground
+  });
+};
+
+export const RegionLegend = () => (
+  <div style={{
+    position: 'absolute',
+    bottom: '50px',
+    left: '20px',
+    zIndex: 10,
+    backgroundColor: 'white',
+    padding: '10px',
+    borderRadius: '5px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+  }}>
+    <h4>Philippine Regions</h4>
+    {Object.entries(REGION_COLORS).map(([region, color]) => (
+      <div key={region} style={{ display: 'flex', alignItems: 'center', margin: '5px 0' }}>
+        <div style={{
+          width: '20px',
+          height: '20px',
+          backgroundColor: color,
+          marginRight: '10px',
+          border: `1px solid ${color}`
+        }}></div>
+        <span>{region}</span>
+      </div>
+    ))}
+  </div>
+);
 
 // Clock Component
 export const Clock = ({ mapRef }) => {
@@ -23,7 +135,7 @@ export const Clock = ({ mapRef }) => {
     clockElement.style.borderRadius = '5px';
     clockElement.style.fontFamily = 'Arial, sans-serif';
     clockElement.style.fontSize = '16px';
-    clockElement.style.zIndex = '1000';
+    clockElement.style.zIndex = '10'; // Set zIndex to 10
     mapRef.current.appendChild(clockElement);
     clockRef.current = clockElement;
 
@@ -48,77 +160,6 @@ export const Clock = ({ mapRef }) => {
   return null;
 };
 
-// Smoke Effect Component
-export const SmokeEffect = ({ mapRef, weatherData }) => {
-  const canvasRef = useRef(null);
-  const smokeParticlesRef = useRef([]);
-
-  useEffect(() => {
-    const canvas = document.createElement('canvas');
-    canvas.style.position = 'absolute';
-    canvas.style.top = '0';
-    canvas.style.left = '0';
-    canvas.style.pointerEvents = 'none';
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    mapRef.current.appendChild(canvas);
-    canvasRef.current = canvas;
-
-    const ctx = canvas.getContext('2d');
-
-    const createSmokeParticles = (weatherData) => {
-      smokeParticlesRef.current = [];
-      weatherData.forEach((data) => {
-        const color = data.temperature <= 16 ? 'blue' : data.temperature <= 30 ? 'yellow' : 'red';
-        for (let i = 0; i < 20; i++) {
-          smokeParticlesRef.current.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            radius: Math.random() * 5 + 2,
-            color: color,
-            velocityX: (Math.random() - 0.5) * 0.5,
-            velocityY: (Math.random() - 0.5) * 0.5,
-          });
-        }
-      });
-    };
-
-    const animateSmoke = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      smokeParticlesRef.current.forEach((particle) => {
-        particle.x += particle.velocityX;
-        particle.y += particle.velocityY;
-        particle.velocityX += (Math.random() - 0.5) * 0.1;
-        particle.velocityY += (Math.random() - 0.5) * 0.1;
-
-        if (particle.x < 0 || particle.x > canvas.width || particle.y < 0 || particle.y > canvas.height) {
-          particle.x = Math.random() * canvas.width;
-          particle.y = Math.random() * canvas.height;
-          particle.velocityX = (Math.random() - 0.5) * 1;
-          particle.velocityY = (Math.random() - 0.5) * 1;
-        }
-
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
-        ctx.fillStyle = particle.color;
-        ctx.globalAlpha = 0.3 + Math.random() * 0.3;
-        ctx.fill();
-      });
-
-      requestAnimationFrame(animateSmoke);
-    };
-
-    createSmokeParticles(weatherData);
-    animateSmoke();
-
-    return () => {
-      mapRef.current.removeChild(canvas);
-    };
-  }, [mapRef, weatherData]);
-
-  return null;
-};
-
 // Heatmap Component
 export const HeatmapComponent = ({ map, weatherData }) => {
   const overlaysRef = useRef([]);
@@ -137,8 +178,8 @@ export const HeatmapComponent = ({ map, weatherData }) => {
 
     const heatmapLayer = new HeatmapLayer({
       source: new VectorSource({ features: heatmapFeatures }),
-      blur: 20,
-      radius: 25,
+      blur: 30, // Increase blur to make the hover area larger
+      radius: 35, // Increase radius to make the hover area larger
       gradient: gradient,
       opacity: 0.7,
     });
@@ -157,13 +198,6 @@ export const HeatmapComponent = ({ map, weatherData }) => {
       overlayElement.className = 'temperature-overlay';
       overlayElement.innerHTML = `${data.city}: ${data.temperature}°C`;
 
-      overlayElement.addEventListener('click', () => {
-        alert(`Weather in ${data.city}:
-        Temperature: ${data.temperature}°C
-        Humidity: ${data.humidity}%
-        Wind Speed: ${data.windSpeed} km/h`);
-      });
-
       overlayElement.style.backgroundColor =
         data.temperature <= 16 ? 'rgba(0, 0, 255, 0.7)' :
         data.temperature <= 30 ? 'rgba(255, 255, 0, 0.7)' :
@@ -180,8 +214,27 @@ export const HeatmapComponent = ({ map, weatherData }) => {
       overlaysRef.current.push(overlay);
     });
 
+    const handlePointerMove = (event) => {
+      const pixel = map.getEventPixel(event.originalEvent);
+      const feature = map.forEachFeatureAtPixel(pixel, (feature) => feature);
+
+      overlaysRef.current.forEach((overlay) => {
+        const overlayElement = overlay.getElement();
+        if (feature && feature.getGeometry().getCoordinates().toString() === overlay.getPosition().toString()) {
+          overlayElement.style.visibility = 'visible';
+          overlayElement.style.opacity = '1';
+        } else {
+          overlayElement.style.visibility = 'hidden';
+          overlayElement.style.opacity = '0';
+        }
+      });
+    };
+
+    map.on('pointermove', handlePointerMove);
+
     return () => {
       overlaysRef.current.forEach((overlay) => map.removeOverlay(overlay));
+      map.un('pointermove', handlePointerMove);
     };
   }, [map, weatherData]);
 
@@ -196,7 +249,7 @@ export const SearchComponent = ({ setSearchCity, fetchSearchCityWeather }) => {
         position: 'absolute',
         top: '20px',
         right: '20px',
-        zIndex: 1000,
+        zIndex: 10,
         backgroundColor: 'rgba(255, 255, 255, 0.8)',
         borderRadius: '50%',
         padding: '10px',
@@ -226,7 +279,7 @@ export const WeatherInfo = ({ averageTemperature, hazardousWaterLevels }) => {
         position: 'absolute',
         bottom: '80px',
         right: '20px',
-        zIndex: 1000,
+        zIndex: 10,
         backgroundColor: 'rgba(255, 255, 255, 0.8)',
         borderRadius: '10px',
         padding: '10px',
@@ -257,7 +310,7 @@ export const SearchResult = ({ searchResult }) => {
         position: 'absolute',
         top: '60px',
         right: '20px',
-        zIndex: 1000,
+        zIndex: 10,
         backgroundColor: 'rgba(255, 255, 255, 0.8)',
         borderRadius: '10px',
         padding: '10px',
@@ -300,7 +353,7 @@ const getGradient = (minTemp, maxTemp) => {
 // Helper function for heatmap animation
 const animateHeatmap = (heatmapLayer) => {
   let opacity = 0.7;
-  let radius = 25;
+  let radius = 35; // Match the increased radius
   let opacityIncreasing = true;
   let radiusIncreasing = true;
 
@@ -312,8 +365,8 @@ const animateHeatmap = (heatmapLayer) => {
 
     // Adjust radius
     radius += radiusIncreasing ? 0.2 : -0.2;
-    if (radius >= 30) radiusIncreasing = false;
-    if (radius <= 20) radiusIncreasing = true;
+    if (radius >= 40) radiusIncreasing = false;
+    if (radius <= 30) radiusIncreasing = true;
 
     // Apply changes
     heatmapLayer.setOpacity(opacity);

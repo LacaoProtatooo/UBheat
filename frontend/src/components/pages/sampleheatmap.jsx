@@ -8,7 +8,7 @@ import { Style, Fill, Stroke } from 'ol/style';
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { fromLonLat } from 'ol/proj';
-import { Clock, SmokeEffect, SearchComponent, WeatherInfo, SearchResult } from '../common/heatmapcomponents';
+import { Clock, SearchComponent, WeatherInfo, SearchResult } from '../common/heatmapcomponents';
 import OSM from 'ol/source/OSM';
 import { GeoJSON } from 'ol/format';
 
@@ -32,24 +32,25 @@ import RegionBARMM from '../../utils/regions/region-barmm.json';
 
 // Custom color palette for Philippine regions
 const REGION_COLORS = {
-    'NCR': '#ff4757',
-    'CAR': '#2ed573',
-    'Region 1': '#ffa502', // Ilocos
-    'Region 2': '#70a1ff', // Cagayan Valley
-    'Region 3': '#7bed9f', // Central Luzon
-    'Region 4A': '#ff6b81', // Calabarzon
-    'Region 4B': '#5352ed', // Mimaropa
-    'Region 5': '#2f3542', // Bicol
-    'Region 6': '#eccc68', // Western Visayas
-    'Region 7': '#ff7f50', // Central Visayas
-    'Region 8': '#747d8c', // Eastern Visayas
-    'Region 9': '#2ed573', // Zamboanga Peninsula
-    'Region 10': '#ffa502', // Northern Mindanao
-    'Region 11': '#70a1ff', // Davao
-    'Region 12': '#7bed9f', // Soccsksargen
-    'Region 13': '#ff6b81', // Caraga
-    'BARMM': '#5352ed' // Bangsamoro
+    'NCR': '#FF0000',        // Red
+    'CAR': '#FF7F00',        // Orange
+    'Region 1': '#FFFF00',   // Yellow
+    'Region 2': '#7FFF00',   // Yellow-Green
+    'Region 3': '#00FF00',   // Green
+    'Region 4A': '#00FF7F',  // Spring Green
+    'Region 4B': '#00FFFF',  // Cyan
+    'Region 5': '#007FFF',   // Azure
+    'Region 6': '#0000FF',   // Blue
+    'Region 7': '#7F00FF',   // Indigo
+    'Region 8': '#9400D3',   // Violet
+    'Region 9': '#BF00BF',   // Purple
+    'Region 10': '#FF00FF',  // Magenta
+    'Region 11': '#FF007F',  // Rose
+    'Region 12': '#FF1493',  // Deep Pink
+    'Region 13': '#FF4500',  // Red-Orange
+    'BARMM': '#FFD700'       // Gold (for variety)
 };
+
 
 const regionGeoJSON = {
     'NCR': RegionNCR,
@@ -142,7 +143,6 @@ const Heatmap = ({ style = { height: '92vh', width: '100%' } }) => {
             {mapInstance && (
                 <>
                     <Clock mapRef={mapRef} />
-                    <SmokeEffect mapRef={mapRef} weatherData={weatherData} />
                 </>
             )}
             <SearchComponent setSearchCity={setSearchCity} fetchSearchCityWeather={fetchSearchCityWeather} />
