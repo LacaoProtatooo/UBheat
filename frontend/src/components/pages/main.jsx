@@ -11,6 +11,7 @@ import { useCO2Emissions, CO2EmissionsModal, YearSelectSlider } from "../common/
 import { GoodEffectsTextField } from "../ui/good-effects-textfield";
 import { BadEffectsTextField } from "../ui/bad-effects-textfield";
 import regression from 'regression';
+import { Link } from "react-router-dom";
 
 // Predictive data model
 const usePredictiveModel = () => {
@@ -135,6 +136,14 @@ const Main = () => {
     }
   };
 
+  // Add this function to store logs
+  const storeLog = (log) => {
+    const storedLogs = JSON.parse(localStorage.getItem("userLogs")) || [];
+    storedLogs.push(log);
+    localStorage.setItem("userLogs", JSON.stringify(storedLogs));
+  };
+
+  // Update the handleYearChange function to store logs
   const handleYearChange = useCallback(debounce(async (newYear) => {
     const yearIndex = allYears.indexOf(newYear);
     if (yearIndex === -1) return;
@@ -170,6 +179,14 @@ const Main = () => {
       
       setGoodEffects(good);
       setBadEffects(bad);
+
+      // Store the log
+      storeLog({
+        temperature: temp,
+        co2Emissions: co2,
+        emissionRate: emissionRate,
+        analysis: `Good Effects: ${good}\nBad Effects: ${bad}`
+      });
     } catch (error) {
       setGoodEffects("Error loading analysis");
       setBadEffects("Error loading analysis");
@@ -279,6 +296,9 @@ const Main = () => {
         ))}
       </BentoGrid>
       <FloatingDockUBheat />
+      <Link to="/logs" className="text-blue-500 hover:text-blue-700 mt-4">
+        View Logs
+      </Link>
     </div>
   );
 };
