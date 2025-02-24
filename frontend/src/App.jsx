@@ -31,7 +31,7 @@ function App() {
       >
         <Routes>
           <Route path="/prediction" element={<Prediction />} />
-          <Route path="/about" element={<About />} />
+          <Route path="/landing" element={<About />} />
           <Route path="/chatbot" element={<Chatbot />} />
           <Route path="/heatmap" element={<Heatmap />} />
           <Route path="/sampleheatmap" element={<SampleHeatmap />} />

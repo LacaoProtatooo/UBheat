@@ -1,149 +1,186 @@
-import React, { Suspense } from 'react';
-import { TracingBeam } from '../ui/tracing-beam';
-import { TypewriterEffect } from '../ui/typewriter-effect';
-import { Vortex } from '../ui/vortex';
-import { Card } from '../ui/card'; // Import the Card component
+import React, { useState } from 'react';
+import { Container, TextField, Button, Avatar, Typography, Grid, Paper, CircularProgress } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import { CloudUpload } from '@material-ui/icons';
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    padding: theme.spacing(4),
+    marginTop: theme.spacing(4),
+    borderRadius: theme.spacing(2),
+    boxShadow: theme.shadows[10],
+    background: 'linear-gradient(145deg, #ffffff, #e6f3ff)',
+    transition: 'transform 0.3s, box-shadow 0.3s',
+    '&:hover': {
+      transform: 'translateY(-5px)',
+      boxShadow: theme.shadows[20],
+    },
+  },
+  avatar: {
+    width: theme.spacing(15),
+    height: theme.spacing(15),
+    margin: 'auto',
+    cursor: 'pointer',
+    transition: 'transform 0.2s, box-shadow 0.2s',
+    boxShadow: theme.shadows[5],
+    '&:hover': {
+      transform: 'scale(1.1)',
+      boxShadow: theme.shadows[10],
+    },
+  },
+  input: {
+    display: 'none',
+  },
+  button: {
+    marginTop: theme.spacing(2),
+    padding: theme.spacing(1.5),
+    fontWeight: 'bold',
+    background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+    color: 'white',
+    boxShadow: theme.shadows[5],
+    '&:hover': {
+      background: 'linear-gradient(45deg, #1976D2 30%, #1E88E5 90%)',
+    },
+  },
+  uploadButton: {
+    marginTop: theme.spacing(2),
+    background: 'white',
+    color: '#2196F3',
+    border: '2px solid #2196F3',
+    '&:hover': {
+      background: '#2196F3',
+      color: 'white',
+    },
+  },
+  progress: {
+    marginLeft: theme.spacing(2),
+    color: 'white',
+  },
+  title: {
+    color: '#2196F3',
+    fontWeight: 'bold',
+    marginBottom: theme.spacing(3),
+  },
+  textField: {
+    '& .MuiOutlinedInput-root': {
+      '& fieldset': {
+        borderColor: '#2196F3',
+      },
+      '&:hover fieldset': {
+        borderColor: '#1976D2',
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: '#2196F3',
+      },
+    },
+  },
+}));
 
 const ProfilePage = () => {
-  // Sample data for skills and team members
-  const skills = [
-    { title: 'React', description: 'Building interactive UIs with React.' },
-    { title: 'Node.js', description: 'Developing scalable backend systems.' },
-    { title: 'Tailwind CSS', description: 'Creating beautiful, responsive designs.' },
-    { title: 'Figma', description: 'Designing user-friendly interfaces.' },
-    { title: 'Python', description: 'Data analysis and automation.' },
-    { title: 'MongoDB', description: 'NoSQL database management.' },
-  ];
+  const classes = useStyles();
+  const [name, setName] = useState('John Doe');
+  const [number, setNumber] = useState('+1234567890');
+  const [avatar, setAvatar] = useState('https://via.placeholder.com/150');
+  const [bio, setBio] = useState('I love coding and designing!');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const teamMembers = [
-    {
-      id: 1,
-      name: 'John Doe',
-      designation: 'Frontend Developer',
-      image: 'https://example.com/john-doe.jpg',
-    },
-    {
-      id: 2,
-      name: 'Jane Smith',
-      designation: 'Backend Developer',
-      image: 'https://example.com/jane-smith.jpg',
-    },
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatar(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
-    {
-      id: 3,
-      name: 'Spider Smith',
-      designation: 'Fullstack Developer',
-      image: 'https://example.com/jane-smith.jpg',
-    },
-  ];
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    // Simulate API call
+    setTimeout(() => {
+      console.log('Updated Profile:', { name, number, avatar, bio });
+      setIsLoading(false);
+    }, 2000);
+  };
 
   return (
-    <div className="bg-zinc-900 w-full min-h-screen text-white">
-      {/* Hero Section */}
-      <div className="h-screen flex items-center justify-center relative overflow-hidden">
-        <Suspense fallback={<div>Loading...</div>}>
-          <Vortex
-            backgroundColor="transparent"
-            particleCount={500}
-            baseHue={200}
-            className="w-full h-full"
-          />
-        </Suspense>
-        <div className="z-50 text-center">
-          <TypewriterEffect
-            words={[
-              { text: 'Hello,', className: 'text-white' },
-              { text: "We're", className: 'text-white' },
-              { text: 'The', className: 'text-blue-500' },
-              { text: 'UBheat', className: 'text-blue-500' },
-            ]}
-            cursorClassName="bg-blue-500"
-          />
-          <p className="mt-4 text-neutral-300 text-lg">
-            A passionate developer building amazing web experiences.
-          </p>
-        </div>
-      </div>
-
-      {/* About Section */}
-      <div className="py-20">
-        <TracingBeam>
-          <div className="max-w-2xl mx-auto p-4">
-            <h2 className="text-3xl font-bold mb-4">About Me</h2>
-            <p className="text-neutral-300 mb-4">
-              I'm a full-stack developer with a passion for creating beautiful and functional web
-              applications. I specialize in React, Node.js, and Tailwind CSS, and I love working on
-              projects that challenge me to learn and grow.
-            </p>
-            <p className="text-neutral-300 mb-4">
-              I'm a full-stack developer with a passion for creating beautiful and functional web
-              applications. I specialize in React, Node.js, and Tailwind CSS, and I love working on
-              projects that challenge me to learn and grow.
-            </p>
-            <p className="text-neutral-300 mb-4">
-              I'm a full-stack developer with a passion for creating beautiful and functional web
-              applications. I specialize in React, Node.js, and Tailwind CSS, and I love working on
-              projects that challenge me to learn and grow.
-            </p>
-            <p className="text-neutral-300">
-              When I'm not coding, you can find me exploring new technologies, contributing to
-              open-source projects, or playing video games.
-            </p>
-          </div>
-        </TracingBeam>
-      </div>
-
-      {/* Skills Section */}
-      <div className="py-20 bg-zinc-800">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-8">Skills</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {skills.map((skill, index) => (
-              <div key={index} className="p-4 bg-white dark:bg-zinc-800 rounded-lg shadow-md">
-                <h3 className="text-xl font-bold mb-2">{skill.title}</h3>
-                <p className="text-neutral-600 dark:text-neutral-300">{skill.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Team Section */}
-      <div className="py-20">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-8">Team</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {teamMembers.map((member) => (
-              <Card key={member.id} className="flex flex-col items-center p-4 bg-white dark:bg-zinc-800 rounded-lg shadow-md">
-                <img
-                  src='https://i.pinimg.com/736x/b2/ae/40/b2ae40091e18730921c79241f25e7cff.jpg'
-                  alt={member.name}
-                  className="w-20 h-20 rounded-full object-cover mb-4"
-                />
-                <h3 className="text-xl font-bold mb-2">{member.name}</h3>
-                <p className="text-neutral-600 dark:text-neutral-300">{member.designation}</p>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Contact Section */}
-      <div className="py-20 bg-zinc-800">
-        <div className="max-w-2xl mx-auto p-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">Get in Touch</h2>
-          <p className="text-neutral-300 mb-4">
-            Have a project in mind or just want to say hi? Feel free to reach out!
-          </p>
-          <a
-            href="mailto:john.doe@example.com"
-            className="px-6 py-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
-          >
-            Contact Me
-          </a>
-        </div>
-      </div>
-    </div>
+    <Container maxWidth="sm">
+      <Paper className={classes.root}>
+        <Typography variant="h4" align="center" className={classes.title}>
+          Edit Profile
+        </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12} align="center">
+            <input
+              accept="image/*"
+              className={classes.input}
+              id="avatar-upload"
+              type="file"
+              onChange={handleAvatarChange}
+            />
+            <label htmlFor="avatar-upload">
+              <Avatar src={avatar} className={classes.avatar} />
+            </label>
+            <label htmlFor="avatar-upload">
+              <Button
+                variant="outlined"
+                component="span"
+                startIcon={<CloudUpload />}
+                className={classes.uploadButton}
+              >
+                Upload Avatar
+              </Button>
+            </label>
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Name"
+              variant="outlined"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className={classes.textField}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Phone Number"
+              variant="outlined"
+              value={number}
+              onChange={(e) => setNumber(e.target.value)}
+              className={classes.textField}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Bio"
+              variant="outlined"
+              multiline
+              rows={4}
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              className={classes.textField}
+            />
+          </Grid>
+          <Grid item xs={12} align="center">
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleSubmit}
+              className={classes.button}
+              disabled={isLoading}
+            >
+              Save Changes
+              {isLoading && <CircularProgress size={24} className={classes.progress} />}
+            </Button>
+          </Grid>
+        </Grid>
+      </Paper>
+    </Container>
   );
 };
 

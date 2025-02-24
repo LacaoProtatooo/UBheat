@@ -28,7 +28,12 @@ export const ChatbotComponent = () => {
 
   return (
     <div className="w-full mx-auto p-4 border border-gray-300 rounded-md bg-white shadow-md" style={{ zIndex: 10 }}>
-      <h3 className="text-xl font-semibold mb-3">Chatbot</h3>
+      <h3 className="text-xl font-semibold mb-3">UBheat</h3>
+      <img
+        src="/UB_Logo.png"
+        alt="UBHeat Logo"
+        className="w-16 h-16 mb-3"
+      />
       <div className="h-96 overflow-y-auto p-2 border border-gray-200 rounded-md mb-3">
         {messages.map((msg, index) => (
           <div
@@ -39,7 +44,7 @@ export const ChatbotComponent = () => {
                 : "bg-gray-200 text-left"
             }`}
           >
-            <strong>{msg.sender === "user" ? "You" : "Bot"}:</strong>{" "}
+            <strong>{msg.sender === "user" ? "You" : "UBheat"}:</strong>{" "}
             {msg.sender === "bot" ? (
               <TextGenerateEffect words={msg.text} className="inline-block" />
             ) : (
