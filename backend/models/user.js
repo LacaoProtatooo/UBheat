@@ -6,6 +6,8 @@ const UserSchema = new mongoose.Schema({
   lastName: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  isVerified: { type: Boolean, default: false },
+  verificationToken: { type: String },
 });
 
 UserSchema.pre('save', async function (next) {
@@ -15,4 +17,4 @@ UserSchema.pre('save', async function (next) {
 });
 
 const User = mongoose.model('User', UserSchema);
-export default User;  // ✅ Use ES module export
+export default User;

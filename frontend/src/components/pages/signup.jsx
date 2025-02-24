@@ -12,6 +12,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 export function SignupFormDemo() {
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const validate = (firstname, lastname, email, password) => {
     const newErrors = {};
@@ -33,9 +34,11 @@ export function SignupFormDemo() {
     const newErrors = validate(firstname.value, lastname.value, email.value, password.value);
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      // Object.values(newErrors).forEach(error => toast.error(error));
       return;
     }
+
+    setLoading(true);
+    const loadingToastId = toast.loading("Signing up...");
 
     try {
       const response = await fetch('http://localhost:5000/api/auth/signup', {
@@ -51,16 +54,17 @@ export function SignupFormDemo() {
 
       const data = await response.json();
       if (response.ok) {
-        console.log('Signup successful:', data);
-        // Redirect to login or handle as needed
-        window.location.href = '/login'; // Redirect to login page
+        toast.update(loadingToastId, { render: 'Signup successful! Please check your email to verify your account.', type: 'success', isLoading: false, autoClose: 5000 });
+        setTimeout(() => {
+          window.location.href = '/login'; // Redirect to login page
+        }, 5000);
       } else {
-        console.error('Signup failed:', data.msg);
-        toast.error(data.msg);
+        toast.update(loadingToastId, { render: data.msg, type: 'error', isLoading: false, autoClose: 5000 });
       }
     } catch (error) {
-      console.error('Error:', error);
-      toast.error('An error occurred. Please try again.');
+      toast.update(loadingToastId, { render: 'An error occurred. Please try again.', type: 'error', isLoading: false, autoClose: 5000 });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -113,8 +117,9 @@ export function SignupFormDemo() {
           <button
             className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
             type="submit"
+            disabled={loading}
           >
-            Sign up &rarr;
+            {loading ? 'Signing up...' : 'Sign up →'}
             <BottomGradient />
           </button>
 

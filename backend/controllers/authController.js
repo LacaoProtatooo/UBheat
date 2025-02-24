@@ -1,46 +1,35 @@
 import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import nodemailer from 'nodemailer';
-
-const transporter = nodemailer.createTransport({
-  host: process.env.MAILTRAP_HOST,
-  port: process.env.MAILTRAP_PORT,
-  auth: {
-    user: process.env.MAILTRAP_USER,
-    pass: process.env.MAILTRAP_PASS,
-  },
-});
+import crypto from 'crypto';
+import { sendVerificationEmail } from '../utils/mailer.js';
 
 export const signup = async (req, res) => {
   const { firstName, lastName, email, password } = req.body;
+
   try {
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ msg: 'User already exists' });
 
-    user = new User({ firstName, lastName, email, password });
-    await user.save();
+    const verificationToken = crypto.randomBytes(20).toString('hex');
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-    const mailOptions = {
-      from: '"UBheat" <no-reply@ubheat.com>',
-      to: email,
-      subject: 'Account Created',
-      text: `Welcome to UBheat, ${firstName}! Your account has been successfully created.`,
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        return console.log(error);
-      }
-      console.log('Message sent: %s', info.messageId);
+    user = new User({
+      firstName,
+      lastName,
+      email,
+      password,
+      verificationToken,
     });
 
-    res.status(201).json({ token });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
+    await user.save();
+
+    const verificationLink = `http://localhost:5000/api/auth/verify-email?token=${verificationToken}`;
+    await sendVerificationEmail(email, verificationLink);
+
+    res.status(201).json({ message: 'Signup successful! Please check your email to verify your account.' });
+  } catch (error) {
+    console.error('Error during signup:', error);
+    res.status(500).json({ message: 'Signup failed. Please try again.' });
   }
 };
 
@@ -59,5 +48,26 @@ export const login = async (req, res) => {
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
+  }
+};
+
+export const verifyEmail = async (req, res) => {
+  const { token } = req.query;
+
+  try {
+    const user = await User.findOne({ verificationToken: token });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid verification token.' });
+    }
+
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    await user.save();
+
+    res.status(200).json({ message: 'Email verified successfully!' });
+  } catch (error) {
+    console.error('Error verifying email:', error);
+    res.status(500).json({ message: 'Email verification failed. Please try again.' });
   }
 };
