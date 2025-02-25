@@ -14,12 +14,12 @@ const ProfilePage = () => {
 
   // Sample data for skills and team members
   const skills = [
-    { title: 'React', description: 'Building interactive UIs with React.' },
-    { title: 'Node.js', description: 'Developing scalable backend systems.' },
-    { title: 'Tailwind CSS', description: 'Creating beautiful, responsive designs.' },
-    { title: 'Figma', description: 'Designing user-friendly interfaces.' },
-    { title: 'Python', description: 'Data analysis and automation.' },
-    { title: 'MongoDB', description: 'NoSQL database management.' },
+    { title: 'Accurate', description: 'Provide accurate data' },
+    { title: 'Reliable', description: 'Assure Realiable information' },
+    { title: 'Awareness', description: 'Make you safe from heat' },
+    { title: 'Forecast', description: 'Forecast temperature on your screen' },
+    { title: 'Plan', description: 'Help you plan your day' },
+    { title: 'Compare', description: 'Compare following temperature or the next day' },
   ];
 
   const teamMembers = [
@@ -66,7 +66,7 @@ const ProfilePage = () => {
             cursorClassName="bg-blue-600" // Changed cursor color to blue
           />
           <p className="mt-4 text-zinc-600 text-lg"> {/* Changed text color to dark gray */}
-            A passionate developer building amazing web experiences.
+            We created heatmap simulation.
           </p>
           <Button
             variant="contained"
@@ -85,51 +85,28 @@ const ProfilePage = () => {
           <div className="max-w-2xl mx-auto p-4">
             <h2 className="text-3xl font-bold mb-4 text-blue-600">Who are we?</h2> {/* Changed to blue */}
             <p className="text-zinc-600 mb-4"> {/* Changed text color to dark gray */}
-              I'm a full-stack developer with a passion for creating beautiful and functional web
-              applications. I specialize in React, Node.js, and Tailwind CSS, and I love working on
-              projects that challenge me to learn and grow.
+              Welcome to Heat Index Weather Forecast! Our mission is to provide you with accurate and reliable information about the heat index in your area, helping you stay informed about the potential risks posed by high temperatures.
             </p>
             <p className="text-zinc-600 mb-4"> {/* Changed text color to dark gray */}
-              I'm a full-stack developer with a passion for creating beautiful and functional web
-              applications. I specialize in React, Node.js, and Tailwind CSS, and I love working on
-              projects that challenge me to learn and grow.
+              The heat index, often referred to as the “apparent temperature,” is a measure of how hot it feels when humidity is factored in with the actual air temperature. This is important because high humidity can make it feel much hotter than it really is, potentially increasing the risk of heat-related illnesses like heat exhaustion or heat stroke.
             </p>
             <p className="text-zinc-600 mb-4"> {/* Changed text color to dark gray */}
-              I'm a full-stack developer with a passion for creating beautiful and functional web
-              applications. I specialize in React, Node.js, and Tailwind CSS, and I love working on
-              projects that challenge me to learn and grow.
+              Heat index values are crucial in preventing health emergencies related to extreme heat. When the heat index reaches dangerous levels, it is important to take proper precautions to protect yourself and those around you. This includes staying hydrated, limiting outdoor activities, wearing appropriate clothing, and seeking shade or air-conditioned spaces whenever possible.
             </p>
             <p className="text-zinc-600"> {/* Changed text color to dark gray */}
-              When I'm not coding, you can find me exploring new technologies, contributing to
-              open-source projects, or playing video games.
+              Stay ahead of the heat and take the necessary precautions to protect your health. Explore our website for daily heat index reports, safety guidelines, and more resources to help you stay cool.
             </p>
           </div>
 
           <div className="max-w-2xl mx-auto p-4">
             <h2 className="text-3xl font-bold mb-4 text-blue-600">Our History</h2> {/* Changed to blue */}
-   
-            <p className="text-zinc-600 mb-4"> {/* Changed text color to dark gray */}
-              I'm a full-stack developer with a passion for creating beautiful and functional web
-              applications. I specialize in React, Node.js, and Tailwind CSS, and I love working on
-              projects that challenge me to learn and grow.
-            </p>
-            <p className="text-zinc-600 mb-4"> {/* Changed text color to dark gray */}
-              I'm a full-stack developer with a passion for creating beautiful and functional web
-              applications. I specialize in React, Node.js, and Tailwind CSS, and I love working on
-              projects that challenge me to learn and grow.
-            </p>
-            <p className="text-zinc-600 mb-4"> {/* Changed text color to dark gray */}
-              I'm a full-stack developer with a passion for creating beautiful and functional web
-              applications. I specialize in React, Node.js, and Tailwind CSS, and I love working on
-              projects that challenge me to learn and grow.
-            </p>
-            <p className="text-zinc-600"> {/* Changed text color to dark gray */}
-              When I'm not coding, you can find me exploring new technologies, contributing to
-              open-source projects, or playing video games.
+
+            <p className="text-zinc-600">
+              We are a team of third-year students from Technological University of the Philippines – Taguig, dedicated to developing innovative solutions in data visualization. Under the guidance of Prof. Pops Madriaga, we created this heatmap simulation to analyze and predict urban heat distribution, contributing to research on climate and environmental trends.
             </p>
           </div>
 
-          
+
         </TracingBeam>
       </div>
 
@@ -148,7 +125,7 @@ const ProfilePage = () => {
       {/* Skills Section */}
       <div className="py-20 bg-blue-50"> {/* Changed background to light blue */}
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-8 text-blue-600">Skills</h2> {/* Changed to blue */}
+          <h2 className="text-3xl font-bold text-center mb-8 text-blue-600">Mission & Vision</h2> {/* Changed to blue */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {skills.map((skill, index) => (
               <div key={index} className="p-4 bg-white rounded-lg shadow-md border border-blue-100"> {/* Added blue border */}
@@ -156,6 +133,7 @@ const ProfilePage = () => {
                 <p className="text-zinc-600">{skill.description}</p> {/* Changed text color to dark gray */}
               </div>
             ))}
+            
           </div>
         </div>
       </div>
@@ -207,7 +185,7 @@ const ProfilePage = () => {
             Have a project in mind or just want to say hi? Feel free to reach out!
           </p>
           <a
-            href="mailto:john.doe@example.com"
+            href="mailto:ubheatsim@gmail.com"
             className="px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors" // Changed button color to blue
           >
             Contact Me
