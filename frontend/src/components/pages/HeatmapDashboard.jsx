@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Line, Pie } from "react-chartjs-2";
 import {
@@ -21,6 +21,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Prediction from "./prediction"; // Import the Prediction component
 import UserList from "../UserList"; // Import the UserList component
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 ChartJS.register(
   CategoryScale,
@@ -42,6 +44,7 @@ const HeatmapDashboard = () => {
   const [cityWeather, setCityWeather] = useState(null);
   const API_KEY = "b05f228625b60990de863e6193f998af"; // OpenWeather API key
   const NEWS_API_KEY = "934c0580d10f4bb393731591d07b3515"; // Replace with your NewsAPI key
+  const dashboardRef = useRef(null); // Reference to the dashboard container
 
   // Fetch weather data from OpenWeather API
   const fetchWeatherData = async () => {
@@ -192,13 +195,45 @@ const HeatmapDashboard = () => {
     },
   };
 
+  const generatePDF = () => {
+    const dashboardElement = dashboardRef.current;
+
+    html2canvas(dashboardElement).then((canvas) => {
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+  
+      // Add a cover page
+      pdf.setFontSize(22);
+      pdf.text("UBheat Dashboard Report", 20, 30);
+      pdf.setFontSize(16);
+      pdf.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 40);
+  
+      // Add the dashboard content
+      const imgWidth = 210;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      pdf.addPage();
+      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+  
+      // Save the PDF
+      pdf.save("dashboard_report.pdf");
+    });
+  };
+
   if (loading) {
     return <div className="p-4">Loading weather data...</div>;
   }
 
   return (
-    <div className="w-full mx-auto p-4 border border-gray-300 rounded-md bg-gradient-to-r from-blue-100 to-blue-200 shadow-md">
+    <div ref={dashboardRef} className="w-full mx-auto p-4 border border-gray-300 rounded-md bg-gradient-to-r from-blue-100 to-blue-200 shadow-md">
       <h3 className="text-xl font-semibold mb-3">UBheat Dashboard</h3>
+
+      {/* Add a button to generate the PDF */}
+      <button
+        onClick={generatePDF}
+        className="px-4 py-2 bg-blue-500 text-white rounded-md mb-4"
+      >
+        Generate PDF Report
+      </button>
 
       {/* Interactive Filters */}
       <div className="flex space-x-4 mb-4">

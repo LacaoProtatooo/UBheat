@@ -4,14 +4,13 @@ import { debounce } from "lodash";
 import { BentoGrid, BentoGridItem } from "../ui/bento-grid";
 import { IconClipboardCopy, IconFileBroken } from "@tabler/icons-react";
 import { SkeletonOne } from "../ui/bento-grid";
-import Heatmap from "./Heatmap";
+import Staticheatmap from "./staticheatmap";
 import FloatingDockUBheat from "../common/floatingdock";
 import SliderSizes from "../ui/custom-slider";
 import { useCO2Emissions, CO2EmissionsModal, YearSelectSlider } from "../common/mainlayoutcomponents";
 import { GoodEffectsTextField } from "../ui/good-effects-textfield";
 import { BadEffectsTextField } from "../ui/bad-effects-textfield";
 import regression from 'regression';
-import { Link } from "react-router-dom";
 
 // Predictive data model
 const usePredictiveModel = () => {
@@ -64,7 +63,7 @@ const usePredictiveModel = () => {
   return React.useMemo(() => calculatePredictions(), []);
 };
 
-const Main = () => {
+const StaticMain = () => {
   // Initialize state first
   const [selectedYear, setSelectedYear] = useState(2022);
   const [goodEffects, setGoodEffects] = useState("");
@@ -136,14 +135,6 @@ const Main = () => {
     }
   };
 
-  // Add this function to store logs
-  const storeLog = (log) => {
-    const storedLogs = JSON.parse(localStorage.getItem("userLogs")) || [];
-    storedLogs.push(log);
-    localStorage.setItem("userLogs", JSON.stringify(storedLogs));
-  };
-
-  // Update the handleYearChange function to store logs
   const handleYearChange = useCallback(debounce(async (newYear) => {
     const yearIndex = allYears.indexOf(newYear);
     if (yearIndex === -1) return;
@@ -179,14 +170,6 @@ const Main = () => {
       
       setGoodEffects(good);
       setBadEffects(bad);
-
-      // Store the log
-      storeLog({
-        temperature: temp,
-        co2Emissions: co2,
-        emissionRate: emissionRate,
-        analysis: `Good Effects: ${good}\nBad Effects: ${bad}`
-      });
     } catch (error) {
       setGoodEffects("Error loading analysis");
       setBadEffects("Error loading analysis");
@@ -198,7 +181,7 @@ const Main = () => {
       title: "",
       description: (
         <div className="mb-4 overflow-hidden">
-          <Heatmap />
+          <Staticheatmap />
         </div>
       ),
       header: <SkeletonOne />,
@@ -296,11 +279,8 @@ const Main = () => {
         ))}
       </BentoGrid>
       <FloatingDockUBheat />
-      <Link to="/logs" className="text-blue-500 hover:text-blue-700 mt-4">
-        View Logs
-      </Link>
     </div>
   );
 };
 
-export default Main;
+export default StaticMain;
