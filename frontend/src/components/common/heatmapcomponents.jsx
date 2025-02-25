@@ -192,7 +192,7 @@ export const HeatmapComponent = ({ map, weatherData }) => {
     });
 
     map.addLayer(heatmapLayer);
-    animateHeatmap(heatmapLayer);
+    animateHeatmap(heatmapLayer, map);
 
     weatherData.forEach((data) => {
       const overlayElement = document.createElement('div');
@@ -358,29 +358,28 @@ const getGradient = (minTemp, maxTemp) => {
 };
 
 // Helper function for heatmap animation
-const animateHeatmap = (heatmapLayer) => {
-  let opacity = 0.7;
-  let radius = 25;
-  let opacityIncreasing = true;
-  let radiusIncreasing = true;
+const animateHeatmap = (heatmapLayer, map) => {
+  const baseRadius = 25; // Fixed base radius in pixels
+  const delta = 1;       // Maximum oscillation (in pixels)
+  let currentRadius = baseRadius;
+  let increasing = true;
 
   const animate = () => {
-    // Adjust opacity
-    opacity += opacityIncreasing ? 0.01 : -0.01;
-    if (opacity >= 1) opacityIncreasing = false;
-    if (opacity <= 0.5) opacityIncreasing = true;
-
-    // Adjust radius
-    radius += radiusIncreasing ? 0.2 : -0.2;
-    if (radius >= 30) radiusIncreasing = false;
-    if (radius <= 20) radiusIncreasing = true;
-
-    // Apply changes
-    heatmapLayer.setOpacity(opacity);
-    heatmapLayer.setRadius(radius);
-
+    // Update currentRadius in fixed pixel units
+    if (increasing) {
+      currentRadius += 0.2;
+      if (currentRadius >= baseRadius + delta) {
+        increasing = false;
+      }
+    } else {
+      currentRadius -= 0.2;
+      if (currentRadius <= baseRadius - delta) {
+        increasing = true;
+      }
+    }
+    // Set the radius—since it's in pixels, it remains fixed regardless of zoom
+    heatmapLayer.setRadius(currentRadius);
     requestAnimationFrame(animate);
   };
-
   animate();
 };
