@@ -160,49 +160,99 @@ export const Clock = ({ mapRef }) => {
   return null;
 };
 
-// Heatmap Component
+const generateRandomFeatures = (baseCoords, numFeatures, radiusInMeters) => {
+  const features = [];
+  const [baseLon, baseLat] = baseCoords;
+  // Approximate conversion: 1° latitude ≈ 110,540 meters,
+  // and 1° longitude ≈ 111,320 * cos(latitude) meters.
+  const latDegreeRadius = radiusInMeters / 110540;
+  const lonDegreeRadius =
+    radiusInMeters / (111320 * Math.cos((baseLat * Math.PI) / 180));
+
+  for (let i = 0; i < numFeatures; i++) {
+    // Random offset between -1 and 1 multiplied by degree radius
+    const randomOffsetLat = (Math.random() * 2 - 1) * latDegreeRadius;
+    const randomOffsetLon = (Math.random() * 2 - 1) * lonDegreeRadius;
+    const randomLon = baseLon + randomOffsetLon;
+    const randomLat = baseLat + randomOffsetLat;
+
+    const feature = new Feature({
+      geometry: new Point(fromLonLat([randomLon, randomLat])),
+      weight: Math.random(), // Adjust as needed
+    });
+    features.push(feature);
+  }
+  return features;
+};
+
+
+// Integrated Heatmap Component
 export const HeatmapComponent = ({ map, weatherData }) => {
   const overlaysRef = useRef([]);
   const pointerMoveTimeoutRef = useRef(null);
 
   useEffect(() => {
-    const heatmapFeatures = weatherData.map((data) => {
-      return new Feature({
-        geometry: new Point(fromLonLat(data.location)),
-        weight: data.temperature,
-      });
-    });
+    if (!map || !weatherData.length) return;
 
-    const minTemp = Math.min(...weatherData.map(d => d.temperature));
-    const maxTemp = Math.max(...weatherData.map(d => d.temperature));
+    // Create a new vector source for our heatmap features
+    const vectorSource = new VectorSource();
+
+    // Calculate a gradient based on weatherData temperature range
+    const minTemp = Math.min(...weatherData.map((d) => d.temperature));
+    const maxTemp = Math.max(...weatherData.map((d) => d.temperature));
     const gradient = getGradient(minTemp, maxTemp);
 
+    // Create the heatmap layer using the vector source
     const heatmapLayer = new HeatmapLayer({
-      source: new VectorSource({ features: heatmapFeatures }),
+      source: vectorSource,
       blur: 20,
       radius: 25,
       gradient: gradient,
       opacity: 0.7,
     });
 
+    // Remove any pre-existing heatmap layers and add our new one
     map.getLayers().forEach((layer) => {
       if (layer instanceof HeatmapLayer) {
         map.removeLayer(layer);
       }
     });
-
     map.addLayer(heatmapLayer);
-    animateHeatmap(heatmapLayer, map);
 
+    // Generate features based on weather data
+    const weatherFeatures = weatherData.map((data) => {
+      return new Feature({
+        geometry: new Point(fromLonLat(data.location)),
+        weight: data.temperature,
+      });
+    });
+
+    // Define a base coordinate for the random features (e.g., main city: Manila)
+    const mainCityCoords = [120.984222, 14.599512];
+
+    // Function to update the heatmap with both weather and random features
+    const updateHeatmap = () => {
+      const randomFeatures = generateRandomFeatures(mainCityCoords, 10, 5000); // 10 random features within a 5 km radius
+      vectorSource.clear();
+      // Merge weatherData features with random features
+      vectorSource.addFeatures([...weatherFeatures, ...randomFeatures]);
+    };
+
+    // Initial update and then every 5 seconds
+    updateHeatmap();
+    const intervalId = setInterval(updateHeatmap, 5000);
+
+    // Add overlays for each weatherData feature
     weatherData.forEach((data) => {
       const overlayElement = document.createElement('div');
       overlayElement.className = 'temperature-overlay';
       overlayElement.innerHTML = `${data.city}: ${data.temperature}°C`;
-
       overlayElement.style.backgroundColor =
-        data.temperature <= 16 ? 'rgba(0, 0, 255, 0.7)' :
-        data.temperature <= 30 ? 'rgba(255, 255, 0, 0.7)' :
-                                 'rgba(255, 0, 0, 0.7)';
+        data.temperature <= 16
+          ? 'rgba(0, 0, 255, 0.7)'
+          : data.temperature <= 30
+          ? 'rgba(255, 255, 0, 0.7)'
+          : 'rgba(255, 0, 0, 0.7)';
 
       const overlay = new Overlay({
         position: fromLonLat(data.location),
@@ -215,18 +265,22 @@ export const HeatmapComponent = ({ map, weatherData }) => {
       overlaysRef.current.push(overlay);
     });
 
+    // Handle pointer move events to show/hide overlays when hovering on features
     const handlePointerMove = (event) => {
       if (pointerMoveTimeoutRef.current) {
         clearTimeout(pointerMoveTimeoutRef.current);
       }
-
       pointerMoveTimeoutRef.current = setTimeout(() => {
         const pixel = map.getEventPixel(event.originalEvent);
         const feature = map.forEachFeatureAtPixel(pixel, (feature) => feature);
 
         overlaysRef.current.forEach((overlay) => {
           const overlayElement = overlay.getElement();
-          if (feature && feature.getGeometry().getCoordinates().toString() === overlay.getPosition().toString()) {
+          if (
+            feature &&
+            feature.getGeometry().getCoordinates().toString() ===
+              overlay.getPosition().toString()
+          ) {
             overlayElement.style.visibility = 'visible';
             overlayElement.style.opacity = '1';
           } else {
@@ -234,12 +288,15 @@ export const HeatmapComponent = ({ map, weatherData }) => {
             overlayElement.style.opacity = '0';
           }
         });
-      }, 50); // Debounce time in milliseconds
+      }, 50);
     };
 
     map.on('pointermove', handlePointerMove);
 
+    // Cleanup on unmount or when dependencies change
     return () => {
+      clearInterval(intervalId);
+      map.removeLayer(heatmapLayer);
       overlaysRef.current.forEach((overlay) => map.removeOverlay(overlay));
       map.un('pointermove', handlePointerMove);
     };
