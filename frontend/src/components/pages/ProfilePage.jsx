@@ -9,12 +9,15 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(4),
     borderRadius: theme.spacing(2),
     boxShadow: theme.shadows[10],
-    background: 'linear-gradient(145deg, #ffffff, #e6f3ff)',
+    backgroundColor: '#8EC0F9', // Changed background color to #8EC0F9
+    backgroundSize: 'cover', 
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
     transition: 'transform 0.3s, box-shadow 0.3s',
     '&:hover': {
       transform: 'translateY(-5px)',
-      boxShadow: theme.shadows[20],
     },
+    color: 'white',  // Ensured text is white on this background
   },
   avatar: {
     width: theme.spacing(15),
@@ -27,28 +30,30 @@ const useStyles = makeStyles((theme) => ({
       transform: 'scale(1.1)',
       boxShadow: theme.shadows[10],
     },
+    color: 'white',
   },
   input: {
     display: 'none',
+    color: 'white',
   },
   button: {
     marginTop: theme.spacing(2),
     padding: theme.spacing(1.5),
     fontWeight: 'bold',
-    background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+    background: '#6C9EF0', // Changed button background to #8EC0F9
     color: 'white',
     boxShadow: theme.shadows[5],
     '&:hover': {
-      background: 'linear-gradient(45deg, #1976D2 30%, #1E88E5 90%)',
+      background: 'rgb(0, 119, 255)', // Darker shade for hover
     },
   },
   uploadButton: {
     marginTop: theme.spacing(2),
     background: 'white',
-    color: '#2196F3',
-    border: '2px solid #2196F3',
+    color: '#8EC0F9', // Text color adjusted to match the form's color scheme
+    border: '2px solid #8EC0F9',
     '&:hover': {
-      background: '#2196F3',
+      background: 'rgb(0, 119, 255)',
       color: 'white',
     },
   },
@@ -57,22 +62,23 @@ const useStyles = makeStyles((theme) => ({
     color: 'white',
   },
   title: {
-    color: '#2196F3',
+    color: 'white',
     fontWeight: 'bold',
     marginBottom: theme.spacing(3),
   },
   textField: {
     '& .MuiOutlinedInput-root': {
       '& fieldset': {
-        borderColor: '#2196F3',
+        borderColor: 'White', // Changed text field border color
       },
       '&:hover fieldset': {
-        borderColor: '#1976D2',
+        borderColor: 'rgb(0, 119, 255)',
       },
       '&.Mui-focused fieldset': {
-        borderColor: '#2196F3',
+        borderColor: '#8EC0F9',
       },
     },
+    color: 'white',
   },
 }));
 
