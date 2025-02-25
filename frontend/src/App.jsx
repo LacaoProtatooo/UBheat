@@ -18,6 +18,7 @@ import Login from './components/pages/login';
 import ProfilePage from './components/pages/ProfilePage';
 import Prediction from './components/pages/prediction';
 import SampleHeatmap from './components/pages/sampleheatmap';
+import StaticMain from './components/pages/staticmain';
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/v2" element={<StaticMain />} />
           <Route path="/" element={<Main />} />
         </Routes>
       </Router>
