@@ -64,30 +64,49 @@ const UserLogsPage = () => {
   }, [logs]);
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">User Logs</h1>
-      {logs.length === 0 ? (
-        <p>No logs available.</p>
-      ) : (
-        <div className="mb-8">
+    <div className="min-h-screen bg-gray-100 p-8">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-800">User Logs Dashboard</h1>
+        <PDFDownloadLink
+          document={<LogReportPDF logs={logs} chartImage={chartImage} />}
+          fileName="user_logs_report.pdf"
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300"
+        >
+          {({ loading }) => (loading ? "Generating Report..." : "Download PDF Report")}
+        </PDFDownloadLink>
+      </div>
+
+      {/* Dashboard Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Chart Section */}
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold text-gray-700 mb-4">Temperature & CO2 Emissions</h2>
           <div ref={chartRef}>
             <Line data={chartData} options={chartOptions} />
           </div>
-          <ul>
-            {logs.map((log, index) => (
-              <li key={index} className="mb-2">
-                <p><strong>Temperature:</strong> {log.temperature}°C</p>
-                <p><strong>CO2 Emissions:</strong> {log.co2Emissions} MtCO2</p>
-                <p><strong>Emission Rate:</strong> {log.emissionRate}%</p>
-                <p><strong>Analysis:</strong> {log.analysis}</p>
-              </li>
-            ))}
-          </ul>
         </div>
-      )}
-      <PDFDownloadLink document={<LogReportPDF logs={logs} chartImage={chartImage} />} fileName="user_logs_report.pdf">
-        {({ loading }) => (loading ? "Loading document..." : "Download PDF Report")}
-      </PDFDownloadLink>
+
+        {/* Logs Section */}
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold text-gray-700 mb-4">Log Entries</h2>
+          {logs.length === 0 ? (
+            <p className="text-gray-500">No logs available.</p>
+          ) : (
+            <div className="space-y-4">
+              {logs.map((log, index) => (
+                <div key={index} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition duration-300">
+                  <p className="text-sm text-gray-600"><strong>Log {index + 1}</strong></p>
+                  <p className="text-sm text-gray-600"><strong>Temperature:</strong> {log.temperature}°C</p>
+                  <p className="text-sm text-gray-600"><strong>CO2 Emissions:</strong> {log.co2Emissions} MtCO2</p>
+                  <p className="text-sm text-gray-600"><strong>Emission Rate:</strong> {log.emissionRate}%</p>
+                  <p className="text-sm text-gray-600"><strong>Analysis:</strong> {log.analysis}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
