@@ -23,7 +23,7 @@ const FloatingDockUBheat = () => {
     { 
       title: "Home", 
       icon: <IconHome className="h-8 w-8 text-neutral-500 dark:text-neutral-300" />, 
-      href: "#" 
+      href: "/" 
     },
     { 
       title: "Chatbot", 
@@ -53,9 +53,9 @@ const FloatingDockUBheat = () => {
       href: "#",
     },
     { 
-      title: "Changelog", 
+      title: "V2 Map", 
       icon: <IconExchange className="h-8 w-8 text-neutral-500 dark:text-neutral-300" />, 
-      href: "#" 
+      href: "/v2" 
     },
     { 
       title: "GitHub", 

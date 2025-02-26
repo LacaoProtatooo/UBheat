@@ -11,7 +11,7 @@ import VectorSource from 'ol/source/Vector';
 import { Style, Fill, Stroke } from 'ol/style';
 import VectorLayer from 'ol/layer/Vector';
 import { GeoJSON } from 'ol/format';
-import CircleStyle from 'ol/style/Circle';  
+import CircleStyle from 'ol/style/Circle';
 
 // Import region GeoJSON data
 import Region1 from '../../utils/regions/region-1.json';
@@ -73,7 +73,6 @@ export const regionGeoJSON = {
   'BARMM': RegionBARMM
 };
 
-// Define a function that creates a vector layer for a given region
 export const createRegionLayer = (regionName, geojsonData) => {
   return new VectorLayer({
     source: new VectorSource({
@@ -84,14 +83,14 @@ export const createRegionLayer = (regionName, geojsonData) => {
     }),
     style: new Style({
       fill: new Fill({
-        color: `${REGION_COLORS[regionName]}22` // Decreased opacity to 20%
+        color: `${REGION_COLORS[regionName]}22`
       }),
       stroke: new Stroke({
         color: REGION_COLORS[regionName],
-        width: 2 // Increased stroke width
+        width: 2
       })
     }),
-    zIndex: 3 // Higher zIndex to bring to foreground
+    zIndex: 3
   });
 };
 
@@ -122,10 +121,8 @@ export const RegionLegend = () => (
   </div>
 );
 
-// Clock Component
 export const Clock = ({ mapRef }) => {
   const clockRef = useRef(null);
-
   useEffect(() => {
     const clockElement = document.createElement('div');
     clockElement.style.position = 'absolute';
@@ -136,51 +133,45 @@ export const Clock = ({ mapRef }) => {
     clockElement.style.borderRadius = '5px';
     clockElement.style.fontFamily = 'Arial, sans-serif';
     clockElement.style.fontSize = '16px';
-    clockElement.style.zIndex = '10'; // Set zIndex to 10
+    clockElement.style.zIndex = '10';
     mapRef.current.appendChild(clockElement);
     clockRef.current = clockElement;
-
     const updateClock = () => {
       const now = new Date();
-      const philippineTime = new Date(now.getTime() + (8 * 60 * 60 * 1000)); // Convert to UTC+8
+      const philippineTime = new Date(now.getTime() + (8 * 60 * 60 * 1000));
       const hours = philippineTime.getUTCHours().toString().padStart(2, '0');
       const minutes = philippineTime.getUTCMinutes().toString().padStart(2, '0');
       const seconds = philippineTime.getUTCSeconds().toString().padStart(2, '0');
       clockRef.current.textContent = `Philippine Time: ${hours}:${minutes}:${seconds}`;
     };
-
     const clockIntervalId = setInterval(updateClock, 1000);
     updateClock();
-
     return () => {
       clearInterval(clockIntervalId);
-      mapRef.current.removeChild(clockRef.current);
+      if (mapRef.current && clockRef.current) {
+        mapRef.current.removeChild(clockRef.current);
+      }
     };
   }, [mapRef]);
-
   return null;
 };
 
 const generateRandomFeatures = (cityCoordsArray, numFeaturesPerCity, radiusInMeters) => {
   const features = [];
-  
   cityCoordsArray.forEach(([baseLon, baseLat]) => {
     const latDegreeRadius = radiusInMeters / 110540;
     const lonDegreeRadius = radiusInMeters / (111320 * Math.cos((baseLat * Math.PI) / 180));
-
     for (let i = 0; i < numFeaturesPerCity * 20; i++) {
       const randomOffsetLat = (Math.random() * 2 - 1) * latDegreeRadius;
       const randomOffsetLon = (Math.random() * 2 - 1) * lonDegreeRadius;
       const randomLon = baseLon + randomOffsetLon;
       const randomLat = baseLat + randomOffsetLat;
-
       features.push(new Feature({
         geometry: new Point(fromLonLat([randomLon, randomLat])),
         weight: Math.random(),
       }));
     }
   });
-  
   return features;
 };
 
@@ -189,11 +180,8 @@ export const HeatmapComponent = ({ map, weatherData, emissionRate, resultMtCO2, 
   const pointerMoveTimeoutRef = useRef(null);
   const animationFrameRef = useRef(null);
   const heatmapLayerRef = useRef(null);
-
   useEffect(() => {
     if (!map || !weatherData.length) return;
-
-    // Add animation styles for overlays
     const style = document.createElement('style');
     style.textContent = `
       .temperature-overlay {
@@ -213,12 +201,10 @@ export const HeatmapComponent = ({ map, weatherData, emissionRate, resultMtCO2, 
       }
     `;
     document.head.appendChild(style);
-
     const vectorSource = new VectorSource();
     const minTemp = Math.min(...weatherData.map((d) => d.temperature));
     const maxTemp = Math.max(...weatherData.map((d) => d.temperature));
     const gradient = getGradient(minTemp, maxTemp);
-
     const heatmapLayer = new HeatmapLayer({
       source: vectorSource,
       blur: 50,
@@ -227,22 +213,17 @@ export const HeatmapComponent = ({ map, weatherData, emissionRate, resultMtCO2, 
       opacity: 0.7,
     });
     heatmapLayerRef.current = heatmapLayer;
-
     map.getLayers().forEach((layer) => {
       if (layer instanceof HeatmapLayer) map.removeLayer(layer);
     });
     map.addLayer(heatmapLayer);
-
-    // Start heatmap animation
     animateHeatmap(heatmapLayer);
-
     const weatherFeatures = weatherData.map((data) => {
       return new Feature({
         geometry: new Point(fromLonLat(data.location)),
         weight: data.temperature,
       });
     });
-
     const cityPointsSource = new VectorSource({
       features: weatherFeatures.map(feature => {
         feature.setStyle(new Style({
@@ -255,61 +236,53 @@ export const HeatmapComponent = ({ map, weatherData, emissionRate, resultMtCO2, 
         return feature;
       })
     });
-    
     const cityPointsLayer = new VectorLayer({
       source: cityPointsSource,
       zIndex: 4
     });
     map.addLayer(cityPointsLayer);
-
     const cityCoordsArray = weatherData.map(data => data.location);
-    
     const updateHeatmap = () => {
-      const randomFeatures = generateRandomFeatures(cityCoordsArray, 5, 23000); 
+      const randomFeatures = generateRandomFeatures(cityCoordsArray, 5, 23000);
       vectorSource.clear();
       vectorSource.addFeatures([...weatherFeatures, ...randomFeatures]);
     };
-
     updateHeatmap();
     const intervalId = setInterval(updateHeatmap, 2000);
-
     // Overlay creation: show original temperature along with adjusted temperature and CO₂ rate info.
     weatherData.forEach((data) => {
       const overlayElement = document.createElement('div');
       overlayElement.className = 'temperature-overlay';
       let content = `${data.city}: ${data.temperature}°C`;
       if (emissionRate !== 0) {
-        content += `<br/>Adjusted Temp: ${adjustedTemp.toFixed(2)}°C`;
-        content += `<br/>CO₂ Rate: ${activeCO2.toFixed(2)} MtCO₂`;
+        // Safe fallback: if adjustedTemp or activeCO2 are not numbers, default them.
+        const dispAdjustedTemp = typeof adjustedTemp === 'number' ? adjustedTemp : data.temperature;
+        const dispActiveCO2 = typeof activeCO2 === 'number' ? activeCO2 : 0;
+        content += `<br/>Adjusted Temp: ${dispAdjustedTemp.toFixed(2)}°C`;
+        content += `<br/>CO₂ Rate: ${dispActiveCO2.toFixed(2)} MtCO₂`;
       }
       overlayElement.innerHTML = content;
       overlayElement.style.backgroundColor = 
         data.temperature <= 16 ? 'rgba(0, 0, 255, 0.7)' :
         data.temperature <= 30 ? 'rgba(255, 255, 0, 0.7)' :
         'rgba(255, 0, 0, 0.7)';
-
       const overlay = new Overlay({
         position: fromLonLat(data.location),
         element: overlayElement,
         positioning: 'bottom-center',
         stopEvent: false,
       });
-
       map.addOverlay(overlay);
       overlaysRef.current.push(overlay);
     });
-
     const handlePointerMove = (event) => {
       if (pointerMoveTimeoutRef.current) clearTimeout(pointerMoveTimeoutRef.current);
       pointerMoveTimeoutRef.current = setTimeout(() => {
         const pixel = map.getEventPixel(event.originalEvent);
         const feature = map.forEachFeatureAtPixel(pixel, (feature) => feature);
-
         overlaysRef.current.forEach((overlay) => {
           const overlayElement = overlay.getElement();
-          const positionMatch = feature?.getGeometry().getCoordinates().toString() === 
-                                overlay.getPosition().toString();
-
+          const positionMatch = feature?.getGeometry().getCoordinates().toString() === overlay.getPosition().toString();
           if (positionMatch) {
             overlayElement.classList.add('active');
           } else {
@@ -318,9 +291,7 @@ export const HeatmapComponent = ({ map, weatherData, emissionRate, resultMtCO2, 
         });
       }, 50);
     };
-
     map.on('pointermove', handlePointerMove);
-
     return () => {
       clearInterval(intervalId);
       document.head.removeChild(style);
@@ -331,11 +302,9 @@ export const HeatmapComponent = ({ map, weatherData, emissionRate, resultMtCO2, 
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
     };
   }, [map, weatherData, emissionRate, resultMtCO2, adjustedTemp, activeCO2]);
-
   return null;
 };
 
-// Search Component
 export const SearchComponent = ({ setSearchCity, fetchSearchCityWeather }) => {
   return (
     <div
@@ -365,7 +334,6 @@ export const SearchComponent = ({ setSearchCity, fetchSearchCityWeather }) => {
   );
 };
 
-// Weather Info Component
 export const WeatherInfo = ({ averageTemperature, hazardousWaterLevels }) => {
   return (
     <div
@@ -394,10 +362,8 @@ export const WeatherInfo = ({ averageTemperature, hazardousWaterLevels }) => {
   );
 };
 
-// Search Result Component
 export const SearchResult = ({ searchResult }) => {
   if (!searchResult) return null;
-
   return (
     <div
       style={{
@@ -434,71 +400,60 @@ export const SearchResult = ({ searchResult }) => {
   );
 };
 
-// Helper function for gradient
 const getGradient = (minTemp, maxTemp) => {
-  // Cold Climate Configuration (Min temp < 10°C)
   if (minTemp < 10) {
     return [
-      '#00008B', // 0-5°C (Dark Blue)
-      '#0000FF', // 5-10°C (Medium Blue)
-      '#00FFFF', // 10-15°C (Cyan)
-      '#7FFFD4', // 15-20°C (Aquamarine)
-      '#FFFF00', // 20-25°C (Yellow)
-      '#FF8C00', // 25-30°C (Dark Orange)
-      '#FF4500', // 30-35°C (Orange-Red)
-      '#FF0000'  // 35°C+ (Bright Red)
+      '#00008B',
+      '#0000FF',
+      '#00FFFF',
+      '#7FFFD4',
+      '#FFFF00',
+      '#FF8C00',
+      '#FF4500',
+      '#FF0000'
     ];
   }
-
-  // Extreme Heat Configuration (Max temp > 35°C)
   if (maxTemp > 35) {
     return [
-      '#0000FF', // 20-25°C (Blue)
-      '#00FFFF', // 25-25.5°C (Cyan)
-      '#00FF7F', // 25.5-26°C (Spring Green)
-      '#FFFF00', // 26-30°C (Yellow)
-      '#FFA500', // 30-35°C (Orange)
-      '#FF4500', // 35-40°C (Orange-Red)
-      '#FF0000', // 40-45°C (Red)
-      '#8B0000'  // 45°C+ (Dark Red)
+      '#0000FF',
+      '#00FFFF',
+      '#00FF7F',
+      '#FFFF00',
+      '#FFA500',
+      '#FF4500',
+      '#FF0000',
+      '#8B0000'
     ];
   }
-
-  // Precision Tropical Range (25-26°C with 0.5°C increments)
   if (minTemp >= 25 && maxTemp <= 26) {
     return [
-      '#00FFFF', // 25.0°C (Cyan)
-      '#40E0D0', // 25.0-25.5°C (Turquoise)
-      '#00FF7F', // 25.5-26.0°C (Spring Green)
-      '#98FB98'  // 26.0°C+ (Pale Green)
+      '#00FFFF',
+      '#40E0D0',
+      '#00FF7F',
+      '#98FB98'
     ];
   }
-
-  // General Warm Range (25-35°C)
   if (minTemp >= 25 && maxTemp <= 35) {
     return [
-      '#00FFFF', // 25.0°C (Cyan)
-      '#00FF7F', // 25.5°C (Spring Green)
-      '#ADFF2F', // 26.0°C (Green-Yellow)
-      '#FFFF00', // 27.0°C (Yellow)
-      '#FFD700', // 28.0°C (Gold)
-      '#FFA500', // 30.0°C (Orange)
-      '#FF4500'  // 35.0°C (Orange-Red)
+      '#00FFFF',
+      '#00FF7F',
+      '#ADFF2F',
+      '#FFFF00',
+      '#FFD700',
+      '#FFA500',
+      '#FF4500'
     ];
   }
-
-  // Default Temperate Configuration
   return [
-    '#0000FF', // 0-10°C (Blue)
-    '#ADD8E6', // 10-20°C (Light Blue)
-    '#90EE90', // 20-25°C (Light Green)
-    '#FFFF00', // 25-25.5°C (Yellow)
-    '#FFB6C1', // 25.5-26°C (Light Pink)
-    '#FFA500', // 26-30°C (Orange)
-    '#FF0000'  // 30°C+ (Red)
+    '#0000FF',
+    '#ADD8E6',
+    '#90EE90',
+    '#FFFF00',
+    '#FFB6C1',
+    '#FFA500',
+    '#FF0000'
   ];
 };
-
 
 // Helper function for heatmap animation
 const animateHeatmap = (heatmapLayer) => {
