@@ -1,14 +1,12 @@
+// filepath: /c:/Users/donna/OneDrive/Desktop/UBheat/UBheat/frontend/src/components/pages/login.jsx
 import React, { useState } from "react";
 import { Label } from "../../components/ui/label";
 import { Input } from "../../components/ui/input";
 import { cn } from "../../utils/cn";
-import {
-  IconBrandGithub,
-  IconBrandGoogle,
-  IconBrandFacebook,
-} from "@tabler/icons-react";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import GoogleLoginButton from '../../components/ui/GoogleLoginButton';
+import GitHubLoginButton from '../../components/ui/GitHubLoginButton';
 
 export function LoginForm() {
   const [errors, setErrors] = useState({});
@@ -31,7 +29,6 @@ export function LoginForm() {
     const newErrors = validate(email.value, password.value);
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      // Object.values(newErrors).forEach(error => toast.error(error));
       return;
     }
 
@@ -58,6 +55,16 @@ export function LoginForm() {
       console.error('Error:', error);
       toast.error('An error occurred. Please try again.');
     }
+  };
+
+  const handleGoogleLoginSuccess = (credentialResponse) => {
+    console.log('Google Login Success:', credentialResponse);
+    // Handle the credential response, e.g., send to your backend for verification
+    window.location.href = 'http://localhost:5173'; // Redirect to the desired URL
+  };
+
+  const handleGoogleLoginFailure = () => {
+    console.log('Google Login Failed');
   };
 
   return (
@@ -105,9 +112,8 @@ export function LoginForm() {
           <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-8 h-[1px] w-full" />
 
           <div className="flex flex-col space-y-4">
-            <SocialButton Icon={IconBrandGithub} label="GitHub" />
-            <SocialButton Icon={IconBrandGoogle} label="Google" />
-            <SocialButton Icon={IconBrandFacebook} label="Facebook" />
+            <GoogleLoginButton onSuccess={handleGoogleLoginSuccess} onError={handleGoogleLoginFailure} />
+            <GitHubLoginButton />
           </div>
         </form>
       </div>
@@ -129,19 +135,6 @@ const LabelInputContainer = ({ children, className }) => {
     <div className={cn("flex flex-col space-y-2 w-full", className)}>
       {children}
     </div>
-  );
-};
-
-const SocialButton = ({ Icon, label }) => {
-  return (
-    <button
-      className="relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)]"
-      type="button"
-    >
-      <Icon className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
-      <span className="text-neutral-700 dark:text-neutral-300 text-sm">{label}</span>
-      <BottomGradient />
-    </button>
   );
 };
 
