@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Line } from "react-chartjs-2";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from "chart.js";
 import LogReportPDF from "../LogReportPDF";
+import html2canvas from "html2canvas";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const UserLogsPage = () => {
   const [logs, setLogs] = useState([]);
+  const [chartImage, setChartImage] = useState(null);
+  const chartRef = useRef(null);
 
   useEffect(() => {
     // Fetch logs from localStorage or an API
@@ -46,6 +49,20 @@ const UserLogsPage = () => {
     },
   };
 
+  const generateChartImage = async () => {
+    if (chartRef.current) {
+      const canvas = await html2canvas(chartRef.current);
+      const image = canvas.toDataURL("image/png");
+      setChartImage(image);
+    }
+  };
+
+  useEffect(() => {
+    if (logs.length > 0) {
+      generateChartImage();
+    }
+  }, [logs]);
+
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">User Logs</h1>
@@ -53,7 +70,9 @@ const UserLogsPage = () => {
         <p>No logs available.</p>
       ) : (
         <div className="mb-8">
-          <Line data={chartData} options={chartOptions} />
+          <div ref={chartRef}>
+            <Line data={chartData} options={chartOptions} />
+          </div>
           <ul>
             {logs.map((log, index) => (
               <li key={index} className="mb-2">
@@ -66,7 +85,7 @@ const UserLogsPage = () => {
           </ul>
         </div>
       )}
-      <PDFDownloadLink document={<LogReportPDF logs={logs} />} fileName="user_logs_report.pdf">
+      <PDFDownloadLink document={<LogReportPDF logs={logs} chartImage={chartImage} />} fileName="user_logs_report.pdf">
         {({ loading }) => (loading ? "Loading document..." : "Download PDF Report")}
       </PDFDownloadLink>
     </div>
