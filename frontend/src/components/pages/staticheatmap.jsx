@@ -7,7 +7,7 @@ import axios from 'axios';
 import { fromLonLat } from 'ol/proj';
 import { Clock, HeatmapComponent, SearchComponent, WeatherInfo, SearchResult } from '../common/heatmapcomponents';
 
-const Staticheatmap = ({ style = { height: '92vh', width: '100%' } }) => {
+const Staticheatmap = ({ style = { height: '92vh', width: '100%' }, emissionRate, resultMtCO2, adjustedTemp, activeCO2 }) => {
     const mapRef = useRef(null);
     const [mapInstance, setMapInstance] = useState(null);
     const [averageTemperature, setAverageTemperature] = useState(null);
@@ -185,7 +185,7 @@ const Staticheatmap = ({ style = { height: '92vh', width: '100%' } }) => {
             "Batac",
             "Vigan",
             "Palayan"
-        ];                
+        ];               
 
         const fetchWeatherData = async () => {
             const apiKey = 'b05f228625b60990de863e6193f998af';
@@ -247,10 +247,16 @@ const Staticheatmap = ({ style = { height: '92vh', width: '100%' } }) => {
             {mapInstance && (
                 <>
                     <Clock mapRef={mapRef} />
-                    <HeatmapComponent map={mapInstance} weatherData={weatherData} />  
+                    <HeatmapComponent 
+                      map={mapInstance} 
+                      weatherData={weatherData}
+                      emissionRate={emissionRate}
+                      resultMtCO2={resultMtCO2}
+                      adjustedTemp={adjustedTemp}
+                      activeCO2={activeCO2}
+                    />  
                 </>
-            )}
-            
+            )}            
             <SearchComponent setSearchCity={setSearchCity} fetchSearchCityWeather={fetchSearchCityWeather} />
             <WeatherInfo averageTemperature={averageTemperature} hazardousWaterLevels={hazardousWaterLevels} />
             <SearchResult searchResult={searchResult} />

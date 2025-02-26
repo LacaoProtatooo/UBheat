@@ -7,64 +7,12 @@ import { SkeletonOne } from "../ui/bento-grid";
 import Staticheatmap from "./staticheatmap";
 import FloatingDockUBheat from "../common/floatingdock";
 import SliderSizes from "../ui/custom-slider";
-import { useCO2Emissions, CO2EmissionsModal, YearSelectSlider } from "../common/mainlayoutcomponents";
+import { useCO2Emissions, CO2EmissionsModal, YearSelectSlider, usePredictiveModel } from "../common/mainlayoutcomponents";
 import { GoodEffectsTextField } from "../ui/good-effects-textfield";
 import { BadEffectsTextField } from "../ui/bad-effects-textfield";
-import regression from 'regression';
-
-// Predictive data model
-const usePredictiveModel = () => {
-  const historicalData = {
-    years: [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023],
-    population: [
-      105312992, 106735719, 108119693, 109465287, 110804683,
-      112081264, 113100950, 113964338, 114891199
-    ],
-    co2Emissions: [113908720, 122214770, 136583970, 142309430, 148800700, 
-                  136678980, 146142190, 155380930, 163150976],
-    temperatures: [26.41, 26.47, 26.53, 26.58, 26.63, 26.67, 26.71, 26.74, 26.78]
-  };
-
-  const futureData = {
-    years: [2024, 2025, 2026, 2027, 2028, 2029, 2030],
-    population: [115843670, 116786962, 117729254, 118671546, 
-                119613838, 120556130, 121498422]
-  };
-
-  const calculatePredictions = () => {
-    const mtco2 = historicalData.co2Emissions.map(x => x / 1000000);
-    
-    const yearTempModel = regression.linear(
-      historicalData.years.map((y, i) => [y, historicalData.temperatures[i]])
-    );
-
-    const co2TempModel = regression.linear(
-      mtco2.map((v, i) => [v, historicalData.temperatures[i]])
-    );
-
-    const futureMtCO2 = futureData.population.map((pop, i) => {
-      const growthRate = 1.015;
-      return mtco2[mtco2.length-1] * Math.pow(growthRate, i+1);
-    });
-
-    const futureTemps = futureMtCO2.map((co2, i) => {
-      const timeProjection = yearTempModel.predict([futureData.years[i]])?.[1] || 0;
-      const co2Projection = co2TempModel.predict([co2])?.[1] || 0;
-      return (timeProjection + co2Projection) / 2;
-    });
-
-    return {
-      allYears: [...historicalData.years, ...futureData.years],
-      allTemps: [...historicalData.temperatures, ...futureTemps],
-      allMtCO2: [...mtco2, ...futureMtCO2],
-    };
-  };
-
-  return React.useMemo(() => calculatePredictions(), []);
-};
 
 const StaticMain = () => {
-  // Initialize state first
+  // State for selected year and current data (predicted from regression)
   const [selectedYear, setSelectedYear] = useState(2022);
   const [goodEffects, setGoodEffects] = useState("");
   const [badEffects, setBadEffects] = useState("");
@@ -73,16 +21,18 @@ const StaticMain = () => {
     co2: 155.38 
   });
 
-  // Then use the state in hook initialization
+  // CO₂ emissions hook using current CO₂ (predicted from regression) as initial base
   const { 
     emissionRate, 
     result, 
     baseMtCO2,
     handleEmissionRateChange,
+    handleBaseMtCO2Change,
     updateBase
   } = useCO2Emissions(currentData.co2);
 
-  const { allYears, allTemps, allMtCO2 } = usePredictiveModel();
+  // Pass the current emissionRate to the predictive model hook
+  const { allYears, allTemps, allMtCO2 } = usePredictiveModel(emissionRate);
 
   useEffect(() => {
     updateBase(currentData.co2);
@@ -99,12 +49,20 @@ const StaticMain = () => {
     }
   }, [selectedYear, yearIndex, allTemps, allMtCO2]);
 
+  // Compute active CO₂ (rate value)
+  const activeCO2 = baseMtCO2 * (emissionRate / 100);
+
   const fetchAIConclusion = async (type, temp, co2, historicalContext) => {
+    const additionalMtCO2Line = emissionRate !== 0 
+      ? `- Adjusted MtCO₂: ${result} MtCO₂` 
+      : "";
+    
     const prompt = `Analyze environmental impacts for the Philippines in ${selectedYear} with:
   - Temperature: ${temp.toFixed(2)}°C (${historicalContext.tempTrend})
-  - CO2 Emissions: ${co2.toFixed(2)} MtCO2 (${historicalContext.co2Trend})
+  - CO2 Emissions: ${co2.toFixed(2)} MtCO₂ (${historicalContext.co2Trend})
   - Emission Rate: ${emissionRate}%
-  - Baseline: ${baseMtCO2.toFixed(2)} MtCO2
+  - Baseline: ${baseMtCO2.toFixed(2)} MtCO₂
+  ${additionalMtCO2Line}
   - Historical Baseline: ${historicalContext.baseTemp.toFixed(2)}°C
   - Linear Trend: 0.5°C/decade
 
@@ -115,8 +73,8 @@ const StaticMain = () => {
   4. Economic factors
   5. Mitigation strategies
   
-  Note that we focus on Urban Heat which is more concentrated in cities and urban areas. rather than climate which is more general and global or weather.`;
-
+  Note that we focus on Urban Heat which is more concentrated in cities and urban areas rather than global climate.`;
+  
     try {
       const response = await axios.post("api/chat", { 
         message: prompt,
@@ -125,6 +83,7 @@ const StaticMain = () => {
           co2,
           emissionRate,
           baseMtCO2,
+          adjustedMtCO2: result,
           historicalTrend: historicalContext
         }
       });
@@ -176,12 +135,19 @@ const StaticMain = () => {
     }
   }, 500), [allYears, allTemps, allMtCO2, baseMtCO2, emissionRate]);
 
+  // Embed the Staticheatmap into the grid so only one map renders.
+  // We now pass additional props: adjustedTemp and activeCO2.
   const items = [
     {
       title: "",
       description: (
         <div className="mb-4 overflow-hidden">
-          <Staticheatmap />
+          <Staticheatmap 
+            emissionRate={emissionRate}
+            resultMtCO2={result}
+            adjustedTemp={currentData.temp}
+            activeCO2={activeCO2}
+          />
         </div>
       ),
       header: <SkeletonOne />,
@@ -201,24 +167,22 @@ const StaticMain = () => {
       icon: <IconFileBroken className="h-4 w-4 text-neutral-500" />,
     },
     {
-      title: "CO2 Emission Rate",
+      title: "CO₂ Emission Rate",
       description: (
         <div className="space-y-2 overflow-y-auto text-xs" style={{ maxHeight: '100%' }}>
-          <span className="text-xs">AI-powered analytics for CO2 emissions.</span>
+          <span className="text-xs">AI-powered analytics for CO₂ emissions.</span>
           <SliderSizes onEmissionRateChange={handleEmissionRateChange} />
           <div className="flex items-center space-x-2">
             <CO2EmissionsModal
               emissionRate={emissionRate}
-              baseMtCO2={baseMtCO2}  // Changed from currentData.co2 to use hook's baseMtCO2
+              baseMtCO2={baseMtCO2}
               result={result}
               handleEmissionRateChange={handleEmissionRateChange}
-              handleBaseMtCO2Change={() => {
-                // Add null handler or optional user override
-              }}
+              handleBaseMtCO2Change={handleBaseMtCO2Change}
             />
             <div className="text-sm">
               <p>Predicted MtCO₂: {currentData.co2.toFixed(2)}</p>
-              <p>Active MtCO₂: {baseMtCO2.toFixed(2)}</p>
+              <p>Active MtCO₂: {activeCO2.toFixed(2)}</p>
               <p>Result MtCO₂: {result}</p>
             </div>
           </div>
@@ -234,7 +198,7 @@ const StaticMain = () => {
         <div className="text-sm h-full">
           <GoodEffectsTextField
             text={goodEffects}
-            speed={5} // Adjust typing speed
+            speed={5}
             label="Positive Environmental Impacts"
             variant="outlined"
             fullWidth
@@ -251,7 +215,7 @@ const StaticMain = () => {
         <div className="text-sm h-full">
           <BadEffectsTextField
             text={badEffects}
-            speed={5} // Adjust typing speed
+            speed={5}
             label="Negative Environmental Impacts"
             variant="outlined"
             fullWidth

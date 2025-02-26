@@ -11,7 +11,7 @@ import VectorSource from 'ol/source/Vector';
 import { Style, Fill, Stroke } from 'ol/style';
 import VectorLayer from 'ol/layer/Vector';
 import { GeoJSON } from 'ol/format';
-import CircleStyle from 'ol/style/Circle';  // Add to existing imports
+import CircleStyle from 'ol/style/Circle';  
 
 // Import region GeoJSON data
 import Region1 from '../../utils/regions/region-1.json';
@@ -184,7 +184,7 @@ const generateRandomFeatures = (cityCoordsArray, numFeaturesPerCity, radiusInMet
   return features;
 };
 
-export const HeatmapComponent = ({ map, weatherData }) => {
+export const HeatmapComponent = ({ map, weatherData, emissionRate, resultMtCO2, adjustedTemp, activeCO2 }) => {
   const overlaysRef = useRef([]);
   const pointerMoveTimeoutRef = useRef(null);
   const animationFrameRef = useRef(null);
@@ -193,7 +193,7 @@ export const HeatmapComponent = ({ map, weatherData }) => {
   useEffect(() => {
     if (!map || !weatherData.length) return;
 
-    // Add animation styles
+    // Add animation styles for overlays
     const style = document.createElement('style');
     style.textContent = `
       .temperature-overlay {
@@ -258,14 +258,12 @@ export const HeatmapComponent = ({ map, weatherData }) => {
     
     const cityPointsLayer = new VectorLayer({
       source: cityPointsSource,
-      zIndex: 4  // Higher than region layers
+      zIndex: 4
     });
     map.addLayer(cityPointsLayer);
 
-    // Get coordinates from all cities in weatherData
     const cityCoordsArray = weatherData.map(data => data.location);
     
-    // Modified update function to generate features for all cities
     const updateHeatmap = () => {
       const randomFeatures = generateRandomFeatures(cityCoordsArray, 5, 23000); 
       vectorSource.clear();
@@ -275,11 +273,16 @@ export const HeatmapComponent = ({ map, weatherData }) => {
     updateHeatmap();
     const intervalId = setInterval(updateHeatmap, 2000);
 
-    // Add animated overlays
+    // Overlay creation: show original temperature along with adjusted temperature and CO₂ rate info.
     weatherData.forEach((data) => {
       const overlayElement = document.createElement('div');
       overlayElement.className = 'temperature-overlay';
-      overlayElement.innerHTML = `${data.city}: ${data.temperature}°C`;
+      let content = `${data.city}: ${data.temperature}°C`;
+      if (emissionRate !== 0) {
+        content += `<br/>Adjusted Temp: ${adjustedTemp.toFixed(2)}°C`;
+        content += `<br/>CO₂ Rate: ${activeCO2.toFixed(2)} MtCO₂`;
+      }
+      overlayElement.innerHTML = content;
       overlayElement.style.backgroundColor = 
         data.temperature <= 16 ? 'rgba(0, 0, 255, 0.7)' :
         data.temperature <= 30 ? 'rgba(255, 255, 0, 0.7)' :
@@ -327,7 +330,7 @@ export const HeatmapComponent = ({ map, weatherData }) => {
       map.un('pointermove', handlePointerMove);
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
     };
-  }, [map, weatherData]);
+  }, [map, weatherData, emissionRate, resultMtCO2, adjustedTemp, activeCO2]);
 
   return null;
 };
