@@ -197,7 +197,7 @@ const HeatmapDashboard = () => {
 
   const generatePDF = () => {
     const dashboardElement = dashboardRef.current;
-
+  
     html2canvas(dashboardElement).then((canvas) => {
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("p", "mm", "a4");
@@ -214,6 +214,10 @@ const HeatmapDashboard = () => {
       pdf.addPage();
       pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
   
+      // Add a footer
+      pdf.setFontSize(10);
+      pdf.text("© 2023 Technological University of the Philippines - Taguig", 20, 280);
+  
       // Save the PDF
       pdf.save("dashboard_report.pdf");
     });
@@ -225,6 +229,15 @@ const HeatmapDashboard = () => {
 
   return (
     <div ref={dashboardRef} className="w-full mx-auto p-4 border border-gray-300 rounded-md bg-gradient-to-r from-blue-100 to-blue-200 shadow-md">
+      {/* Header Section */}
+      <div className="text-center mb-6">
+        <img src="/tuplogo.png" alt="TUP Logo" className="w-20 h-20 mx-auto mb-2" />
+        <h1 className="text-2xl font-bold">TECHNOLOGICAL UNIVERSITY OF THE PHILIPPINES-TAGUIG</h1>
+        <h2 className="text-xl font-semibold">BACHELOR OF SCIENCE IN INFORMATION TECHNOLOGY</h2>
+        <p className="text-sm">Km.14 East Service Road, Western Bicutan, Taguig City 1630, Metro Manila, Philippines</p>
+        <div className="border-b-2 border-gray-400 my-4"></div>
+      </div>
+
       <h3 className="text-xl font-semibold mb-3">UBheat Dashboard</h3>
 
       {/* Add a button to generate the PDF */}
