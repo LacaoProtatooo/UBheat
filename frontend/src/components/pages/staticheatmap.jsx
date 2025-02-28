@@ -185,7 +185,7 @@ const Staticheatmap = ({ style = { height: '92vh', width: '100%' }, emissionRate
             "Batac",
             "Vigan",
             "Palayan"
-        ];               
+        ];            
 
         const fetchWeatherData = async () => {
             const apiKey = 'b05f228625b60990de863e6193f998af';

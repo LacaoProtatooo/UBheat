@@ -1,6 +1,6 @@
 // heatmapcomponents.jsx
 import { IconTemperature, IconDroplet, IconSearch } from '@tabler/icons-react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { fromLonLat } from 'ol/proj'; // Ensure fromLonLat is imported
 import Feature from 'ol/Feature';
@@ -12,6 +12,12 @@ import { Style, Fill, Stroke } from 'ol/style';
 import VectorLayer from 'ol/layer/Vector';
 import { GeoJSON } from 'ol/format';
 import CircleStyle from 'ol/style/Circle';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogActions from '@mui/material/DialogActions';
+import Button from '@mui/material/Button';
 
 // Import region GeoJSON data
 import Region1 from '../../utils/regions/region-1.json';
@@ -34,23 +40,23 @@ import RegionBARMM from '../../utils/regions/region-barmm.json';
 
 // Custom color palette for Philippine regions
 export const REGION_COLORS = {
-  'NCR': '#FF0000',        // Dark Red
-  'CAR': '#FF7F7F',        // Light Red
-  'Region 1': '#FF7F00',   // Dark Orange
-  'Region 2': '#FFBF80',   // Light Orange
-  'Region 3': '#FFFF00',   // Dark Yellow
-  'Region 4A': '#FFFF99',  // Light Yellow
-  'Region 4B': '#00FF00',  // Dark Green
-  'Region 5': '#99FF99',   // Light Green
-  'Region 6': '#00FFFF',   // Dark Cyan
-  'Region 7': '#99FFFF',   // Light Cyan
-  'Region 8': '#0000FF',   // Dark Blue
-  'Region 9': '#8080FF',   // Light Blue
-  'Region 10': '#4B0082',  // Dark Indigo
-  'Region 11': '#9A4DFF',  // Light Indigo
-  'Region 12': '#9400D3',  // Dark Violet
-  'Region 13': '#D899FF',  // Light Violet
-  'BARMM': '#FF00FF'       // Magenta
+  'NCR': '#FF0000',
+  'CAR': '#FF7F7F',
+  'Region 1': '#FF7F00',
+  'Region 2': '#FFBF80',
+  'Region 3': '#FFFF00',
+  'Region 4A': '#FFFF99',
+  'Region 4B': '#00FF00',
+  'Region 5': '#99FF99',
+  'Region 6': '#00FFFF',
+  'Region 7': '#99FFFF',
+  'Region 8': '#0000FF',
+  'Region 9': '#8080FF',
+  'Region 10': '#4B0082',
+  'Region 11': '#9A4DFF',
+  'Region 12': '#9400D3',
+  'Region 13': '#D899FF',
+  'BARMM': '#FF00FF'
 };
 
 export const regionGeoJSON = {
@@ -175,11 +181,46 @@ const generateRandomFeatures = (cityCoordsArray, numFeaturesPerCity, radiusInMet
   return features;
 };
 
-export const HeatmapComponent = ({ map, weatherData, emissionRate, resultMtCO2, adjustedTemp, activeCO2 }) => {
+// New Modal Component for City Details using Material UI Dialog
+const CityDetailsModal = ({ open, handleClose, details }) => {
+  return (
+    <Dialog open={open} onClose={handleClose} aria-labelledby="city-details-title" aria-describedby="city-details-description">
+      <DialogTitle id="city-details-title">Details for {details.city}</DialogTitle>
+      <DialogContent>
+        <DialogContentText id="city-details-description">
+          <strong>City:</strong> {details.city}<br/>
+          <strong>API Temperature:</strong> {details.temperature}°C<br/>
+          <strong>Adjusted Temperature:</strong> {details.adjustedTemp}°C<br/>
+          <strong>Emission Rate:</strong> {details.emissionRate}%<br/>
+          <strong>Predicted MtCO₂:</strong> {details.predictedMtCO2} MtCO₂<br/>
+          <strong>Active MtCO₂:</strong> {details.activeCO2} MtCO₂<br/>
+          <strong>Result MtCO₂:</strong> {details.resultMtCO2} MtCO₂<br/>
+          <strong>Selected Year:</strong> {details.selectedYear}<br/>
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleClose}>Close</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+export const HeatmapComponent = ({
+  map,
+  weatherData,
+  emissionRate,
+  resultMtCO2,
+  adjustedTemp,
+  activeCO2,
+  selectedYear // This prop must be passed from the parent
+}) => {
   const overlaysRef = useRef([]);
   const pointerMoveTimeoutRef = useRef(null);
   const animationFrameRef = useRef(null);
   const heatmapLayerRef = useRef(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [cityDetails, setCityDetails] = useState(null);
+
   useEffect(() => {
     if (!map || !weatherData.length) return;
     const style = document.createElement('style');
@@ -193,6 +234,7 @@ export const HeatmapComponent = ({ map, weatherData, emissionRate, resultMtCO2, 
         border-radius: 4px;
         font-size: 14px;
         white-space: nowrap;
+        cursor: pointer;
       }
       .temperature-overlay.active {
         opacity: 1;
@@ -202,8 +244,8 @@ export const HeatmapComponent = ({ map, weatherData, emissionRate, resultMtCO2, 
     `;
     document.head.appendChild(style);
     const vectorSource = new VectorSource();
-    const minTemp = Math.min(...weatherData.map((d) => d.temperature));
-    const maxTemp = Math.max(...weatherData.map((d) => d.temperature));
+    const minTemp = Math.min(...weatherData.map(d => d.temperature));
+    const maxTemp = Math.max(...weatherData.map(d => d.temperature));
     const gradient = getGradient(minTemp, maxTemp);
     const heatmapLayer = new HeatmapLayer({
       source: vectorSource,
@@ -213,17 +255,15 @@ export const HeatmapComponent = ({ map, weatherData, emissionRate, resultMtCO2, 
       opacity: 0.7,
     });
     heatmapLayerRef.current = heatmapLayer;
-    map.getLayers().forEach((layer) => {
+    map.getLayers().forEach(layer => {
       if (layer instanceof HeatmapLayer) map.removeLayer(layer);
     });
     map.addLayer(heatmapLayer);
     animateHeatmap(heatmapLayer);
-    const weatherFeatures = weatherData.map((data) => {
-      return new Feature({
-        geometry: new Point(fromLonLat(data.location)),
-        weight: data.temperature,
-      });
-    });
+    const weatherFeatures = weatherData.map(data => new Feature({
+      geometry: new Point(fromLonLat(data.location)),
+      weight: data.temperature,
+    }));
     const cityPointsSource = new VectorSource({
       features: weatherFeatures.map(feature => {
         feature.setStyle(new Style({
@@ -232,7 +272,7 @@ export const HeatmapComponent = ({ map, weatherData, emissionRate, resultMtCO2, 
             fill: new Fill({ color: '#9400D3' }),
             stroke: new Stroke({ color: 'white', width: 2 })
           })
-        }));  
+        }));
         return feature;
       })
     });
@@ -249,23 +289,42 @@ export const HeatmapComponent = ({ map, weatherData, emissionRate, resultMtCO2, 
     };
     updateHeatmap();
     const intervalId = setInterval(updateHeatmap, 2000);
-    // Overlay creation: show original temperature along with adjusted temperature and CO₂ rate info.
-    weatherData.forEach((data) => {
+    
+    // Overlay creation: display API temperature, adjusted temperature, and CO₂ rate.
+    weatherData.forEach(data => {
       const overlayElement = document.createElement('div');
       overlayElement.className = 'temperature-overlay';
+      
+      // Compute safe fallback values:
+      const dispAdjustedTemp = typeof adjustedTemp === 'number' ? adjustedTemp : data.temperature;
+      const dispActiveCO2 = typeof activeCO2 === 'number' ? activeCO2 : 0;
+      
       let content = `${data.city}: ${data.temperature}°C`;
       if (emissionRate !== 0) {
-        // Safe fallback: if adjustedTemp or activeCO2 are not numbers, default them.
-        const dispAdjustedTemp = typeof adjustedTemp === 'number' ? adjustedTemp : data.temperature;
-        const dispActiveCO2 = typeof activeCO2 === 'number' ? activeCO2 : 0;
         content += `<br/>Adjusted Temp: ${dispAdjustedTemp.toFixed(2)}°C`;
         content += `<br/>CO₂ Rate: ${dispActiveCO2.toFixed(2)} MtCO₂`;
       }
       overlayElement.innerHTML = content;
-      overlayElement.style.backgroundColor = 
+      overlayElement.style.backgroundColor =
         data.temperature <= 16 ? 'rgba(0, 0, 255, 0.7)' :
         data.temperature <= 30 ? 'rgba(255, 255, 0, 0.7)' :
         'rgba(255, 0, 0, 0.7)';
+      
+      // Attach click listener to open modal with city details.
+      overlayElement.addEventListener('click', () => {
+        setCityDetails({
+          city: data.city,
+          temperature: data.temperature,
+          adjustedTemp: dispAdjustedTemp.toFixed(2),
+          emissionRate: emissionRate,
+          predictedMtCO2: (typeof baseMtCO2 === 'number' ? baseMtCO2.toFixed(2) : "N/A"), // assuming baseMtCO2 is passed as part of details if needed
+          activeCO2: dispActiveCO2.toFixed(2),
+          resultMtCO2: resultMtCO2,
+          selectedYear: selectedYear
+        });
+        setModalOpen(true);
+      });
+      
       const overlay = new Overlay({
         position: fromLonLat(data.location),
         element: overlayElement,
@@ -275,12 +334,13 @@ export const HeatmapComponent = ({ map, weatherData, emissionRate, resultMtCO2, 
       map.addOverlay(overlay);
       overlaysRef.current.push(overlay);
     });
+    
     const handlePointerMove = (event) => {
       if (pointerMoveTimeoutRef.current) clearTimeout(pointerMoveTimeoutRef.current);
       pointerMoveTimeoutRef.current = setTimeout(() => {
         const pixel = map.getEventPixel(event.originalEvent);
-        const feature = map.forEachFeatureAtPixel(pixel, (feature) => feature);
-        overlaysRef.current.forEach((overlay) => {
+        const feature = map.forEachFeatureAtPixel(pixel, feature => feature);
+        overlaysRef.current.forEach(overlay => {
           const overlayElement = overlay.getElement();
           const positionMatch = feature?.getGeometry().getCoordinates().toString() === overlay.getPosition().toString();
           if (positionMatch) {
@@ -294,15 +354,28 @@ export const HeatmapComponent = ({ map, weatherData, emissionRate, resultMtCO2, 
     map.on('pointermove', handlePointerMove);
     return () => {
       clearInterval(intervalId);
-      document.head.removeChild(style);
+      if (style.parentNode) {
+        style.parentNode.removeChild(style);
+      }
       map.removeLayer(heatmapLayer);
       map.removeLayer(cityPointsLayer);
-      overlaysRef.current.forEach((overlay) => map.removeOverlay(overlay));
+      overlaysRef.current.forEach(overlay => map.removeOverlay(overlay));
       map.un('pointermove', handlePointerMove);
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
     };
-  }, [map, weatherData, emissionRate, resultMtCO2, adjustedTemp, activeCO2]);
-  return null;
+  }, [map, weatherData, emissionRate, resultMtCO2, adjustedTemp, activeCO2, selectedYear]);
+  
+  return (
+    <>
+      {cityDetails && (
+        <CityDetailsModal 
+          open={modalOpen} 
+          handleClose={() => setModalOpen(false)} 
+          details={cityDetails} 
+        />
+      )}
+    </>
+  );
 };
 
 export const SearchComponent = ({ setSearchCity, fetchSearchCityWeather }) => {
@@ -455,14 +528,12 @@ const getGradient = (minTemp, maxTemp) => {
   ];
 };
 
-// Helper function for heatmap animation
 const animateHeatmap = (heatmapLayer) => {
   const baseRadius = 10;
-  const delta = 7; // Increased oscillation for better effect
+  const delta = 7;
   let currentRadius = baseRadius;
   let increasing = true;
   let animationId;
-
   const animate = () => {
     if (increasing) {
       currentRadius += 0.1;
@@ -471,14 +542,11 @@ const animateHeatmap = (heatmapLayer) => {
       currentRadius -= 0.1;
       if (currentRadius <= baseRadius - delta) increasing = true;
     }
-    
-    // Removed getDisposed() check since it's not available on HeatmapLayer
     if (heatmapLayer) {
       heatmapLayer.setRadius(currentRadius);
       animationId = requestAnimationFrame(animate);
     }
   };
-  
   animationId = requestAnimationFrame(animate);
   return () => cancelAnimationFrame(animationId);
 };

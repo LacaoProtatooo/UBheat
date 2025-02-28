@@ -296,9 +296,6 @@ const Main = () => {
         ))}
       </BentoGrid>
       <FloatingDockUBheat />
-      <Link to="/logs" className="text-blue-500 hover:text-blue-700 mt-4">
-        View Logs
-      </Link>
     </div>
   );
 };
