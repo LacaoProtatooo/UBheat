@@ -24,6 +24,7 @@ import SampleHeatmap from './components/pages/sampleheatmap';
 import UserLogsPage from "./components/pages/UserLogsPage";
 import StaticMain from './components/pages/staticmain';
 import Information from './components/pages/information';
+import Comparison from './components/pages/comparison';
 
 function App() {
   return (
@@ -51,6 +52,7 @@ function App() {
                 <Route path="/logs" element={<UserLogsPage />} />
                 <Route path="/v2" element={<StaticMain />} />
                 <Route path="/information" element={<Information />} />
+                <Route path="/comparison" element={<Comparison />} />
                 <Route path="/" element={<Main />} />
               </Routes>
             </div>
