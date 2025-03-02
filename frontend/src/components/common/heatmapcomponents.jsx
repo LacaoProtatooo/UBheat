@@ -330,10 +330,10 @@ weatherData.forEach(data => {
         temperature: parseFloat(data.temperature).toFixed(2),
         adjustedTemp: dispAdjustedTemp.toFixed(2),
         emissionRate: emissionRate,
-        predictedMtCO2: predictedMtCO2.toFixed(2),
-        activeCO2: effectiveActiveCO2.toFixed(2),
-        resultMtCO2: effectiveResultMtCO2.toFixed(2),
-        selectedYear: effectiveSelectedYear
+        predictedMtCO2: baseMtCO2.toFixed(2), // Use the regression-based prediction from main layout
+        activeCO2: (baseMtCO2 * (emissionRate/100)).toFixed(2),
+        resultMtCO2: (baseMtCO2 * (1 + emissionRate/100)).toFixed(2),
+        selectedYear: selectedYear
       });
       setModalOpen(true);
     });
