@@ -1,8 +1,8 @@
 // heatmapcomponents.jsx
 import { IconTemperature, IconDroplet, IconSearch } from '@tabler/icons-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import axios from 'axios';
-import { fromLonLat } from 'ol/proj'; // Ensure fromLonLat is imported
+import { fromLonLat } from 'ol/proj';
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
 import Overlay from 'ol/Overlay';
@@ -181,7 +181,7 @@ const generateRandomFeatures = (cityCoordsArray, numFeaturesPerCity, radiusInMet
   return features;
 };
 
-// New Modal Component for City Details using Material UI Dialog
+// Modal Component for City Details using Material UI Dialog
 const CityDetailsModal = ({ open, handleClose, details }) => {
   return (
     <Dialog open={open} onClose={handleClose} aria-labelledby="city-details-title" aria-describedby="city-details-description">
@@ -205,14 +205,17 @@ const CityDetailsModal = ({ open, handleClose, details }) => {
   );
 };
 
+// HeatmapComponent: creates overlays from weatherData and attaches a click listener to open the modal.
+// It now expects the following props: emissionRate, resultMtCO2, baseMtCO2, adjustedTemp, activeCO2, and selectedYear.
 export const HeatmapComponent = ({
   map,
   weatherData,
   emissionRate,
-  resultMtCO2,
-  adjustedTemp,
-  activeCO2,
-  selectedYear // This prop must be passed from the parent
+  resultMtCO2,    // from CO2EmissionsModal (as a number)
+  baseMtCO2,      // predicted MtCO₂ from regression (as a number)
+  adjustedTemp,   // temperature used for adjustment (number)
+  activeCO2,      // active CO₂ (number)
+  selectedYear    // selected year from YearSelectSlider (number)
 }) => {
   const overlaysRef = useRef([]);
   const pointerMoveTimeoutRef = useRef(null);
@@ -289,51 +292,61 @@ export const HeatmapComponent = ({
     };
     updateHeatmap();
     const intervalId = setInterval(updateHeatmap, 2000);
+
+    // Inside your useEffect in HeatmapComponent that creates overlays...
+weatherData.forEach(data => {
+    const overlayElement = document.createElement('div');
+    overlayElement.className = 'temperature-overlay';
     
-    // Overlay creation: display API temperature, adjusted temperature, and CO₂ rate.
-    weatherData.forEach(data => {
-      const overlayElement = document.createElement('div');
-      overlayElement.className = 'temperature-overlay';
+    // Use the provided props for adjustedTemp and activeCO2; fallback to data.temperature if not provided.
+    const dispAdjustedTemp = typeof adjustedTemp === 'number' ? adjustedTemp : parseFloat(data.temperature);
+    const dispActiveCO2 = typeof activeCO2 === 'number' ? activeCO2 : 0;
+    
+    let content = `${data.city}: ${parseFloat(data.temperature).toFixed(2)}°C`;
+    if (emissionRate !== 0) {
+      content += `<br/>Adjusted Temp: ${dispAdjustedTemp.toFixed(2)}°C`;
+      content += `<br/>CO₂ Rate: ${dispActiveCO2.toFixed(2)} MtCO₂`;
+    }
+    overlayElement.innerHTML = content;
+    overlayElement.style.backgroundColor =
+      data.temperature <= 16 ? 'rgba(0, 0, 255, 0.7)' :
+      data.temperature <= 30 ? 'rgba(255, 255, 0, 0.7)' :
+      'rgba(255, 0, 0, 0.7)';
+    
+    // Attach click listener to open the modal using parent‑provided values.
+    overlayElement.addEventListener('click', () => {
+      // Use the selectedYear prop (or fallback to current year if missing)
+      const effectiveSelectedYear = (selectedYear !== undefined && selectedYear !== null) 
+        ? selectedYear 
+        : new Date().getFullYear();
+      // Get the predicted MtCO₂ directly from baseMtCO₂ prop.
+      const predictedMtCO2 = (typeof baseMtCO2 === 'number') ? baseMtCO2 : 0;
+      // Ensure activeCO2 and resultMtCO2 are numbers.
+      const effectiveActiveCO2 = (typeof activeCO2 === 'number') ? activeCO2 : 0;
+      const effectiveResultMtCO2 = (typeof resultMtCO2 === 'number') ? resultMtCO2 : 0;
       
-      // Compute safe fallback values:
-      const dispAdjustedTemp = typeof adjustedTemp === 'number' ? adjustedTemp : data.temperature;
-      const dispActiveCO2 = typeof activeCO2 === 'number' ? activeCO2 : 0;
-      
-      let content = `${data.city}: ${data.temperature}°C`;
-      if (emissionRate !== 0) {
-        content += `<br/>Adjusted Temp: ${dispAdjustedTemp.toFixed(2)}°C`;
-        content += `<br/>CO₂ Rate: ${dispActiveCO2.toFixed(2)} MtCO₂`;
-      }
-      overlayElement.innerHTML = content;
-      overlayElement.style.backgroundColor =
-        data.temperature <= 16 ? 'rgba(0, 0, 255, 0.7)' :
-        data.temperature <= 30 ? 'rgba(255, 255, 0, 0.7)' :
-        'rgba(255, 0, 0, 0.7)';
-      
-      // Attach click listener to open modal with city details.
-      overlayElement.addEventListener('click', () => {
-        setCityDetails({
-          city: data.city,
-          temperature: data.temperature,
-          adjustedTemp: dispAdjustedTemp.toFixed(2),
-          emissionRate: emissionRate,
-          predictedMtCO2: (typeof baseMtCO2 === 'number' ? baseMtCO2.toFixed(2) : "N/A"), // assuming baseMtCO2 is passed as part of details if needed
-          activeCO2: dispActiveCO2.toFixed(2),
-          resultMtCO2: resultMtCO2,
-          selectedYear: selectedYear
-        });
-        setModalOpen(true);
+      setCityDetails({
+        city: data.city,
+        temperature: parseFloat(data.temperature).toFixed(2),
+        adjustedTemp: dispAdjustedTemp.toFixed(2),
+        emissionRate: emissionRate,
+        predictedMtCO2: predictedMtCO2.toFixed(2),
+        activeCO2: effectiveActiveCO2.toFixed(2),
+        resultMtCO2: effectiveResultMtCO2.toFixed(2),
+        selectedYear: effectiveSelectedYear
       });
-      
-      const overlay = new Overlay({
-        position: fromLonLat(data.location),
-        element: overlayElement,
-        positioning: 'bottom-center',
-        stopEvent: false,
-      });
-      map.addOverlay(overlay);
-      overlaysRef.current.push(overlay);
+      setModalOpen(true);
     });
+    
+    const overlay = new Overlay({
+      position: fromLonLat(data.location),
+      element: overlayElement,
+      positioning: 'bottom-center',
+      stopEvent: false,
+    });
+    map.addOverlay(overlay);
+    overlaysRef.current.push(overlay);
+  });
     
     const handlePointerMove = (event) => {
       if (pointerMoveTimeoutRef.current) clearTimeout(pointerMoveTimeoutRef.current);
@@ -363,7 +376,7 @@ export const HeatmapComponent = ({
       map.un('pointermove', handlePointerMove);
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
     };
-  }, [map, weatherData, emissionRate, resultMtCO2, adjustedTemp, activeCO2, selectedYear]);
+  }, [map, weatherData, emissionRate, resultMtCO2, adjustedTemp, activeCO2, selectedYear, baseMtCO2]);
   
   return (
     <>
@@ -550,3 +563,5 @@ const animateHeatmap = (heatmapLayer) => {
   animationId = requestAnimationFrame(animate);
   return () => cancelAnimationFrame(animationId);
 };
+
+export default HeatmapComponent;

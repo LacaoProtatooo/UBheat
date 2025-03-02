@@ -144,9 +144,11 @@ const StaticMain = () => {
         <div className="mb-4 overflow-hidden">
           <Staticheatmap 
             emissionRate={emissionRate}
-            resultMtCO2={result}
+            resultMtCO2={parseFloat(result)}  // 'result' from your useCO2Emissions hook
+            baseMtCO2={baseMtCO2}
             adjustedTemp={currentData.temp}
             activeCO2={activeCO2}
+            selectedYear={selectedYear}
           />
         </div>
       ),
