@@ -195,8 +195,22 @@ const HeatmapDashboard = () => {
     },
   };
 
-  const generatePDF = () => {
+  const generatePDF = async () => {
     const dashboardElement = dashboardRef.current;
+  
+    // Fetch user data from the database
+    let userLogs = [];
+    try {
+      const response = await axios.get('/api/users'); // Adjust the endpoint as needed
+      userLogs = response.data.map(user => ({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        isVerified: user.isVerified ? "Verified" : "Not Verified",
+      }));
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
   
     html2canvas(dashboardElement).then((canvas) => {
       const imgData = canvas.toDataURL("image/png");
@@ -209,10 +223,56 @@ const HeatmapDashboard = () => {
       pdf.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 40);
   
       // Add the dashboard content
-      const imgWidth = 210;
+      const imgWidth = 210; // A4 width in mm
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       pdf.addPage();
       pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+  
+      // Add explanations for the graphs
+      pdf.addPage();
+      pdf.setFontSize(18);
+      pdf.text("Explanation of Graphs and Data", 20, 20);
+      pdf.setFontSize(12);
+  
+      const graphExplanations = `
+        1. Line Chart: 3-Day Weather Forecast
+        - Purpose: Visualizes the 3-day weather forecast for the Philippines, showing trends in temperature, humidity, and wind speed.
+        - How It’s Created: Data is fetched from the OpenWeather API, processed to calculate daily averages, and rendered using react-chartjs-2.
+        - How Data Changes: The chart updates dynamically based on API responses and user interactions.
+  
+        2. Pie Chart: Temperature Distribution Over 3 Days
+        - Purpose: Shows the distribution of average temperatures over the next 3 days.
+        - How It’s Created: Uses the same processed weather data to calculate average temperatures for each day.
+        - How Data Changes: The pie chart updates as new weather data is fetched.
+  
+        3. User Monitoring Section
+        - Purpose: Displays user activity logs, including entries and interactions with the dashboard.
+        - How It’s Created: The UserList component fetches and displays user data in a tabular format.
+        - How Data Changes: New user activities are appended to the log in real-time.
+      `;
+  
+      pdf.text(graphExplanations, 20, 30, { maxWidth: 170 });
+  
+      // Add user monitoring table
+      pdf.addPage();
+      pdf.setFontSize(18);
+      pdf.text("User Monitoring Logs", 20, 20);
+      pdf.setFontSize(12);
+  
+      // Create table headers
+      pdf.text("First Name", 20, 40);
+      pdf.text("Last Name", 60, 40);
+      pdf.text("Email", 100, 40);
+      pdf.text("Status", 160, 40);
+  
+      // Add table rows
+      userLogs.forEach((user, index) => {
+        const y = 50 + index * 10;
+        pdf.text(user.firstName, 20, y);
+        pdf.text(user.lastName, 60, y);
+        pdf.text(user.email, 100, y);
+        pdf.text(user.isVerified, 160, y);
+      });
   
       // Add a footer
       pdf.setFontSize(10);
