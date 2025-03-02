@@ -5,6 +5,7 @@ import { LineChart } from '@mui/x-charts/LineChart';
 import regression from 'regression';
 import axios from 'axios';
 import citypopulation from '../../utils/citypopulation.json';
+import FloatingDockUBheat from "../common/floatingdock";
 
 // Allowed cities list
 const philippineCities = [
@@ -442,7 +443,7 @@ const Comparison = () => {
       {/* Temperature Projection Chart (Rows 3–6, Cols 1–2) */}
       <Box sx={{ gridColumn: '1 / 3', gridRow: '3 / 7' }}>
         {city1Data && city2Data ? (
-          <Card variant="outlined" sx={{ height: '100%' }}>
+          <Card variant="outlined" sx={{ height: '90%' }}>
             <CardContent sx={{ height: '100%', p: 1 }}>
               <TemperatureChart city1Data={city1Data} city2Data={city2Data} />
             </CardContent>
@@ -455,7 +456,7 @@ const Comparison = () => {
       {/* Population Projection Chart (Rows 3–6, Cols 3–4) */}
       <Box sx={{ gridColumn: '3 / 5', gridRow: '3 / 7' }}>
         {city1Pop && city2Pop ? (
-          <Card variant="outlined" sx={{ height: '100%' }}>
+          <Card variant="outlined" sx={{ height: '90%' }}>
             <CardContent sx={{ height: '100%', p: 1 }}>
               <PopulationChart city1Pop={city1Pop} city2Pop={city2Pop} />
             </CardContent>
@@ -468,7 +469,7 @@ const Comparison = () => {
       {/* CO₂ Projection Chart (Rows 3–6, Cols 5–6) */}
       <Box sx={{ gridColumn: '5 / 7', gridRow: '3 / 7' }}>
         {city1Data && city2Data ? (
-          <Card variant="outlined" sx={{ height: '100%' }}>
+          <Card variant="outlined" sx={{ height: '90%' }}>
             <CardContent sx={{ height: '100%', p: 1 }}>
               <CO2Chart emissionRate={emissionRate} />
             </CardContent>
@@ -477,6 +478,7 @@ const Comparison = () => {
           <Typography variant="body2">Select both cities to view CO₂ projections.</Typography>
         )}
       </Box>
+      <FloatingDockUBheat />
     </Box>
   );
 };
