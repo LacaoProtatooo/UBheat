@@ -105,3 +105,20 @@ export const verifyEmail = async (req, res) => {
     res.status(500).json({ message: 'Email verification failed. Please try again.' });
   }
 };
+
+export const getUserNotifications = async (req, res) => {
+  try {
+    const users = await User.find().select('firstName lastName email isActive');
+    const notifications = users.map(user => {
+      if (user.isActive) {
+        return { type: 'activated', message: `User account activated: ${user.firstName} ${user.lastName}`, timestamp: Date.now() };
+      } else {
+        return { type: 'deactivated', message: `User account deactivated: ${user.firstName} ${user.lastName}`, timestamp: Date.now() };
+      }
+    });
+    res.json(notifications);
+  } catch (error) {
+    console.error('Error fetching user notifications:', error);
+    res.status(500).json({ message: 'Error fetching user notifications' });
+  }
+};

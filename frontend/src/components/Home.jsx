@@ -1,5 +1,6 @@
-import React from "react";
-import { Line } from "react-chartjs-2";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { Line, Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -23,6 +24,35 @@ ChartJS.register(
 );
 
 const Home = ({ users, cityWeather, fetchCityWeather, city, setCity }) => {
+  const [weatherAlerts, setWeatherAlerts] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+  const API_KEY = "b05f228625b60990de863e6193f998af"; // OpenWeather API key
+
+  useEffect(() => {
+    const fetchWeatherAlerts = async () => {
+      try {
+        const response = await axios.get(
+          `https://api.openweathermap.org/data/2.5/forecast?q=Philippines&units=metric&appid=${API_KEY}`
+        );
+        setWeatherAlerts(response.data.alerts || []);
+      } catch (error) {
+        console.error("Error fetching weather alerts:", error);
+      }
+    };
+
+    const fetchNotifications = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/auth/notifications'); // Replace with your actual API endpoint
+        setNotifications(response.data);
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    };
+
+    fetchWeatherAlerts();
+    fetchNotifications();
+  }, []);
+
   // Data for the user growth line graph
   const userGrowthData = {
     labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"], // X-axis labels
@@ -44,6 +74,18 @@ const Home = ({ users, cityWeather, fetchCityWeather, city, setCity }) => {
       title: {
         display: true,
         text: "User Growth Over Time",
+      },
+    },
+  };
+
+  // Options for the bar chart
+  const barChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: { position: "top" },
+      title: {
+        display: true,
+        text: "User Activity (Sign-ups by Month)",
       },
     },
   };
@@ -94,6 +136,67 @@ const Home = ({ users, cityWeather, fetchCityWeather, city, setCity }) => {
             <Line data={userGrowthData} options={lineGraphOptions} />
           </div>
         </div>
+      </div>
+
+      {/* System Performance Metrics */}
+      <div className="mt-8 p-4 border border-gray-200 rounded-md shadow-sm">
+        <h4 className="text-lg font-semibold mb-4">System Performance</h4>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-4 bg-blue-50 rounded-md">
+            <h4 className="text-lg font-semibold mb-2">Server Uptime</h4>
+            <p className="text-2xl font-bold">99.9%</p>
+          </div>
+          <div className="p-4 bg-green-50 rounded-md">
+            <h4 className="text-lg font-semibold mb-2">API Response Time</h4>
+            <p className="text-2xl font-bold">120ms</p>
+          </div>
+          <div className="p-4 bg-yellow-50 rounded-md">
+            <h4 className="text-lg font-semibold mb-2">Database Usage</h4>
+            <p className="text-2xl font-bold">75%</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Weather Alerts */}
+      <div className="mt-8 p-4 border border-gray-200 rounded-md shadow-sm">
+        <h4 className="text-lg font-semibold mb-4">Weather Alerts</h4>
+        <ul className="space-y-2">
+          {weatherAlerts.length > 0 ? (
+            weatherAlerts.map((alert, index) => (
+              <li key={index} className="p-2 bg-red-50 rounded-md">
+                <p className="text-sm">
+                  {alert.event} for <span className="font-semibold">{alert.area}</span>
+                </p>
+                <p className="text-xs text-gray-500">
+                  Issued {new Date(alert.start * 1000).toLocaleString()}
+                </p>
+              </li>
+            ))
+          ) : (
+            <li className="p-2 bg-green-50 rounded-md">
+              <p className="text-sm">No weather alerts at the moment</p>
+            </li>
+          )}
+        </ul>
+      </div>
+
+      {/* Notifications Panel */}
+      <div className="mt-8 p-4 border border-gray-200 rounded-md shadow-sm">
+        <h4 className="text-lg font-semibold mb-4">Notifications</h4>
+        <ul className="space-y-2">
+          {notifications.length > 0 ? (
+            notifications.map((notification, index) => (
+              <li key={index} className={`p-2 rounded-md ${notification.type === 'signup' ? 'bg-blue-50' : notification.type === 'deactivated' ? 'bg-red-50' : 'bg-green-50'}`}>
+                <p className="text-sm">{notification.message}</p>
+                <p className="text-xs text-gray-500">{new Date(notification.timestamp).toLocaleString()}</p>
+              </li>
+            ))
+          ) : (
+            <li className="p-2 bg-green-50 rounded-md">
+              <p className="text-sm">No notifications at the moment</p>
+            </li>
+          )}
+        </ul>
       </div>
     </div>
   );
