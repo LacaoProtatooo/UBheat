@@ -25,6 +25,7 @@ import UserLogsPage from "./components/pages/UserLogsPage";
 import StaticMain from './components/pages/staticmain';
 import Information from './components/pages/information';
 import Comparison from './components/pages/comparison';
+import Dashboard from './components/pages/Dashboard';
 
 function App() {
   return (
@@ -45,7 +46,7 @@ function App() {
                 <Route path="/chatbot" element={<Chatbot />} />
                 <Route path="/heatmap" element={<Heatmap />} />
                 <Route path="/sampleheatmap" element={<SampleHeatmap />} />
-                <Route path="/dashboard" element={<HeatmapDashboard />} />
+                <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/profile" element={<ProfilePage />} />
@@ -53,6 +54,7 @@ function App() {
                 <Route path="/v2" element={<StaticMain />} />
                 <Route path="/information" element={<Information />} />
                 <Route path="/comparison" element={<Comparison />} />
+                <Route path="admin" component={Dashboard} />
                 <Route path="/" element={<Main />} />
               </Routes>
             </div>
