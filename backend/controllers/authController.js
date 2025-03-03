@@ -11,14 +11,17 @@ export const signup = async (req, res) => {
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ msg: 'User already exists' });
 
+    const hashedPassword = await bcrypt.hash(password, 10);
     const verificationToken = crypto.randomBytes(20).toString('hex');
 
     user = new User({
       firstName,
       lastName,
       email,
-      password,
+      password: hashedPassword,
       verificationToken,
+      isActive: false, // Initially set to false
+      activationExpires: new Date(Date.now() + 24 * 60 * 60 * 1000), // Set activation expiry to 24 hours from now
     });
 
     await user.save();
@@ -37,24 +40,23 @@ export const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Find user by email
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ msg: 'Invalid credentials' });
     }
 
-    // Check if user is active
-    if (!user.isActive) {
+    if (!user.isActive || user.activationExpires < Date.now()) {
       return res.status(403).json({ msg: 'Your account is not active. Please contact support.' });
     }
 
-    // Check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ msg: 'Invalid credentials' });
     }
 
-    // Generate JWT token
+    user.activationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // Extend activation expiry to 24 hours from now
+    await user.save();
+
     const payload = {
       user: {
         id: user.id,
@@ -86,7 +88,14 @@ export const verifyEmail = async (req, res) => {
       return res.status(400).json({ message: 'Invalid verification token.' });
     }
 
+    if (user.activationExpires < Date.now()) {
+      user.isActive = false;
+      await user.save();
+      return res.status(400).json({ message: 'Verification token expired. Please sign up again.' });
+    }
+
     user.isVerified = true;
+    user.isActive = true; // Set to true upon successful verification
     user.verificationToken = undefined;
     await user.save();
 

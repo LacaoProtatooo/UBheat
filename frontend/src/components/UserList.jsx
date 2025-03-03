@@ -20,8 +20,8 @@ const UserList = () => {
 
   const handleActivationToggle = async (userId, isActive) => {
     try {
-      await axios.patch(`/api/users/${userId}`, { isActive: !isActive });
-      setUsers(users.map(user => user._id === userId ? { ...user, isActive: !isActive } : user));
+      await axios.patch(`/api/users/${userId}`, { isActive: !isActive, activationExpires: new Date(Date.now() + 24 * 60 * 60 * 1000) });
+      setUsers(users.map(user => user._id === userId ? { ...user, isActive: !isActive, activationExpires: new Date(Date.now() + 24 * 60 * 60 * 1000) } : user));
     } catch (error) {
       console.error('Error updating user status:', error);
     }

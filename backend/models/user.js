@@ -8,7 +8,8 @@ const UserSchema = new mongoose.Schema({
   password: { type: String, required: true },
   isVerified: { type: Boolean, default: false },
   verificationToken: { type: String },
-  isActive: { type: Boolean, default: true },
+  isActive: { type: Boolean, default: false },
+  activationExpires: { type: Date }, // New field to store activation expiry time
 });
 
 UserSchema.pre('save', async function (next) {
