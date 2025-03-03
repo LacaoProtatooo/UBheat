@@ -45,7 +45,7 @@ export const ChatbotComponent = () => {
 
   return (
     <div
-      className="w-full max-w-md mx-auto p-6 bg-white rounded-xl shadow-2xl transform transition-all duration-300 hover:scale-105 relative overflow-hidden"
+      className="w-full max-w-full mx-auto p-6 bg-white rounded-xl shadow-2xl transform transition-all duration-300 hover:scale-105 relative overflow-hidden"
       style={{
         zIndex: 10,
         backgroundImage: `url(${ChatbotBackground})`,

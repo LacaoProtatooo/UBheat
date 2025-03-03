@@ -267,6 +267,26 @@ const Information = () => {
                   Worldometers - Philippines Population
                 </a>
               </li>
+              <li>
+                <a
+                  href="https://worldpopulationreview.com/cities/philippines"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                >
+                  Worldpopulationreview - Philippines Population Per Cities
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://www.macrotrends.net/global-metrics/countries/PHL/philippines/fertility-rate"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                >
+                  Macrotrends - Philippines Population Growth Rate
+                </a>
+              </li>
             </ul>
           </div>
           
