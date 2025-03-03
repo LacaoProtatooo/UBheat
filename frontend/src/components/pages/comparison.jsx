@@ -360,53 +360,53 @@ const Comparison = () => {
         )}
       </Box>
 
-      {/* Parameters Section (Cols 3–4) */}
-      <Box sx={{ gridColumn: '3 / 5', gridRow: '1 / 3' }}>
-        <Card variant="outlined" sx={{ height: '100%' }}>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>Parameters</Typography>
-            <TextField
-              label="Selected Year (2020–2030)"
-              type="number"
-              value={selectedYear}
-              onChange={(e) => {
-                const year = Number(e.target.value);
-                if (year >= 2020 && year <= 2030) {
-                  setSelectedYear(year);
-                }
-              }}
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              inputProps={{ min: 2020, max: 2030 }}
-            />
-            <TextField
-              label="Emission Rate (%)"
-              type="number"
-              value={emissionRate}
-              onChange={(e) => {
-                let value = Number(e.target.value);
-                if (value < 0) value = 0;
-                if (value > 100) value = 100;
-                setEmissionRate(value);
-              }}
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              inputProps={{ min: 0, max: 100, step: 1 }}
-            />
-            <TextField
-              label="Base MtCO₂ (Predicted)"
-              type="number"
-              value={baseMtCO2.toFixed(2)}
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              InputProps={{ readOnly: true }}
-            />
-          </CardContent>
-        </Card>
-      </Box>
+     {/* Parameters Section (Cols 3–4) */}
+<Box sx={{ gridColumn: '3 / 5', gridRow: '1 / 3' }}>
+  <Card variant="outlined" sx={{ height: '100%' }}>
+    <CardContent sx={{ overflow: 'auto', maxHeight: '280px' }}>
+      <Typography variant="h6" gutterBottom>Parameters</Typography>
+      <TextField
+        label="Selected Year (2020–2030)"
+        type="number"
+        value={selectedYear}
+        onChange={(e) => {
+          const year = Number(e.target.value);
+          if (year >= 2020 && year <= 2030) {
+            setSelectedYear(year);
+          }
+        }}
+        variant="outlined"
+        fullWidth
+        margin="normal"
+        inputProps={{ min: 2020, max: 2030 }}
+      />
+      <TextField
+        label="Emission Rate (%)"
+        type="number"
+        value={emissionRate}
+        onChange={(e) => {
+          let value = Number(e.target.value);
+          if (value < 0) value = 0;
+          if (value > 100) value = 100;
+          setEmissionRate(value);
+        }}
+        variant="outlined"
+        fullWidth
+        margin="normal"
+        inputProps={{ min: 0, max: 100, step: 1 }}
+      />
+      <TextField
+        label="Base MtCO₂ (Predicted)"
+        type="number"
+        value={baseMtCO2.toFixed(2)}
+        variant="outlined"
+        fullWidth
+        margin="normal"
+        InputProps={{ readOnly: true }}
+      />
+    </CardContent>
+  </Card>
+</Box>
 
       {/* City 2 Selection & Details (Cols 5–6) */}
       <Box sx={{ gridColumn: '5 / 7', gridRow: '1 / 3' }}>

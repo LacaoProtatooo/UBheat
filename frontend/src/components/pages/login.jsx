@@ -44,6 +44,10 @@ export function LoginForm() {
 
       const data = await response.json();
       if (response.ok) {
+        if (!data.isActive) {
+          toast.error('Your account is not active. Please contact support.');
+          return;
+        }
         console.log('Login successful:', data);
         localStorage.setItem('token', data.token); // Save token
         window.location.href = '/'; // Redirect to main page
