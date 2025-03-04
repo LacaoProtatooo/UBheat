@@ -73,31 +73,11 @@ const Sidebar = ({ setActiveComponent, activeComponent }) => {
               }`}
             >
               <FontAwesomeIcon icon={faChartLine} />
-              {isExpanded && <span>Weather Trends</span>}
+              {isExpanded && <span>Charts</span>}
             </button>
           </li>
-          <li className="mb-3">
-            <button
-              onClick={() => setActiveComponent("HeatPredictionModel")}
-              className={`w-full text-left flex items-center space-x-2 hover:bg-gray-700 p-2 rounded ${
-                activeComponent === "HeatPredictionModel" ? "bg-gray-700" : ""
-              }`}
-            >
-              <FontAwesomeIcon icon={faFire} />
-              {isExpanded && <span>Philippines Urban Heat Prediction Model (2015-2030)</span>}
-            </button>
-          </li>
-          <li className="mb-3">
-            <button
-              onClick={() => setActiveComponent("TemperatureDistribution")}
-              className={`w-full text-left flex items-center space-x-2 hover:bg-gray-700 p-2 rounded ${
-                activeComponent === "TemperatureDistribution" ? "bg-gray-700" : ""
-              }`}
-            >
-              <FontAwesomeIcon icon={faThermometerHalf} />
-              {isExpanded && <span>Temperature Distribution</span>}
-            </button>
-          </li>
+        
+        
           <li className="mb-3">
             <button
               onClick={() => setActiveComponent("ThreeDayForecast")}
