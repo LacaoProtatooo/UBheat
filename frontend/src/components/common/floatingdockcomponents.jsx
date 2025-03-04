@@ -148,7 +148,7 @@ export const UBHeatComponent = () => (
       UBHeat is designed to assist users with various queries Test Test Test.
     </p>
     <img
-      src="../../../public/UB_Logo.png"
+      src="../../../UB_Logo.png"
       alt="UBHeat Logo"
       className="mt-4 w-full h-auto rounded-md"
     />

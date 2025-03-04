@@ -302,7 +302,7 @@ const Information = () => {
   ];
 
   return (
-    <div className="w-full mx-auto p-4 border border-gray-300 rounded-md bg-gradient-to-r from-blue-100 to-blue-200 shadow-md">
+    <div className="w-full mx-auto p-4 border border-gray-300 rounded-md bg-transparent shadow-md">
       <Timeline data={data} />
 
       {/* TEXT HOVER EFFECT */}

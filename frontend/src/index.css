@@ -58,14 +58,19 @@
   margin-top: 5px;
 }
 
-.vortex-background {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -1; /* Place behind content */
-  overflow: hidden;
-  background-color: rgba(229, 200, 234, 1);
+
+/* Moving Cards */
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
+.animate-scroll {
+  animation: scroll var(--animation-duration, 40s) linear infinite;
+  animation-direction: var(--animation-direction, normal);
+}
