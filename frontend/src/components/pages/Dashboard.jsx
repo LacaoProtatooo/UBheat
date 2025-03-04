@@ -9,6 +9,22 @@ import NewsSection from "../NewsSection";
 import UserList from "../UserList";
 import Home from "../Home"; // Import the new Home component
 
+const Header = () => {
+  return (
+    <header className="bg-gray-800 text-white p-4 shadow-md">
+      <div className="container mx-auto flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+        <nav>
+          <ul className="flex space-x-4">
+            
+            <li><a href="#" className="hover:underline">Logout</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+  );
+};
+
 const Dashboard = () => {
   const [activeComponent, setActiveComponent] = useState("Home"); // Default to Home
   const [city, setCity] = useState("");
@@ -73,13 +89,18 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex">
-      {/* Sidebar */}
-      <Sidebar setActiveComponent={setActiveComponent} />
+    <div className="flex flex-col min-h-screen">
+      {/* Header */}
+      <Header />
 
-      {/* Main Content */}
-      <div className="flex-1 p-4 ml-16">
-        {renderComponent()}
+      <div className="flex flex-1">
+        {/* Sidebar */}
+        <Sidebar setActiveComponent={setActiveComponent} />
+
+        {/* Main Content */}
+        <div className="flex-1 p-4 ml-16">
+          {renderComponent()}
+        </div>
       </div>
     </div>
   );
