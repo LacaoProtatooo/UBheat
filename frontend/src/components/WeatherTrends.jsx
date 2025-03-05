@@ -277,11 +277,23 @@ const WeatherTrends = () => {
     const charts = ["line-chart", "pie-chart", "bar-chart", "donut-chart", "urban-heat-chart"];
     let yOffset = 20; // Start a bit lower to accommodate the header
 
+    // Add the logo to the header
+    const logoPath = "public/logo (1).png";
+    const logo = await fetch(logoPath).then(res => res.blob()).then(blob => {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+        });
+    });
+
+    pdf.addImage(logo, "PNG", 10, 10, 30, 30); // Adjust the position and size as needed
+
     // Add a professional header
     pdf.setFontSize(22);
     pdf.setTextColor(40);
     pdf.setFont("helvetica", "bold");
-    pdf.text("UBheat: Predictive Analysis of Urban Heat in the Philippines", pdf.internal.pageSize.getWidth() / 2, yOffset, { align: "center" });
+    pdf.text("UBheat: Predictive Analysis of UBHeat in the Philippines", pdf.internal.pageSize.getWidth() / 2, yOffset, { align: "center" });
     yOffset += 10;
 
     pdf.setFontSize(14);
@@ -306,10 +318,10 @@ const WeatherTrends = () => {
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-            if (yOffset + pdfHeight > pdf.internal.pageSize.getHeight()) {
-                pdf.addPage();
-                yOffset = 20; // Reset yOffset after adding a new page
-            }
+if (yOffset + pdfHeight > pdf.internal.pageSize.getHeight()) {
+            pdf.addPage();
+            yOffset = 20; // Reset yOffset after adding a new page
+}
 
             pdf.addImage(imgData, "PNG", 10, yOffset, pdfWidth - 20, pdfHeight);
             yOffset += pdfHeight + 10;
@@ -319,10 +331,116 @@ const WeatherTrends = () => {
             pdf.setTextColor(80);
             pdf.setFont("helvetica", "italic");
             const chartDescription = getChartDescription(chartId);
-            pdf.text(chartDescription, 15, yOffset, { maxWidth: pdfWidth - 30 });
+            pdf.text(chartDescription, 10, yOffset, { maxWidth: pdfWidth - 20, align: "justify" });
             yOffset += 15;
         }
     }
+
+    // Add a table of predicted data manually
+    pdf.addPage();
+    yOffset = 20;
+    pdf.setFontSize(14);
+    pdf.setTextColor(40);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Predicted Data (2024-2030)", pdf.internal.pageSize.getWidth() / 2, yOffset, { align: "center" });
+    yOffset += 10;
+
+    pdf.setFontSize(10);
+    pdf.setTextColor(0);
+    pdf.setFont("helvetica", "normal");
+    const tableColumn = ["Year", "Population", "CO₂ Emissions (MtCO2)", "Temperature (°C)"];
+    const tableRows = futureData.years.map((year, index) => [
+        year,
+        futureData.population[index].toLocaleString(),
+        allMtCO2[historicalData.years.length + index].toFixed(2),
+        allTemps[historicalData.years.length + index].toFixed(2)
+    ]);
+
+    // Add table header
+    pdf.setFont("helvetica", "bold");
+    pdf.text(tableColumn.join(" | "), 10, yOffset);
+    yOffset += 10;
+
+    // Add table rows
+    pdf.setFont("helvetica", "normal");
+    tableRows.forEach(row => {
+        pdf.text(row.join(" | "), 10, yOffset);
+        yOffset += 10;
+    });
+
+    // Add additional content on a new page
+    pdf.addPage();
+    yOffset = 20;
+    pdf.setFontSize(14);
+    pdf.setTextColor(40);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Predictive Analysis of Urban Heat in the Philippines", pdf.internal.pageSize.getWidth() / 2, yOffset, { align: "center" });
+    yOffset += 10;
+
+    pdf.setFontSize(10);
+    pdf.setTextColor(0);
+    pdf.setFont("helvetica", "normal");
+    const additionalContent = [
+       
+        "Year\tAnnual Mean\t5-Year Smooth",
+        "2015\t26.45\t26.41",
+        "2016\t26.8\t26.47",
+        "2017\t26.35\t26.53",
+        "2018\t26.54\t26.58",
+        "2019\t26.6\t26.63",
+        "2020\t26.71\t26.67",
+        "2021\t26.68\t26.71",
+        "2022\t26.61\t26.74",
+        "2023\t26.91\t26.78",
+        "Philippine Population Data (2015 - 2025)",
+        "Key data points include:",
+        "2025: 116,786,962 (0.81% growth),",
+        "2024: 115,843,670,",
+        "2023: 114,891,199,",
+        "2022: 113,964,338,",
+        "2020: 112,081,264,",
+        "2015: 105,312,992.",
+        "Fossil Carbon Dioxide (CO₂) Emissions of the Philippines",
+        "YearFossil CO₂ Emissions (tons)CO₂ Emissions ChangeCO₂ Emissions per Capita",
+        "2022\t155,380,930\t6.32%\t1.36",
+        "2021\t146,142,190\t6.92%\t1.29",
+        "2020\t136,678,980\t-8.15%\t1.22",
+        "2019\t148,800,700\t4.56%\t1.34",
+        "2018\t142,309,430\t4.19%\t1.30",
+        "2017\t136,583,970\t11.76%\t1.26",
+        "2016\t122,214,770\t7.29%\t1.15",
+        "2015\t113,908,720\t8.71%\t1.08"
+    ];
+
+    additionalContent.forEach(line => {
+        pdf.text(line, 10, yOffset, { maxWidth: pdf.internal.pageSize.getWidth() - 20, align: "justify" });
+        yOffset += 5;
+    });
+
+    // Add sources
+    yOffset += 10;
+    pdf.setFontSize(12);
+    pdf.setTextColor(40);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Sources", pdf.internal.pageSize.getWidth() / 2, yOffset, { align: "center" });
+    yOffset += 10;
+
+    pdf.setFontSize(10);
+    pdf.setTextColor(0);
+    pdf.setFont("helvetica", "normal");
+    const sources = [
+        "Wikipedia - List of Cities in the Philippines",
+        "Worldometers - Philippines CO₂ Emissions",
+        "ArcGIS - Urban Heat Island Effect",
+        "Worldometers - Philippines Population",
+        "Worldpopulationreview - Philippines Population Per Cities",
+        "Macrotrends - Philippines Population Growth Rate"
+    ];
+
+    sources.forEach((source, index) => {
+        pdf.text(`${index + 1}. ${source}`, 10, yOffset);
+        yOffset += 5;
+    });
 
     // Add a professional footer
     pdf.setFontSize(10);
@@ -337,15 +455,15 @@ const WeatherTrends = () => {
 const getChartDescription = (chartId) => {
     switch (chartId) {
         case "line-chart":
-            return "Line Chart: Displays the trend of urban heat (in °C) over time (2015-2023) based on observed annual average mean surface air temperature data.";
+            return "Line Chart: Displays the trend of urban heat (in °C) over time (2015-2023) based on observed annual average mean surface air temperature data. This chart helps in understanding the historical temperature trends and predicting future temperatures.";
         case "pie-chart":
-            return "Pie Chart: Represents the distribution of CO₂ emissions across major cities in the Philippines for the year 2022.";
+            return "Pie Chart: Represents the distribution of CO₂ emissions across major cities in the Philippines for the year 2022. This chart provides a visual representation of how different cities contribute to the overall CO₂ emissions.";
         case "bar-chart":
-            return "Bar Chart: Compares CO₂ emissions (in metric tons) and urban heat (in °C) across major cities in the Philippines.";
+            return "Bar Chart: Compares CO₂ emissions (in metric tons) and urban heat (in °C) across major cities in the Philippines. This chart helps in identifying the correlation between CO₂ emissions and urban heat in different cities.";
         case "donut-chart":
-            return "Donut Chart: Shows the percentage contribution of different sectors to total CO₂ emissions in the Philippines.";
+            return "Donut Chart: Shows the percentage contribution of different sectors to total CO₂ emissions in the Philippines. This chart provides insights into which sectors are the major contributors to CO₂ emissions.";
         case "urban-heat-chart":
-            return "Urban Heat Chart: Visualizes the urban heat island effect across major cities in the Philippines.";
+            return "Urban Heat Chart: Visualizes the urban heat island effect across major cities in the Philippines. This chart helps in understanding the impact of urbanization on temperature increases in different cities.";
         default:
             return "";
     }
