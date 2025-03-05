@@ -1,8 +1,12 @@
-import User from '../models/User.js';
+import User from '../models/user.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { sendVerificationEmail } from '../utils/mailer.js';
+import cloudinary from 'cloudinary';
+import multer from "multer";
+const upload = multer({ storage: multer.memoryStorage() });
+import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
 
 export const signup = async (req, res) => {
   const { firstName, lastName, email, password } = req.body;
@@ -11,20 +15,23 @@ export const signup = async (req, res) => {
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ msg: 'User already exists' });
 
-    const hashedPassword = await bcrypt.hash(password, 10);
     const verificationToken = crypto.randomBytes(20).toString('hex');
 
+    // Do NOT hash the password here—pass it in plain text.
     user = new User({
       firstName,
       lastName,
       email,
-      password: hashedPassword,
+      password, 
       verificationToken,
-      isActive: false, // Initially set to false
-      activationExpires: new Date(Date.now() + 24 * 60 * 60 * 1000), // Set activation expiry to 24 hours from now
+      isActive: false,
+      activationExpires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours from now
     });
 
     await user.save();
+
+    // JWT
+    generateTokenAndSetCookie(res, user._id);
 
     const verificationLink = `http://localhost:5000/api/auth/verify-email?token=${verificationToken}`;
     await sendVerificationEmail(email, verificationLink);
@@ -35,6 +42,7 @@ export const signup = async (req, res) => {
     res.status(500).json({ message: 'Signup failed. Please try again.' });
   }
 };
+
 
 export const login = async (req, res) => {
   const { email, password } = req.body;
@@ -53,6 +61,10 @@ export const login = async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({ msg: 'Invalid credentials' });
     }
+    
+    const userid = user._id;
+    // JWT
+    generateTokenAndSetCookie(res, userid);
 
     user.activationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // Extend activation expiry to 24 hours from now
     await user.save();
@@ -72,10 +84,28 @@ export const login = async (req, res) => {
         res.json({ token, isActive: user.isActive });
       }
     );
+
+    res.status(200).json({
+      success: true,
+      message: user.isAdmin ? "Logged in successfully as admin" : "Logged in successfully as user",
+      user: {
+          ...user._doc,
+          password: undefined,
+      },
+  });
+  
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
   }
+};
+
+export const logout = async (req, res) => {
+  res.clearCookie('token');
+  res.status(200).json({
+      success: true,
+      message: "Logged out successfully"
+  });
 };
 
 export const verifyEmail = async (req, res) => {
@@ -122,3 +152,90 @@ export const getUserNotifications = async (req, res) => {
     res.status(500).json({ message: 'Error fetching user notifications' });
   }
 };
+
+// Get current user
+export const getCurrentUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    res.status(200).json({ success: true, user });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+
+export const updateProfile = async (req, res) => {
+  // Destructure only the fields that exist in your model
+  const { userId, firstName, lastName, email } = req.body;
+  const image = req.file;
+
+  console.log("Image:", image);
+  console.log("Request Body:", req.body);
+  console.log("User ID:", userId);
+
+  if (!userId) {
+    return res
+      .status(400)
+      .json({ success: false, message: "User ID is required" });
+  }
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    // Update only the fields available in your model
+    user.firstName = firstName || user.firstName;
+    user.lastName = lastName || user.lastName;
+    user.email = email || user.email;
+
+    if (image) {
+      // If a new image is provided, remove the old one (if exists) and upload the new image to Cloudinary.
+      if (user.image?.public_id) {
+        await cloudinary.uploader.destroy(user.image.public_id);
+      }
+      const uploadResult = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { folder: "user_image" },
+          (error, result) => {
+            if (error) {
+              reject(new Error("Error uploading avatar to Cloudinary"));
+            } else {
+              resolve(result);
+            }
+          }
+        );
+        stream.end(image.buffer);
+      });
+
+      user.image = {
+        public_id: uploadResult.public_id,
+        url: uploadResult.secure_url,
+      };
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user: {
+        ...user._doc,
+        password: undefined,
+      },
+    });
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred. Please try again.",
+    });
+  }
+};
+

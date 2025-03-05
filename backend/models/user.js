@@ -9,14 +9,19 @@ const UserSchema = new mongoose.Schema({
   isVerified: { type: Boolean, default: false },
   verificationToken: { type: String },
   isActive: { type: Boolean, default: false },
-  activationExpires: { type: Date }, // New field to store activation expiry time
+  activationExpires: { type: Date },
+  image: {
+    public_id: { type: String, required: false },
+    url: { type: String, required: false },
+  },
+  isAdmin: { type: Boolean, default: false },
 });
 
 UserSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) next();
+  if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 
-const User = mongoose.model('User', UserSchema);
+const User = mongoose.models.User || mongoose.model('User', UserSchema);
 export default User;

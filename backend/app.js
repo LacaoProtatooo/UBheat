@@ -2,8 +2,16 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
+// Middleware
+app.use(cookieParser());
+const allowedOrigins = [
+    "http://localhost:5173", // Development origin
+    // Add Production origin here
+];
+
 // Import routes
 import chatRoutes from "./routes/chat_route.js";
+import authRoutes from "./routes/auth_route.js";
 
 // -------------
 
@@ -13,12 +21,7 @@ const app = express();
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Middleware
-app.use(cookieParser());
-const allowedOrigins = [
-    "http://localhost:5173", // Development origin
-    // Add Production origin here
-];
+
 
 app.use(cors({
     origin: allowedOrigins,
@@ -34,6 +37,7 @@ app.use((req, res, next) => {
 
 // Router Connection
 app.use("/api/chat", chatRoutes);
+app.use("/api/auth", authRoutes);
 
 // -----------------
 
