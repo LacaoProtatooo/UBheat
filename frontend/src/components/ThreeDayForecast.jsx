@@ -3,6 +3,7 @@ import axios from "axios";
 
 const ThreeDayForecast = () => {
   const [forecastData, setForecastData] = useState([]);
+  const [weatherAlerts, setWeatherAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
   const API_KEY = "b05f228625b60990de863e6193f998af"; // OpenWeather API key
 
@@ -47,6 +48,12 @@ const ThreeDayForecast = () => {
         }));
 
       setForecastData(forecastArray);
+
+      // Set weather alerts if available
+      if (response.data.alerts) {
+        setWeatherAlerts(response.data.alerts);
+      }
+
       setLoading(false);
     } catch (error) {
       console.error("Error fetching forecast data:", error);
@@ -82,6 +89,30 @@ const ThreeDayForecast = () => {
             <p>Wind Speed: {day.avgWind} kph</p>
           </div>
         ))}
+      </div>
+
+      {/* Weather Alerts Section */}
+      <div className="mt-8">
+        <h4 className="text-lg font-semibold mb-2">Weather Alerts</h4>
+        <ul className="space-y-2">
+          {weatherAlerts.length > 0 ? (
+            weatherAlerts.map((alert, index) => (
+              <li key={index} className="p-2 bg-red-50 rounded-md">
+                <p className="text-sm">
+                  {alert.event} for <span className="font-semibold">{alert.areas.join(", ")}</span>
+                </p>
+                <p className="text-xs text-gray-500">
+                  Issued {new Date(alert.start * 1000).toLocaleString()} - {new Date(alert.end * 1000).toLocaleString()}
+                </p>
+                <p className="text-sm">{alert.description}</p>
+              </li>
+            ))
+          ) : (
+            <li className="p-2 bg-green-50 rounded-md">
+              <p className="text-sm">No weather alerts at the moment</p>
+            </li>
+          )}
+        </ul>
       </div>
     </div>
   );

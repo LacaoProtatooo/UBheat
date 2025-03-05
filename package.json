@@ -53,6 +53,7 @@
     "react-toastify": "^11.0.3",
     "regression": "^2.0.1",
     "simplex-noise": "^4.0.3",
+    "systeminformation": "^5.25.11",
     "tailwind-merge": "^3.0.1",
     "three": "^0.173.0",
     "three-globe": "^2.41.12"

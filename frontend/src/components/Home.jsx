@@ -83,6 +83,20 @@ const Home = ({ users, cityWeather, fetchCityWeather, city, setCity }) => {
     },
   };
 
+  const [performanceStats, setPerformanceStats] = useState({
+    loadTime: 0,
+    memoryUsage: 0,
+  });
+
+  useEffect(() => {
+    const loadTime = window.performance.timing.loadEventEnd - window.performance.timing.navigationStart;
+    const memoryUsage = window.performance.memory ? (window.performance.memory.usedJSHeapSize / 1024 / 1024).toFixed(2) + ' MB' : 'N/A';
+
+    setPerformanceStats({
+      loadTime,
+      memoryUsage,
+    });
+  }, []);
   return (
     <div>
       {/* Grid Layout for Home */}
@@ -131,21 +145,16 @@ const Home = ({ users, cityWeather, fetchCityWeather, city, setCity }) => {
         </div>
       </div>
 
-      {/* System Performance Metrics */}
       <div className="mt-8 p-4 border border-gray-200 rounded-md shadow-sm">
-        <h4 className="text-lg font-semibold mb-4">System Performance</h4>
+        <h4 className="text-lg font-semibold mb-4">Browser Performance</h4>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="p-4 bg-blue-50 rounded-md">
-            <h4 className="text-lg font-semibold mb-2">Server Uptime</h4>
-            <p className="text-2xl font-bold">99.9%</p>
+            <h4 className="text-lg font-semibold mb-2">Page Load Time</h4>
+            <p className="text-2xl font-bold">{performanceStats.loadTime} ms</p>
           </div>
           <div className="p-4 bg-green-50 rounded-md">
-            <h4 className="text-lg font-semibold mb-2">API Response Time</h4>
-            <p className="text-2xl font-bold">120ms</p>
-          </div>
-          <div className="p-4 bg-yellow-50 rounded-md">
-            <h4 className="text-lg font-semibold mb-2">Database Usage</h4>
-            <p className="text-2xl font-bold">75%</p>
+            <h4 className="text-lg font-semibold mb-2">Memory Usage</h4>
+            <p className="text-2xl font-bold">{performanceStats.memoryUsage}</p>
           </div>
         </div>
       </div>
