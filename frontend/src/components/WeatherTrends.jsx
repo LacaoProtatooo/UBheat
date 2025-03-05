@@ -18,6 +18,7 @@ import {
 import { LineChart } from '@mui/x-charts/LineChart';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import html2canvas from 'html2canvas';
+import jsPDF from "jspdf";
 import WeatherTrendsPDF from './WeatherTrendsPDF'; // Import the PDF component
 
 // Register Chart.js components
@@ -271,6 +272,85 @@ const WeatherTrends = () => {
   const safeValueFormatter = (value, unit = '') =>
     value !== null && value !== undefined ? `${value.toFixed(2)}${unit}` : 'N/A';
 
+  const generatePDF = async () => {
+    const pdf = new jsPDF("p", "mm", "a4");
+    const charts = ["line-chart", "pie-chart", "bar-chart", "donut-chart", "urban-heat-chart"];
+    let yOffset = 20; // Start a bit lower to accommodate the header
+
+    // Add a professional header
+    pdf.setFontSize(22);
+    pdf.setTextColor(40);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("UBheat: Predictive Analysis of Urban Heat in the Philippines", pdf.internal.pageSize.getWidth() / 2, yOffset, { align: "center" });
+    yOffset += 10;
+
+    pdf.setFontSize(14);
+    pdf.setTextColor(100);
+    pdf.setFont("helvetica", "normal");
+    pdf.text("Analysis Range: 2022 - 2030 | Linear Regression Model", pdf.internal.pageSize.getWidth() / 2, yOffset, { align: "center" });
+    yOffset += 15;
+
+    // Add a subtitle
+    pdf.setFontSize(12);
+    pdf.setTextColor(120);
+    pdf.text("This report provides insights into urban heat trends across the Philippines using a linear regression model.", pdf.internal.pageSize.getWidth() / 2, yOffset, { align: "center" });
+    yOffset += 10;
+
+    // Add charts to the PDF
+    for (const chartId of charts) {
+        const chartElement = document.getElementById(chartId);
+        if (chartElement) {
+            const canvas = await html2canvas(chartElement);
+            const imgData = canvas.toDataURL("image/png");
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+            if (yOffset + pdfHeight > pdf.internal.pageSize.getHeight()) {
+                pdf.addPage();
+                yOffset = 20; // Reset yOffset after adding a new page
+            }
+
+            pdf.addImage(imgData, "PNG", 10, yOffset, pdfWidth - 20, pdfHeight);
+            yOffset += pdfHeight + 10;
+
+            // Add a description for each chart
+            pdf.setFontSize(10);
+            pdf.setTextColor(80);
+            pdf.setFont("helvetica", "italic");
+            const chartDescription = getChartDescription(chartId);
+            pdf.text(chartDescription, 15, yOffset, { maxWidth: pdfWidth - 30 });
+            yOffset += 15;
+        }
+    }
+
+    // Add a professional footer
+    pdf.setFontSize(10);
+    pdf.setTextColor(150);
+    pdf.setFont("helvetica", "normal");
+    pdf.text(`Generated on ${new Date().toLocaleDateString()} | UBheat Report`, pdf.internal.pageSize.getWidth() / 2, pdf.internal.pageSize.getHeight() - 10, { align: "center" });
+
+    pdf.save("UBheat_report.pdf");
+};
+
+// Function to get chart descriptions
+const getChartDescription = (chartId) => {
+    switch (chartId) {
+        case "line-chart":
+            return "Line Chart: Displays the trend of urban heat (in °C) over time (2015-2023) based on observed annual average mean surface air temperature data.";
+        case "pie-chart":
+            return "Pie Chart: Represents the distribution of CO₂ emissions across major cities in the Philippines for the year 2022.";
+        case "bar-chart":
+            return "Bar Chart: Compares CO₂ emissions (in metric tons) and urban heat (in °C) across major cities in the Philippines.";
+        case "donut-chart":
+            return "Donut Chart: Shows the percentage contribution of different sectors to total CO₂ emissions in the Philippines.";
+        case "urban-heat-chart":
+            return "Urban Heat Chart: Visualizes the urban heat island effect across major cities in the Philippines.";
+        default:
+            return "";
+    }
+};
+
   if (loading) {
     return <div>Loading weather data...</div>;
   }
@@ -283,27 +363,9 @@ const WeatherTrends = () => {
 
       {/* Download PDF Button */}
       <Box sx={{ mb: 3 }}>
-        <PDFDownloadLink
-          document={
-            <WeatherTrendsPDF
-              weatherData={weatherData}
-              historicalData={historicalData}
-              futureData={futureData}
-              allYears={allYears}
-              allTemps={allTemps}
-              allMtCO2={allMtCO2}
-              regressionLine={regressionLine}
-              chartImages={chartImages} // Pass chart images to the PDF component
-            />
-          }
-          fileName="weather_trends_report.pdf"
-        >
-          {({ loading }) => (
-            <Button variant="contained" color="primary" disabled={loading}>
-              {loading ? 'Generating PDF...' : 'Download PDF Report'}
-            </Button>
-          )}
-        </PDFDownloadLink>
+        <Button variant="contained" color="primary" onClick={generatePDF}>
+          Download PDF Report
+        </Button>
       </Box>
 
       <Grid container spacing={3}>
@@ -347,81 +409,78 @@ const WeatherTrends = () => {
           </Box>
         </Grid>
 
-        {/* Gantt Chart (Placeholder) */}
+        {/* Urban Heat Prediction Model */}
         <Grid item xs={12}>
-       
+          <Box id="urban-heat-chart" sx={{ mt: 4 }}>
+            <Typography variant="h5" gutterBottom>
+              Philippines Urban Heat Prediction Model (2015-2030)
+            </Typography>
+            <LineChart
+              width={600}
+              height={300}
+              series={[
+                { 
+                  data: allTemps,
+                  label: 'Observed & Projected Temperature (°C)',
+                  yAxisKey: 'temp',
+                  color: '#ff6384',
+                  valueFormatter: (value) => safeValueFormatter(value, '°C'),
+                },
+                { 
+                  data: regressionLine,
+                  label: 'Linear Trend Line',
+                  yAxisKey: 'temp',
+                  color: '#ff0000',
+                  dashStyle: '5 5',
+                  valueFormatter: (value) => safeValueFormatter(value, '°C'),
+                },
+                {
+                  data: allMtCO2,
+                  label: 'CO₂ Emissions (MtCO2)',
+                  yAxisKey: 'co2',
+                  color: '#4bc0c0',
+                  valueFormatter: (value) => safeValueFormatter(value, ' Mt'),
+                },
+              ]}
+              xAxis={[{
+                data: allYears,
+                scaleType: 'band',
+                label: 'Year',
+                valueFormatter: (value) => value.toString(),
+              }]}
+              yAxis={[
+                { 
+                  id: 'temp', 
+                  label: 'Temperature (°C)',
+                  min: 26,
+                  max: 28,
+                  tickNumber: 8,
+                  labelStyle: { 
+                      writingMode: 'vertical-rl',  
+                      textAlign: 'center', 
+                      transform: 'translate(-30px, 0px)', 
+                      fontSize: '1rem'
+                    }
+                },
+                { 
+                  id: 'co2', 
+                  label: 'CO₂ Emissions (MtCO2)', 
+                  position: 'right',
+                  min: 100,
+                  max: 200,
+                  tickNumber: 5,
+                },
+              ]}
+              margin={{ left: 90, right: 90, top: 40, bottom: 60 }}
+              sx={{
+                '.MuiLineElement-root': { strokeWidth: 2.5 },
+                '.MuiMarkElement-root': { display: 'none' },
+                '.MuiChartsAxis-tickLabel': { fontSize: '0.875rem' }
+              }}
+            />
+          </Box>
         </Grid>
       </Grid>
-
-      {/* Urban Heat Prediction Model */}
-      <Box id="urban-heat-chart" sx={{ mt: 4 }}>
-        <Typography variant="h5" gutterBottom>
-          Philippines Urban Heat Prediction Model (2015-2030)
-        </Typography>
-        <LineChart
-          width={600}
-          height={300}
-          series={[
-            { 
-              data: allTemps,
-              label: 'Observed & Projected Temperature (°C)',
-              yAxisKey: 'temp',
-              color: '#ff6384',
-              valueFormatter: (value) => safeValueFormatter(value, '°C'),
-            },
-            { 
-              data: regressionLine,
-              label: 'Linear Trend Line',
-              yAxisKey: 'temp',
-              color: '#ff0000',
-              dashStyle: '5 5',
-              valueFormatter: (value) => safeValueFormatter(value, '°C'),
-            },
-            {
-              data: allMtCO2,
-              label: 'CO₂ Emissions (MtCO2)',
-              yAxisKey: 'co2',
-              color: '#4bc0c0',
-              valueFormatter: (value) => safeValueFormatter(value, ' Mt'),
-            },
-          ]}
-          xAxis={[{
-            data: allYears,
-            scaleType: 'band',
-            label: 'Year',
-            valueFormatter: (value) => value.toString(),
-          }]}
-          yAxis={[
-            { 
-              id: 'temp', 
-              label: 'Temperature (°C)',
-              min: 26,
-              max: 28,
-              tickNumber: 8,
-              labelStyle: { 
-                  writingMode: 'vertical-rl',  
-                  textAlign: 'center', 
-                  transform: 'translate(-30px, 0px)', 
-                  fontSize: '1rem'
-                }
-            },
-            { 
-              id: 'co2', 
-              label: 'CO₂ Emissions (MtCO2)', 
-              position: 'right',
-              min: 100,
-              max: 200,
-              tickNumber: 5,
-            },
-          ]}
-          margin={{ left: 90, right: 90, top: 40, bottom: 60 }}
-          sx={{
-            '.MuiLineElement-root': { strokeWidth: 2.5 },
-            '.MuiMarkElement-root': { display: 'none' },
-            '.MuiChartsAxis-tickLabel': { fontSize: '0.875rem' }
-          }}
-        />
-      </Box>
     </Box>
   );
 };
