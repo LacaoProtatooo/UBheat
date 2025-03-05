@@ -8,7 +8,7 @@ import { ModalProvider } from "./components/ui/animated-modal";
 import { ToastContainer } from "react-toastify";
 
 // Page Imports
-import HeatmapDashboard from "./components/pages/HeatmapDashboard";
+import Dashboard from "./components/pages/Dashboard";
 import About from "./components/pages/about";
 import AboutV2 from "./components/pages/aboutv2";
 import Chatbot from "./components/pages/chatbot";
@@ -40,7 +40,7 @@ function App() {
             <Route path="/chatbot" element={<Chatbot />} />
             <Route path="/heatmap" element={<Heatmap />} />
             <Route path="/sampleheatmap" element={<SampleHeatmap />} />
-            <Route path="/dashboard" element={<HeatmapDashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/login" element={<Login />} />
             <Route path="/profile" element={<ProfilePage />} />

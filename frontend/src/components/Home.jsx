@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Line, Bar } from "react-chartjs-2";
+import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
@@ -16,8 +15,7 @@ import {
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend
@@ -53,29 +51,24 @@ const Home = ({ users, cityWeather, fetchCityWeather, city, setCity }) => {
     fetchNotifications();
   }, []);
 
-  // Data for the user growth line graph
-  const userGrowthData = {
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"], // X-axis labels
+  // Log users data to debug
+  console.log("Users data:", users);
+
+  // Data for the user status bar chart
+  const activeUsers = users.filter(user => user.isActive).length;
+  const deactivatedUsers = users.filter(user => !user.isActive).length;
+
+  const userStatusData = {
+    labels: ["Active Users", "Deactivated Users"],
     datasets: [
       {
-        label: "User Growth",
-        data: [5, 10, 15, 20, 25, 30], // Y-axis data (replace with real data)
-        borderColor: "rgba(75, 192, 192, 1)",
-        backgroundColor: "rgba(75, 192, 192, 0.2)",
+        label: "User Status",
+        data: [activeUsers, deactivatedUsers],
+        backgroundColor: ["rgba(75, 192, 192, 0.2)", "rgba(255, 99, 132, 0.2)"],
+        borderColor: ["rgba(75, 192, 192, 1)", "rgba(255, 99, 132, 1)"],
+        borderWidth: 1,
       },
     ],
-  };
-
-  // Options for the line graph
-  const lineGraphOptions = {
-    responsive: true,
-    plugins: {
-      legend: { position: "top" },
-      title: {
-        display: true,
-        text: "User Growth Over Time",
-      },
-    },
   };
 
   // Options for the bar chart
@@ -85,7 +78,7 @@ const Home = ({ users, cityWeather, fetchCityWeather, city, setCity }) => {
       legend: { position: "top" },
       title: {
         display: true,
-        text: "User Activity (Sign-ups by Month)",
+        text: "User Status Distribution",
       },
     },
   };
@@ -129,11 +122,11 @@ const Home = ({ users, cityWeather, fetchCityWeather, city, setCity }) => {
           )}
         </div>
 
-        {/* User Growth Line Graph */}
+        {/* User Status Bar Chart */}
         <div className="p-4 border border-gray-200 rounded-md shadow-sm">
-          <h4 className="text-lg font-semibold mb-2">User Growth</h4>
+          <h4 className="text-lg font-semibold mb-2">User Status</h4>
           <div className="h-48">
-            <Line data={userGrowthData} options={lineGraphOptions} />
+            <Bar data={userStatusData} options={barChartOptions} />
           </div>
         </div>
       </div>

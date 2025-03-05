@@ -1,9 +1,13 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useEffect, useState } from 'react';
 import { Box, Typography } from '@mui/material';
 import { LineChart } from '@mui/x-charts/LineChart';
 import regression from 'regression';
+import { toPng } from 'html-to-image';
 
-const PredictionChart = () => {
+const PredictionChart = ({ onChartImageReady }) => {
+  const chartRef = useRef(null);
+  const [chartImage, setChartImage] = useState(null);
+
   const historicalData = useMemo(() => ({
     years: [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023],
     population: [
@@ -58,8 +62,21 @@ const PredictionChart = () => {
   const safeValueFormatter = (value, unit = '') =>
     value !== null && value !== undefined ? `${value.toFixed(2)}${unit}` : 'N/A';
 
+  useEffect(() => {
+    if (chartRef.current) {
+      toPng(chartRef.current)
+        .then((dataUrl) => {
+          setChartImage(dataUrl);
+          onChartImageReady(dataUrl); // Pass the image URL to the parent component
+        })
+        .catch((error) => {
+          console.error('Error generating chart image:', error);
+        });
+    }
+  }, [onChartImageReady]);
+
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 3 }} ref={chartRef}>
       <Typography variant="h5" gutterBottom>
         Philippines Urban Heat Prediction Model (2015-2030)
       </Typography>
@@ -137,12 +154,4 @@ const PredictionChart = () => {
   );
 };
 
-const Prediction = () => {
-  return (
-    <Box sx={{ p: 3 }}>
-      <PredictionChart />
-    </Box>
-  );
-};
-
-export default Prediction;
+export default PredictionChart;

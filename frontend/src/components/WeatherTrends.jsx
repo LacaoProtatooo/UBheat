@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Line, Pie, Bar, Doughnut } from "react-chartjs-2";
 import axios from "axios";
-import { Box, Typography, Grid } from '@mui/material';
+import { Box, Typography, Grid, Button } from '@mui/material';
 import regression from 'regression';
 import {
   Chart as ChartJS,
@@ -16,6 +16,9 @@ import {
   Legend,
 } from "chart.js";
 import { LineChart } from '@mui/x-charts/LineChart';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import html2canvas from 'html2canvas';
+import WeatherTrendsPDF from './WeatherTrendsPDF'; // Import the PDF component
 
 // Register Chart.js components
 ChartJS.register(
@@ -33,6 +36,7 @@ ChartJS.register(
 const WeatherTrends = () => {
   const [weatherData, setWeatherData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [chartImages, setChartImages] = useState({}); // State to store chart images
   const API_KEY = "b05f228625b60990de863e6193f998af"; // OpenWeather API key
 
   const fetchWeatherData = async () => {
@@ -78,6 +82,27 @@ const WeatherTrends = () => {
   useEffect(() => {
     fetchWeatherData();
   }, []);
+
+  // Function to export a chart as an image
+  const exportChartAsImage = async (chartId, imageName) => {
+    const chartElement = document.getElementById(chartId);
+    if (!chartElement) return;
+
+    const canvas = await html2canvas(chartElement);
+    const image = canvas.toDataURL('image/png');
+    setChartImages((prev) => ({ ...prev, [imageName]: image }));
+  };
+
+  // Export all charts as images
+  useEffect(() => {
+    if (!loading) {
+      exportChartAsImage('line-chart', 'lineChartImage');
+      exportChartAsImage('pie-chart', 'pieChartImage');
+      exportChartAsImage('bar-chart', 'barChartImage');
+      exportChartAsImage('donut-chart', 'donutChartImage');
+      exportChartAsImage('urban-heat-chart', 'urbanHeatChartImage');
+    }
+  }, [loading]);
 
   const lineChartData = {
     labels: weatherData.map((day) => day.date),
@@ -256,10 +281,35 @@ const WeatherTrends = () => {
         Weather Trends in the Philippines
       </Typography>
 
+      {/* Download PDF Button */}
+      <Box sx={{ mb: 3 }}>
+        <PDFDownloadLink
+          document={
+            <WeatherTrendsPDF
+              weatherData={weatherData}
+              historicalData={historicalData}
+              futureData={futureData}
+              allYears={allYears}
+              allTemps={allTemps}
+              allMtCO2={allMtCO2}
+              regressionLine={regressionLine}
+              chartImages={chartImages} // Pass chart images to the PDF component
+            />
+          }
+          fileName="weather_trends_report.pdf"
+        >
+          {({ loading }) => (
+            <Button variant="contained" color="primary" disabled={loading}>
+              {loading ? 'Generating PDF...' : 'Download PDF Report'}
+            </Button>
+          )}
+        </PDFDownloadLink>
+      </Box>
+
       <Grid container spacing={3}>
         {/* Line Chart */}
         <Grid item xs={12} md={6}>
-          <Box sx={{ p: 2, border: "1px solid #ddd", borderRadius: 2, height: 300 }}>
+          <Box id="line-chart" sx={{ p: 2, border: "1px solid #ddd", borderRadius: 2, height: 300 }}>
             <Typography variant="h6" gutterBottom>
               Weather Trends
             </Typography>
@@ -269,7 +319,7 @@ const WeatherTrends = () => {
 
         {/* Pie Chart */}
         <Grid item xs={12} md={6}>
-          <Box sx={{ p: 2, border: "1px solid #ddd", borderRadius: 2, height: 300 }}>
+          <Box id="pie-chart" sx={{ p: 2, border: "1px solid #ddd", borderRadius: 2, height: 300 }}>
             <Typography variant="h6" gutterBottom>
               Temperature Distribution
             </Typography>
@@ -279,7 +329,7 @@ const WeatherTrends = () => {
 
         {/* Bar Chart */}
         <Grid item xs={12} md={6}>
-          <Box sx={{ p: 2, border: "1px solid #ddd", borderRadius: 2, height: 300 }}>
+          <Box id="bar-chart" sx={{ p: 2, border: "1px solid #ddd", borderRadius: 2, height: 300 }}>
             <Typography variant="h6" gutterBottom>
               Wind Speed Over 6 Days
             </Typography>
@@ -289,7 +339,7 @@ const WeatherTrends = () => {
 
         {/* Donut Chart */}
         <Grid item xs={12} md={6}>
-          <Box sx={{ p: 2, border: "1px solid #ddd", borderRadius: 2, height: 300 }}>
+          <Box id="donut-chart" sx={{ p: 2, border: "1px solid #ddd", borderRadius: 2, height: 300 }}>
             <Typography variant="h6" gutterBottom>
               Weather Metrics Distribution
             </Typography>
@@ -304,7 +354,7 @@ const WeatherTrends = () => {
       </Grid>
 
       {/* Urban Heat Prediction Model */}
-      <Box sx={{ mt: 4 }}>
+      <Box id="urban-heat-chart" sx={{ mt: 4 }}>
         <Typography variant="h5" gutterBottom>
           Philippines Urban Heat Prediction Model (2015-2030)
         </Typography>
@@ -371,12 +421,6 @@ const WeatherTrends = () => {
             '.MuiChartsAxis-tickLabel': { fontSize: '0.875rem' }
           }}
         />
-        
-        <Typography variant="caption" display="block" sx={{ mt: 2, color: 'text.secondary' }}>
-          Linear trend based on 2015-2023 data (R² = {regression.linear(
-            historicalData.years.map((y, i) => [y, historicalData.temperatures[i]])
-          ).r2.toFixed(3)})
-        </Typography>
       </Box>
     </Box>
   );
