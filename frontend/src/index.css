@@ -1,14 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Delius&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
 @import 'leaflet/dist/leaflet.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 @layer base {
-    body {
-      font-family: 'Delius', cursive;
-      /* background-color: #E5C8EA; */
-    }
+  body {
+    font-family: 'Libre Baskerville', serif;
+    /* background-color: #E5C8EA; */
+  }
 }
 
 .temperature-overlay {
@@ -38,6 +39,7 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: background 0.3s ease;
 }
+
 .smoke-canvas {
   position: absolute;
   top: 0;
@@ -58,7 +60,6 @@
   margin-top: 5px;
 }
 
-
 /* Moving Cards */
 
 @keyframes scroll {
@@ -73,4 +74,23 @@
 .animate-scroll {
   animation: scroll var(--animation-duration, 40s) linear infinite;
   animation-direction: var(--animation-direction, normal);
+}
+
+/* Libre Baskerville Font Classes */
+.libre-baskerville-regular {
+  font-family: "Libre Baskerville", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.libre-baskerville-bold {
+  font-family: "Libre Baskerville", serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.libre-baskerville-regular-italic {
+  font-family: "Libre Baskerville", serif;
+  font-weight: 400;
+  font-style: italic;
 }

@@ -45,26 +45,14 @@ const fetchCityWeather = async (cityName) => {
 
 // Compute parameters based on API temperature, emissionRate, and base MtCO₂.
 const computeCityParameters = (apiTemp, emissionRate, baseMtCO2) => {
-  // Calculate active and result MtCO₂.
   const activeCO2 = baseMtCO2 * (emissionRate / 100);
   const resultMtCO2 = baseMtCO2 + activeCO2;
-
-  // Calculate the ratio between result and base.
-  const ratio = resultMtCO2 / baseMtCO2; // equals 1 + (emissionRate/100)
-  
-  // Assume baseline emissionRate of 70% corresponds to a ratio of 1.70.
+  const ratio = resultMtCO2 / baseMtCO2;
   const baselineRatio = 1.7;
-  
-  // Determine the additional temperature adjustment.
-  // Here, we use a constant multiplier of 5°C per ratio unit difference.
   const deltaTemp = (ratio - baselineRatio) * 5;
-  
-  // Compute adjusted temperature as API temperature plus 0.5 plus our delta.
   const adjustedTemp = parseFloat(apiTemp) + 0.5 + deltaTemp;
-
   return { adjustedTemp, activeCO2, resultMtCO2 };
 };
-
 
 // Get population projection for a city from citypopulation.json.
 const getPopulationProjection = (cityName) => {
@@ -133,7 +121,6 @@ const computeCO2Series = (emissionRate) => {
 /* -------------------------------
    Responsive Chart Wrapper Component
 ---------------------------------*/
-// This component measures its container and passes the measured width/height to the LineChart.
 const ResponsiveLineChart = (props) => {
   const containerRef = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 400, height: 300 });
@@ -180,7 +167,7 @@ const TemperatureChart = ({ city1Data, city2Data }) => {
 
   return (
     <Box sx={{ width: '100%', height: '95%' }}>
-      <Typography variant="h6" gutterBottom>
+      <Typography variant="h6" gutterBottom sx={{ fontFamily: "'Libre Baskerville', serif" }}>
         Temperature Projection (2022–2030)
       </Typography>
       <ResponsiveLineChart 
@@ -206,7 +193,7 @@ const CO2Chart = ({ emissionRate }) => {
 
   return (
     <Box sx={{ width: '100%', height: '95%' }}>
-      <Typography variant="h6" gutterBottom>
+      <Typography variant="h6" gutterBottom sx={{ fontFamily: "'Libre Baskerville', serif" }}>
         CO₂ Projection (2022–2030)
       </Typography>
       <ResponsiveLineChart 
@@ -249,7 +236,7 @@ const PopulationChart = ({ city1Pop, city2Pop }) => {
 
   return (
     <Box sx={{ width: '100%', height: '95%' }}>
-      <Typography variant="h6" gutterBottom>
+      <Typography variant="h6" gutterBottom sx={{ fontFamily: "'Libre Baskerville', serif" }}>
         Population Projection (2015–2030)
       </Typography>
       <ResponsiveLineChart 
@@ -265,7 +252,6 @@ const PopulationChart = ({ city1Pop, city2Pop }) => {
         yAxis={[
           { id: 'pop', label: 'Population' },
         ]}
-        // Increased left margin for more space
         margin={{ left: 80, right: 50, top: 20, bottom: 20 }}
       />
     </Box>
@@ -276,22 +262,17 @@ const PopulationChart = ({ city1Pop, city2Pop }) => {
    Main Layout: 6×6 CSS Grid
 ---------------------------------*/
 const Comparison = () => {
-  // States for city selections, selected year and emission rate.
   const [city1, setCity1] = useState('');
   const [city2, setCity2] = useState('');
   const [selectedYear, setSelectedYear] = useState(2020);
   const [emissionRate, setEmissionRate] = useState(0);
-
-  // Derived base MtCO₂ for the selected year.
   const baseMtCO2 = useRegressionBaseMtCO2(selectedYear);
 
-  // City weather and population data states.
   const [city1Data, setCity1Data] = useState(null);
   const [city2Data, setCity2Data] = useState(null);
   const [city1Pop, setCity1Pop] = useState(null);
   const [city2Pop, setCity2Pop] = useState(null);
 
-  // Fetch City 1 data.
   useEffect(() => {
     if (city1 && philippineCities.includes(city1)) {
       fetchCityWeather(city1).then(data => {
@@ -303,7 +284,6 @@ const Comparison = () => {
     }
   }, [city1, emissionRate, baseMtCO2]);
 
-  // Fetch City 2 data.
   useEffect(() => {
     if (city2 && philippineCities.includes(city2)) {
       fetchCityWeather(city2).then(data => {
@@ -329,11 +309,12 @@ const Comparison = () => {
       }}
     >
       {/* Top Section (Rows 1–2) */}
-      {/* City 1 Selection & Details (Cols 1–2) */}
       <Box sx={{ gridColumn: '1 / 3', gridRow: '1 / 3' }}>
         <Card variant="outlined" sx={{ mb: 1, height: '48%' }}>
           <CardContent>
-            <Typography variant="h6">1st City Selection</Typography>
+            <Typography variant="h6" gutterBottom sx={{ fontFamily: "'Libre Baskerville', serif" }}>
+              1st City Selection
+            </Typography>
             <Autocomplete
               options={philippineCities}
               value={city1}
@@ -345,8 +326,10 @@ const Comparison = () => {
         {city1Data ? (
           <Card variant="outlined" sx={{ height: '50%' }}>
             <CardContent>
-              <Typography variant="subtitle1">1st City Details</Typography>
-              <Typography variant="body2">
+              <Typography variant="subtitle1" sx={{ fontFamily: "'Libre Baskerville', serif" }}>
+                1st City Details
+              </Typography>
+              <Typography variant="body2" sx={{ fontFamily: "'Libre Baskerville', serif" }}>
                 API Temp: {city1Data.apiTemperature}°C<br />
                 Adjusted Temp: {city1Data.adjustedTemp}°C<br />
                 Predicted MtCO₂: {baseMtCO2.toFixed(2)} MtCO₂<br />
@@ -356,63 +339,69 @@ const Comparison = () => {
             </CardContent>
           </Card>
         ) : (
-          <Typography variant="body2">City 1 details not available.</Typography>
+          <Typography variant="body2" sx={{ fontFamily: "'Libre Baskerville', serif" }}>
+            City 1 details not available.
+          </Typography>
         )}
       </Box>
 
-     {/* Parameters Section (Cols 3–4) */}
-<Box sx={{ gridColumn: '3 / 5', gridRow: '1 / 3' }}>
-  <Card variant="outlined" sx={{ height: '100%' }}>
-    <CardContent sx={{ overflow: 'auto', maxHeight: '280px' }}>
-      <Typography variant="h6" gutterBottom>Parameters</Typography>
-      <TextField
-        label="Selected Year (2020–2030)"
-        type="number"
-        value={selectedYear}
-        onChange={(e) => {
-          const year = Number(e.target.value);
-          if (year >= 2020 && year <= 2030) {
-            setSelectedYear(year);
-          }
-        }}
-        variant="outlined"
-        fullWidth
-        margin="normal"
-        inputProps={{ min: 2020, max: 2030 }}
-      />
-      <TextField
-        label="Emission Rate (%)"
-        type="number"
-        value={emissionRate}
-        onChange={(e) => {
-          let value = Number(e.target.value);
-          if (value < 0) value = 0;
-          if (value > 100) value = 100;
-          setEmissionRate(value);
-        }}
-        variant="outlined"
-        fullWidth
-        margin="normal"
-        inputProps={{ min: 0, max: 100, step: 1 }}
-      />
-      <TextField
-        label="Base MtCO₂ (Predicted)"
-        type="number"
-        value={baseMtCO2.toFixed(2)}
-        variant="outlined"
-        fullWidth
-        margin="normal"
-        InputProps={{ readOnly: true }}
-      />
-    </CardContent>
-  </Card>
-</Box>
+      {/* Parameters Section (Cols 3–4) */}
+      <Box sx={{ gridColumn: '3 / 5', gridRow: '1 / 3' }}>
+        <Card variant="outlined" sx={{ height: '100%' }}>
+          <CardContent sx={{ overflow: 'auto', maxHeight: '280px' }}>
+            <Typography variant="h6" gutterBottom sx={{ fontFamily: "'Libre Baskerville', serif" }}>
+              Parameters
+            </Typography>
+            <TextField
+              label="Selected Year (2020–2030)"
+              type="number"
+              value={selectedYear}
+              onChange={(e) => {
+                const year = Number(e.target.value);
+                if (year >= 2020 && year <= 2030) {
+                  setSelectedYear(year);
+                }
+              }}
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              inputProps={{ min: 2020, max: 2030 }}
+            />
+            <TextField
+              label="Emission Rate (%)"
+              type="number"
+              value={emissionRate}
+              onChange={(e) => {
+                let value = Number(e.target.value);
+                if (value < 0) value = 0;
+                if (value > 100) value = 100;
+                setEmissionRate(value);
+              }}
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              inputProps={{ min: 0, max: 100, step: 1 }}
+            />
+            <TextField
+              label="Base MtCO₂ (Predicted)"
+              type="number"
+              value={baseMtCO2.toFixed(2)}
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              InputProps={{ readOnly: true }}
+            />
+          </CardContent>
+        </Card>
+      </Box>
 
       {/* City 2 Selection & Details (Cols 5–6) */}
       <Box sx={{ gridColumn: '5 / 7', gridRow: '1 / 3' }}>
         <Card variant="outlined" sx={{ mb: 1, height: '48%' }}>
           <CardContent>
-            <Typography variant="h6">2nd City Selection</Typography>
+            <Typography variant="h6" sx={{ fontFamily: "'Libre Baskerville', serif" }}>
+              2nd City Selection
+            </Typography>
             <Autocomplete
               options={philippineCities}
               value={city2}
@@ -424,8 +413,10 @@ const Comparison = () => {
         {city2Data ? (
           <Card variant="outlined" sx={{ height: '50%' }}>
             <CardContent>
-              <Typography variant="subtitle1">2nd City Details</Typography>
-              <Typography variant="body2">
+              <Typography variant="subtitle1" sx={{ fontFamily: "'Libre Baskerville', serif" }}>
+                2nd City Details
+              </Typography>
+              <Typography variant="body2" sx={{ fontFamily: "'Libre Baskerville', serif" }}>
                 API Temp: {city2Data.apiTemperature}°C<br />
                 Adjusted Temp: {city2Data.adjustedTemp}°C<br />
                 Predicted MtCO₂: {baseMtCO2.toFixed(2)} MtCO₂<br />
@@ -435,7 +426,9 @@ const Comparison = () => {
             </CardContent>
           </Card>
         ) : (
-          <Typography variant="body2">City 2 details not available.</Typography>
+          <Typography variant="body2" sx={{ fontFamily: "'Libre Baskerville', serif" }}>
+            City 2 details not available.
+          </Typography>
         )}
       </Box>
 
@@ -449,7 +442,9 @@ const Comparison = () => {
             </CardContent>
           </Card>
         ) : (
-          <Typography variant="body2">Select both cities to view temperature projections.</Typography>
+          <Typography variant="body2" sx={{ fontFamily: "'Libre Baskerville', serif" }}>
+            Select both cities to view temperature projections.
+          </Typography>
         )}
       </Box>
 
@@ -462,7 +457,9 @@ const Comparison = () => {
             </CardContent>
           </Card>
         ) : (
-          <Typography variant="body2">Select both cities to view population projections.</Typography>
+          <Typography variant="body2" sx={{ fontFamily: "'Libre Baskerville', serif" }}>
+            Select both cities to view population projections.
+          </Typography>
         )}
       </Box>
 
@@ -475,7 +472,9 @@ const Comparison = () => {
             </CardContent>
           </Card>
         ) : (
-          <Typography variant="body2">Select both cities to view CO₂ projections.</Typography>
+          <Typography variant="body2" sx={{ fontFamily: "'Libre Baskerville', serif" }}>
+            Select both cities to view CO₂ projections.
+          </Typography>
         )}
       </Box>
       <FloatingDockUBheat />

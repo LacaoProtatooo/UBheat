@@ -66,8 +66,8 @@ export const TextHoverEffect = ({ text, duration }) => {
         textAnchor="middle"
         dominantBaseline="middle"
         strokeWidth="0.3"
-        className="font-[helvetica] font-bold stroke-neutral-200 dark:stroke-neutral-800 fill-transparent text-7xl"
-        style={{ opacity: hovered ? 0.7 : 0 }}
+        className="font-bold stroke-neutral-200 dark:stroke-neutral-800 fill-transparent text-7xl"
+        style={{ opacity: hovered ? 0.7 : 0, fontFamily: "'Libre Baskerville', serif" }}
       >
         {text}
       </text>
@@ -78,10 +78,11 @@ export const TextHoverEffect = ({ text, duration }) => {
         textAnchor="middle"
         dominantBaseline="middle"
         strokeWidth="0.3"
-        className="font-[helvetica] font-bold fill-transparent text-7xl stroke-neutral-200 dark:stroke-neutral-800"
+        className="font-bold fill-transparent text-7xl stroke-neutral-200 dark:stroke-neutral-800"
         initial={{ strokeDashoffset: 1000, strokeDasharray: 1000 }}
         animate={{ strokeDashoffset: 0, strokeDasharray: 1000 }}
         transition={{ duration: 4, ease: "easeInOut" }}
+        style={{ fontFamily: "'Libre Baskerville', serif" }}
       >
         {text}
       </motion.text>
@@ -94,7 +95,8 @@ export const TextHoverEffect = ({ text, duration }) => {
         stroke="url(#textGradient)"
         strokeWidth="0.3"
         mask="url(#textMask)"
-        className="font-[helvetica] font-bold fill-transparent text-7xl"
+        className="font-bold fill-transparent text-7xl"
+        style={{ fontFamily: "'Libre Baskerville', serif" }}
       >
         {text}
       </text>
