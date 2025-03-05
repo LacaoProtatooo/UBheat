@@ -85,14 +85,7 @@ export const login = async (req, res) => {
       }
     );
 
-    res.status(200).json({
-      success: true,
-      message: user.isAdmin ? "Logged in successfully as admin" : "Logged in successfully as user",
-      user: {
-          ...user._doc,
-          password: undefined,
-      },
-  });
+    
   
   } catch (err) {
     console.error(err.message);
