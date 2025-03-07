@@ -15,6 +15,9 @@ const UserSchema = new mongoose.Schema({
     url: { type: String, required: false },
   },
   isAdmin: { type: Boolean, default: false },
+  // Add OTP fields
+  otp: { type: String },
+  otpExpires: { type: Date }
 });
 
 UserSchema.pre('save', async function (next) {
