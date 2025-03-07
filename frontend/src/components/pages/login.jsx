@@ -5,7 +5,7 @@ import { cn } from "../../utils/cn";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import GoogleLoginButton from '../../components/ui/GoogleLoginButton';
-import GitHubLoginButton from '../../components/ui/GitHubLoginButton';
+
 
 export function LoginForm() {
   const [errors, setErrors] = useState({});
@@ -215,7 +215,6 @@ export function LoginForm() {
 
             <div className="flex flex-col space-y-4">
               <GoogleLoginButton />
-              <GitHubLoginButton />
             </div>
           </form>
         ) : (

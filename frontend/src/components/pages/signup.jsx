@@ -125,10 +125,6 @@ export function SignupFormDemo() {
 
           <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-8 h-[1px] w-full" />
 
-          <div className="flex flex-col space-y-4">
-            <SocialButton Icon={IconBrandGithub} label="GitHub" />
-            <SocialButton Icon={IconBrandGoogle} label="Google" />
-          </div>
         </form>
       </div>
     </div>
