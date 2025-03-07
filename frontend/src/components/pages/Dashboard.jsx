@@ -8,7 +8,7 @@ import ThreeDayForecast from "../ThreeDayForecast";
 import NewsSection from "../NewsSection";
 import UserList from "../UserList";
 import Home from "../Home"; // Import the new Home component
-
+import UserLogsPage from "./UserLogsPage";
 const Header = () => {
   return (
     <header className="bg-gray-800 text-white p-4 shadow-md">
@@ -81,6 +81,8 @@ const Dashboard = () => {
         return <ThreeDayForecast />;
       case "NewsSection":
         return <NewsSection />;
+      case "UserLogsPage":
+        return <UserLogsPage />;
       case "UserList":
         return <UserList users={users} />;
       default:

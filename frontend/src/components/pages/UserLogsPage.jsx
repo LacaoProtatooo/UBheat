@@ -51,6 +51,9 @@ const UserLogsPage = () => {
 
   const generateChartImage = async () => {
     if (chartRef.current) {
+      // Delay to ensure the chart is fully rendered
+      await new Promise((resolve) => setTimeout(resolve, 500));
+  
       const canvas = await html2canvas(chartRef.current);
       const image = canvas.toDataURL("image/png");
       setChartImage(image);
@@ -95,12 +98,12 @@ const UserLogsPage = () => {
           ) : (
             <div className="space-y-4">
               {logs.map((log, index) => (
-                <div key={index} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition duration-300">
+                <div key={index} className="p-4 bg-gray-50 rounde d-lg hover:bg-gray-100 transition duration-300">
                   <p className="text-sm text-gray-600"><strong>Log {index + 1}</strong></p>
                   <p className="text-sm text-gray-600"><strong>Temperature:</strong> {log.temperature}°C</p>
                   <p className="text-sm text-gray-600"><strong>CO2 Emissions:</strong> {log.co2Emissions} MtCO2</p>
                   <p className="text-sm text-gray-600"><strong>Emission Rate:</strong> {log.emissionRate}%</p>
-                  <p className="text-sm text-gray-600"><strong>Analysis:</strong> {log.analysis}</p>
+                  {/* <p className="text-sm text-gray-600"><strong>Analysis:</strong> {log.analysis}</p> */}
                 </div>
               ))}
             </div>

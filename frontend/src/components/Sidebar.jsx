@@ -10,6 +10,7 @@ import {
   faUser,
   faBars,
   faHome,
+  faFileAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 
@@ -89,6 +90,19 @@ const Sidebar = ({ setActiveComponent, activeComponent }) => {
               {isExpanded && <span>3-Day Forecast</span>}
             </button>
           </li>
+
+          <li className="mb-3">
+            <button
+              onClick={() => setActiveComponent("UserLogsPage")}
+              className={`w-full text-left flex items-center space-x-2 hover:bg-gray-700 p-2 rounded ${
+                activeComponent === "UserLogsPageF" ? "bg-gray-700" : ""
+              }`}
+            >
+              <FontAwesomeIcon icon={faFileAlt} />
+              {isExpanded && <span>Logs</span>}
+            </button>
+          </li>
+
           <li className="mb-3">
             <button
               onClick={() => setActiveComponent("NewsSection")}
