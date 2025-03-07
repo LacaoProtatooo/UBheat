@@ -1,30 +1,57 @@
-import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
+import mongoose from "mongoose";
 
-const UserSchema = new mongoose.Schema({
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  isVerified: { type: Boolean, default: false },
-  verificationToken: { type: String },
-  isActive: { type: Boolean, default: false },
-  activationExpires: { type: Date },
-  image: {
-    public_id: { type: String, required: false },
-    url: { type: String, required: false },
+const userSchema = new mongoose.Schema(
+  {
+    firstName: {
+      type: String,
+      required: [true, "Please enter your first name"],
+      maxLength: [30, "Your first name cannot exceed 30 characters"],
+    },
+    lastName: {
+      type: String,
+      required: [true, "Please enter your last name"],
+      maxLength: [30, "Your last name cannot exceed 30 characters"],
+    },
+    email: {
+      type: String,
+      required: [true, "Please enter your email"],
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: [true, "Please enter your password"],
+      minLength: [6, "Your password must be at least 6 characters"],
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    isActive: {
+      type: Boolean,
+      default: false,
+    },
+    image: {
+      public_id: {
+        type: String,
+        required: false,
+      },
+      url: {
+        type: String,
+        required: false,
+      },
+    },
+    isAdmin: {
+      type: Boolean,
+      default: false,
+    },
+    resetPasswordToken: String,
+    resetPasswordExpiresAt: Date,
+    verificationToken: String,
+    verificationTokenExpiresAt: Date,
   },
-  isAdmin: { type: Boolean, default: false },
-  // Add OTP fields
-  otp: { type: String },
-  otpExpires: { type: Date }
-});
+  { timestamps: true }
+);
 
-UserSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
-  this.password = await bcrypt.hash(this.password, 10);
-  next();
-});
+const User = mongoose.model("User", userSchema);
 
-const User = mongoose.models.User || mongoose.model('User', UserSchema);
 export default User;

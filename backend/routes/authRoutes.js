@@ -1,6 +1,5 @@
 import express from 'express';
-import { signup, login, logout, verifyEmail, getUserNotifications, getCurrentUser, updateProfile } from '../controllers/authController.js';
-import { requestOTP, verifyOTP } from '../controllers/otpController.js';
+import { signup, verifyEmail, login, googlelogin, logout, forgotPassword, resetPassword, getUsers, getUserById, getCurrentUser, updateProfile } from '../controllers/authController.js';
 import { isAuthenticatedUser, authorizeAdmin } from '../middleware/authuser.js';
 import upload from '../utils/multer.js';
 
@@ -9,14 +8,18 @@ const router = express.Router();
 // Existing routes
 router.post('/signup', signup);
 router.post('/login', login);
-router.get('/verify-email', verifyEmail);
-router.get('/notifications', getUserNotifications);
+router.post('/google-login', googlelogin);
 router.post('/logout', logout);
+router.post('/verifyemail', verifyEmail);
+router.post('/forgotpassword', forgotPassword);
+router.put('/resetpassword/:resetToken', resetPassword);
+
 router.get('/current-user', isAuthenticatedUser, getCurrentUser);
 router.put('/update', upload.single("upload_profile"), updateProfile);
 
-// Add OTP routes
-router.post('/request-otp', requestOTP);
-router.post('/verify-otp', verifyOTP);
+// Admin routes
+router.get('/users', isAuthenticatedUser ,getUsers, authorizeAdmin);
+router.get('/users/:id', isAuthenticatedUser, getUserById, authorizeAdmin);
+
 
 export default router;

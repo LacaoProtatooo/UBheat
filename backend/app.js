@@ -2,6 +2,13 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
+// Import routes
+import chatRoutes from "./routes/chat_route.js";
+import authRoutes from "./routes/auth_route.js";
+
+// -------------
+const app = express();
+
 // Middleware
 app.use(cookieParser());
 const allowedOrigins = [
@@ -9,19 +16,9 @@ const allowedOrigins = [
     // Add Production origin here
 ];
 
-// Import routes
-import chatRoutes from "./routes/chat_route.js";
-import authRoutes from "./routes/auth_route.js";
-
-// -------------
-
-const app = express();
-
 // Middleware for parsing request bodies
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-
-
 
 app.use(cors({
     origin: allowedOrigins,
