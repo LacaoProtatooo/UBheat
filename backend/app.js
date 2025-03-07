@@ -3,8 +3,8 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 
 // Import routes
-import chatRoutes from "./routes/chat_route.js";
-import authRoutes from "./routes/auth_route.js";
+import chatRoutes from "./routes/chatRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
 // -------------
 const app = express();

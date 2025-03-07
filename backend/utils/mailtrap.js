@@ -12,12 +12,12 @@ const TOKEN = process.env.MAILTRAP_TOKEN;
 const ENDPOINT = process.env.MAILTRAP_ENDPOINT;
 
 // Ensure your sender email is a Mailtrap-provided email
-export const sender = '"UBheat : Urban Heat Simulator" <hello@demomailtrap.com>'; // Use your Mailtrap sender email
+export const sender = `"UBheat : Urban Heat Simulator" <hello@demomailtrap.com>`;
 
 // Create a Nodemailer transport
 const transport = nodemailer.createTransport({
-    host: "live.smtp.mailtrap.io",
-    port: 587,
+    host: "sandbox.smtp.mailtrap.io",
+    port: 2525,
     auth: {
         user: mailtrapUser,
         pass: mailtrapPass,

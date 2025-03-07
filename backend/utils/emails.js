@@ -4,7 +4,6 @@ import {
     WELCOME_EMAIL_TEMPLATE,
     PASSWORD_RESET_REQUEST_TEMPLATE,
     PASSWORD_RESET_SUCCESS_TEMPLATE,
-    ORDER_DETAILS_TEMPLATE,
 } from "./emailTemplate.js";
 import { sendEmail } from "./mailtrap.js";
 
@@ -34,20 +33,6 @@ export const sendWelcomeEmail = async (email, name) => {
         throw new Error(`Error sending welcome email: ${error.message}`);
     }
 }
-
-export const sendOrderDetailsEmail = async (email, order) => {
-    try {
-        const subject = "Order Details";
-        const htmlContent = ORDER_DETAILS_TEMPLATE(order); 
-
-        await sendEmail(email, subject, htmlContent); 
-        console.log("Order details email sent successfully");
-    } catch (error) {
-        console.error(`Error sending order details email: ${error.message}`);
-        throw new Error(`Error sending order details email: ${error.message}`);
-    }
-};
-
 
 export const sendPasswordResetEmail = async (email, resetURL) => {
     try {

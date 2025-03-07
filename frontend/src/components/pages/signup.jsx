@@ -1,70 +1,107 @@
-import React, { useState } from "react";
+import React from "react";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import { Label } from "../../components/ui/label";
 import { Input } from "../../components/ui/input";
 import { cn } from "../../utils/cn";
-import {
-  IconBrandGithub,
-  IconBrandGoogle,
-  IconBrandOnlyfans,
-} from "@tabler/icons-react";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import VerificationModal from "../common/verificationModal";
+import { useNavigate } from "react-router-dom";
+import { useModal } from "../ui/animated-modal";
 
-export function SignupFormDemo() {
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
+export function Signup() {
+  const navigate = useNavigate();
+  const { setOpen } = useModal();
 
-  const validate = (firstname, lastname, email, password) => {
-    const newErrors = {};
-    if (!firstname) newErrors.firstname = "First name is required";
-    if (!lastname) newErrors.lastname = "Last name is required";
-    if (!email) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = "Email address is invalid";
-    }
-    if (!password) newErrors.password = "Password is required";
-    return newErrors;
-  };
+  const formik = useFormik({
+    initialValues: {
+      firstname: "",
+      lastname: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+    validationSchema: Yup.object({
+      firstname: Yup.string().required("First name is required"),
+      lastname: Yup.string().required("Last name is required"),
+      email: Yup.string()
+        .email("Invalid email address")
+        .required("Email is required"),
+      password: Yup.string()
+        .min(8, "Password must be at least 8 characters")
+        .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+        .matches(/[a-z]/, "Password must contain at least one lowercase letter")
+        .matches(/[~!@#$%^&*()_\-+={[}\]|\\:;"'<,>.?/]/, "Password must contain at least one special character.")
+        .required("Password is required"),
+      confirmPassword: Yup.string()
+        .oneOf([Yup.ref("password")], "Passwords do not match")
+        .required("Confirm password is required"),
+    }),
+    onSubmit: async (values, { setSubmitting }) => {
+      const loadingToastId = toast.loading("Signing up...");
+      try {
+        const response = await fetch("http://localhost:5000/api/auth/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            firstName: values.firstname,
+            lastName: values.lastname,
+            email: values.email,
+            password: values.password,
+          }),
+        });
+        const data = await response.json();
+        if (response.ok) {
+          toast.update(loadingToastId, {
+            render:
+              "Signup successful! Please check your email to verify your account.",
+            type: "success",
+            isLoading: false,
+            autoClose: 5000,
+          });
+          setOpen(true); // Open the verification modal
+        } else {
+          toast.update(loadingToastId, {
+            render: data.msg || "Registration failed",
+            type: "error",
+            isLoading: false,
+            autoClose: 5000,
+          });
+        }
+      } catch (error) {
+        toast.update(loadingToastId, {
+          render: "An error occurred. Please try again.",
+          type: "error",
+          isLoading: false,
+          autoClose: 5000,
+        });
+      } finally {
+        setSubmitting(false);
+      }
+    },
+  });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const { firstname, lastname, email, password } = e.target.elements;
-
-    const newErrors = validate(firstname.value, lastname.value, email.value, password.value);
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    setLoading(true);
-    const loadingToastId = toast.loading("Signing up...");
-
+  const handleVerifyEmail = async (code) => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          firstName: firstname.value,
-          lastName: lastname.value,
-          email: email.value,
-          password: password.value,
-        }),
+      const response = await fetch("http://localhost:5173/api/auth/verifyemail", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
       });
-
       const data = await response.json();
-      if (response.ok) {
-        toast.update(loadingToastId, { render: 'Signup successful! Please check your email to verify your account.', type: 'success', isLoading: false, autoClose: 5000 });
-        setTimeout(() => {
-          window.location.href = '/login'; // Redirect to login page
-        }, 5000);
+      console.log("Verification response:", data);
+      if (data.success) {
+        toast.success("Email verified successfully!");
+        navigate("/login");
+        setOpen(false);
       } else {
-        toast.update(loadingToastId, { render: data.msg, type: 'error', isLoading: false, autoClose: 5000 });
+        console.error("Error verifying email:", data.message);
+        toast.error("Wrong Verification Code Provided.");
       }
     } catch (error) {
-      toast.update(loadingToastId, { render: 'An error occurred. Please try again.', type: 'error', isLoading: false, autoClose: 5000 });
-    } finally {
-      setLoading(false);
+      console.error("Error:", error);
+      toast.error("An error occurred.");
     }
   };
 
@@ -87,58 +124,105 @@ export function SignupFormDemo() {
           Welcome to UBheat
         </h2>
         <p className="text-neutral-600 text-sm max-w-sm mt-2 dark:text-neutral-300">
-          Login to UBheat to check our real time heatmap.
+          Sign up to UBheat to check our real time heatmap.
         </p>
 
-        <form className="my-8" onSubmit={handleSubmit}>
+        <form className="my-8" onSubmit={formik.handleSubmit}>
           <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
             <LabelInputContainer>
               <Label htmlFor="firstname">First name</Label>
-              <Input id="firstname" placeholder="John" type="text" />
-              {errors.firstname && <p className="text-red-500 text-sm">{errors.firstname}</p>}
+              <Input
+                id="firstname"
+                name="firstname"
+                placeholder="John"
+                type="text"
+                value={formik.values.firstname}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              />
+              {formik.touched.firstname && formik.errors.firstname && (
+                <p className="text-red-500 text-sm">{formik.errors.firstname}</p>
+              )}
             </LabelInputContainer>
             <LabelInputContainer>
               <Label htmlFor="lastname">Last name</Label>
-              <Input id="lastname" placeholder="Doe" type="text" />
-              {errors.lastname && <p className="text-red-500 text-sm">{errors.lastname}</p>}
+              <Input
+                id="lastname"
+                name="lastname"
+                placeholder="Doe"
+                type="text"
+                value={formik.values.lastname}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              />
+              {formik.touched.lastname && formik.errors.lastname && (
+                <p className="text-red-500 text-sm">{formik.errors.lastname}</p>
+              )}
             </LabelInputContainer>
           </div>
           <LabelInputContainer className="mb-4">
             <Label htmlFor="email">Email Address</Label>
-            <Input id="email" placeholder="abc@gmail.com" type="email" />
-            {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+            <Input
+              id="email"
+              name="email"
+              placeholder="abc@gmail.com"
+              type="email"
+              value={formik.values.email}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+            />
+            {formik.touched.email && formik.errors.email && (
+              <p className="text-red-500 text-sm">{formik.errors.email}</p>
+            )}
           </LabelInputContainer>
           <LabelInputContainer className="mb-4">
             <Label htmlFor="password">Password</Label>
-            <Input id="password" placeholder="••••••••" type="password" />
-            {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
+            <Input
+              id="password"
+              name="password"
+              placeholder="••••••••"
+              type="password"
+              value={formik.values.password}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+            />
+            {formik.touched.password && formik.errors.password && (
+              <p className="text-red-500 text-sm">{formik.errors.password}</p>
+            )}
+          </LabelInputContainer>
+          <LabelInputContainer className="mb-4">
+            <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <Input
+              id="confirmPassword"
+              name="confirmPassword"
+              placeholder="••••••••"
+              type="password"
+              value={formik.values.confirmPassword}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+            />
+            {formik.touched.confirmPassword && formik.errors.confirmPassword && (
+              <p className="text-red-500 text-sm">{formik.errors.confirmPassword}</p>
+            )}
           </LabelInputContainer>
 
           <button
-            className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
+            className={cn(
+              "bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset]"
+            )}
             type="submit"
-            disabled={loading}
+            disabled={formik.isSubmitting}
           >
-            {loading ? 'Signing up...' : 'Sign up →'}
-            <BottomGradient />
+            {formik.isSubmitting ? "Signing up..." : "Sign up →"}
           </button>
 
           <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-8 h-[1px] w-full" />
-
         </form>
+        <VerificationModal onVerify={handleVerifyEmail} />
       </div>
     </div>
   );
 }
-
-const BottomGradient = () => {
-  return (
-    <>
-      <span className="group-hover/btn:opacity-100 block transition duration-500 opacity-0 absolute h-px w-full -bottom-px inset-x-0 bg-gradient-to-r from-transparent via-cyan-500 to-transparent" />
-      <span className="group-hover/btn:opacity-100 blur-sm block transition duration-500 opacity-0 absolute h-px w-1/2 mx-auto -bottom-px inset-x-10 bg-gradient-to-r from-transparent via-indigo-500 to-transparent" />
-    </>
-  );
-};
 
 const LabelInputContainer = ({ children, className }) => {
   return (
@@ -148,17 +232,4 @@ const LabelInputContainer = ({ children, className }) => {
   );
 };
 
-const SocialButton = ({ Icon, label }) => {
-  return (
-    <button
-      className="relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)]"
-      type="button"
-    >
-      <Icon className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
-      <span className="text-neutral-700 dark:text-neutral-300 text-sm">{label}</span>
-      <BottomGradient />
-    </button>
-  );
-};
-
-export default SignupFormDemo;
+export default Signup;

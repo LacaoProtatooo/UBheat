@@ -65,22 +65,30 @@ function App() {
         <ToastContainer />
         <div className="relative z-10">
           <Routes>
-            <Route path="/prediction" element={<Prediction />} />
-            <Route path="/landing" element={<About />} />
+            {/* User / Non User Routes */}
+            <Route path="/" element={<Main />} />
+            <Route path="/information" element={<Information />} />
             <Route path="/about" element={<AboutV2 />} />
-            <Route path="/chatbot" element={<Chatbot />} />
-            <Route path="/heatmap" element={<Heatmap />} />
-            <Route path="/sampleheatmap" element={<SampleHeatmap />} />
-            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/login" element={<Login onLogin={handleLogin} />} />
-            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/prediction" element={<Prediction />} />
+            <Route path="/chatbot" element={<Chatbot />} />
+          
+            {/* User Routes */}
             <Route path="/profilev2" element={<ProtectedRoute element={<UserProfile />} isAuthenticated={isAuthenticated} />} />
-            <Route path="/logs" element={<UserLogsPage />} />
             <Route path="/v2" element={<StaticMain isAuthenticated={isAuthenticated} user={user} handleLogout={() => handleLogout(setIsAuthenticated, setUser, setIsAdmin)} />} />
-            <Route path="/information" element={<Information />} />
-            <Route path="/comparison" element={<Comparison />} />
-            <Route path="/" element={<Main />} />
+            <Route path="/comparison" element={<ProtectedRoute element={<Comparison />} isAuthenticated={isAuthenticated} />} />
+
+            {/* Admin Routes */}
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/logs" element={<UserLogsPage />} />
+
+            {/* Trashed? */}
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/landing" element={<About />} />
+            <Route path="/heatmap" element={<Heatmap />} />
+            <Route path="/sampleheatmap" element={<SampleHeatmap />} />
+
           </Routes>
         </div>
       </ModalProvider>

@@ -3,7 +3,7 @@ import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 
 const GoogleLoginButton = ({ onSuccess, onError }) => {
   return (
-    <GoogleOAuthProvider clientId="928170540102-3kpkofum1bhdn3l85ar5ve831vistvoq.apps.googleusercontent.com">
+    <GoogleOAuthProvider clientId="1076418109888-p5n3qj3nt18orr3nub3lg82obrussst3.apps.googleusercontent.com">
       <GoogleLogin
         onSuccess={onSuccess}
         onError={onError}
@@ -13,3 +13,6 @@ const GoogleLoginButton = ({ onSuccess, onError }) => {
 };
 
 export default GoogleLoginButton;
+
+// project-1076418109888
+// 1076418109888-p5n3qj3nt18orr3nub3lg82obrussst3.apps.googleusercontent.com
