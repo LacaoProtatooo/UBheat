@@ -17,7 +17,7 @@ const serviceAccount = {
 // Initialize Firebase Admin SDK
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  messengingSenderId: "989052833474",
+  messengingSenderId: "1076418109888",
 });
 
 export const messaging = admin.messaging();

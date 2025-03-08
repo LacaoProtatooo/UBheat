@@ -9,16 +9,16 @@ import authRoutes from "./routes/authRoutes.js";
 // -------------
 const app = express();
 
+// Middleware for parsing request bodies
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
 // Middleware
 app.use(cookieParser());
 const allowedOrigins = [
     "http://localhost:5173", // Development origin
     // Add Production origin here
 ];
-
-// Middleware for parsing request bodies
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 app.use(cors({
     origin: allowedOrigins,
@@ -54,6 +54,5 @@ app.use((err, req, res, next) => {
         message: err.message || "Internal Server Error",
     });
 });
-
 
 export default app;
