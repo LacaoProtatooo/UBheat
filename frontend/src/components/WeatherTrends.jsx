@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import { Line, Pie, Bar, Doughnut } from "react-chartjs-2";
 import axios from "axios";
-import { Box, Typography, Grid, Button } from '@mui/material';
+import { Box, Typography, Grid, Paper, Container, Card, CardContent, 
+         CardHeader, Divider, useTheme, useMediaQuery, Button } from '@mui/material';
 import regression from 'regression';
 import {
   Chart as ChartJS,
@@ -16,10 +17,9 @@ import {
   Legend,
 } from "chart.js";
 import { LineChart } from '@mui/x-charts/LineChart';
-import { PDFDownloadLink } from '@react-pdf/renderer';
 import html2canvas from 'html2canvas';
-import jsPDF from "jspdf";
-import WeatherTrendsPDF from './WeatherTrendsPDF'; // Import the PDF component
+import jsPDF from 'jspdf';
+import DownloadIcon from '@mui/icons-material/Download';
 
 // Register Chart.js components
 ChartJS.register(
@@ -37,9 +37,12 @@ ChartJS.register(
 const WeatherTrends = () => {
   const [weatherData, setWeatherData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [chartImages, setChartImages] = useState({}); // State to store chart images
+  const [generating, setGenerating] = useState(false);
   const API_KEY = "b05f228625b60990de863e6193f998af"; // OpenWeather API key
-
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const chartsRef = useRef(null);
+  
   const fetchWeatherData = async () => {
     try {
       const response = await axios.get(
@@ -84,26 +87,25 @@ const WeatherTrends = () => {
     fetchWeatherData();
   }, []);
 
-  // Function to export a chart as an image
-  const exportChartAsImage = async (chartId, imageName) => {
-    const chartElement = document.getElementById(chartId);
-    if (!chartElement) return;
-
-    const canvas = await html2canvas(chartElement);
-    const image = canvas.toDataURL('image/png');
-    setChartImages((prev) => ({ ...prev, [imageName]: image }));
-  };
-
-  // Export all charts as images
-  useEffect(() => {
-    if (!loading) {
-      exportChartAsImage('line-chart', 'lineChartImage');
-      exportChartAsImage('pie-chart', 'pieChartImage');
-      exportChartAsImage('bar-chart', 'barChartImage');
-      exportChartAsImage('donut-chart', 'donutChartImage');
-      exportChartAsImage('urban-heat-chart', 'urbanHeatChartImage');
+  // Chart theme colors
+  const chartColors = {
+    temperature: {
+      primary: 'rgba(255, 99, 132, 1)',
+      background: 'rgba(255, 99, 132, 0.2)',
+    },
+    humidity: {
+      primary: 'rgba(54, 162, 235, 1)',
+      background: 'rgba(54, 162, 235, 0.2)',
+    },
+    wind: {
+      primary: 'rgba(255, 206, 86, 1)',
+      background: 'rgba(255, 206, 86, 0.2)',
+    },
+    co2: {
+      primary: 'rgba(75, 192, 192, 1)',
+      background: 'rgba(75, 192, 192, 0.2)',
     }
-  }, [loading]);
+  };
 
   const lineChartData = {
     labels: weatherData.map((day) => day.date),
@@ -111,33 +113,91 @@ const WeatherTrends = () => {
       {
         label: "Temperature (°C)",
         data: weatherData.map((day) => day.avgtemp_c),
-        borderColor: "rgba(75, 192, 192, 1)",
-        backgroundColor: "rgba(75, 192, 192, 0.2)",
+        borderColor: chartColors.temperature.primary,
+        backgroundColor: chartColors.temperature.background,
+        borderWidth: 2,
+        tension: 0.4,
+        pointRadius: 4,
       },
       {
         label: "Humidity (%)",
         data: weatherData.map((day) => day.avghumidity),
-        borderColor: "rgba(153, 102, 255, 1)",
-        backgroundColor: "rgba(153, 102, 255, 0.2)",
+        borderColor: chartColors.humidity.primary,
+        backgroundColor: chartColors.humidity.background,
+        borderWidth: 2,
+        tension: 0.4,
+        pointRadius: 4,
       },
       {
         label: "Wind Speed (kph)",
         data: weatherData.map((day) => day.maxwind_kph),
-        borderColor: "rgba(255, 159, 64, 1)",
-        backgroundColor: "rgba(255, 159, 64, 0.2)",
+        borderColor: chartColors.wind.primary,
+        backgroundColor: chartColors.wind.background,
+        borderWidth: 2,
+        tension: 0.4,
+        pointRadius: 4,
       },
     ],
   };
 
   const lineChartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
-      legend: { position: "top" },
+      legend: { 
+        position: "top",
+        labels: {
+          usePointStyle: true,
+          padding: 20,
+          font: {
+            size: 12
+          }
+        }
+      },
       title: {
         display: true,
         text: "Weather Trends in the Philippines",
+        font: {
+          size: 16,
+          weight: 'bold'
+        },
+        padding: {
+          top: 10,
+          bottom: 20
+        }
       },
+      tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        titleFont: {
+          size: 14
+        },
+        bodyFont: {
+          size: 13
+        },
+        padding: 15,
+        cornerRadius: 6,
+        displayColors: true
+      }
     },
+    scales: {
+      y: {
+        beginAtZero: false,
+        grid: {
+          color: 'rgba(200, 200, 200, 0.2)'
+        },
+        ticks: {
+          padding: 10
+        }
+      },
+      x: {
+        grid: {
+          display: false
+        },
+        ticks: {
+          padding: 10
+        }
+      }
+    }
   };
 
   const pieChartData = {
@@ -147,23 +207,53 @@ const WeatherTrends = () => {
         label: "Temperature (°C)",
         data: weatherData.map((day) => day.avgtemp_c),
         backgroundColor: [
-          "rgba(255, 99, 132, 0.6)",
-          "rgba(54, 162, 235, 0.6)",
-          "rgba(255, 206, 86, 0.6)",
+          chartColors.temperature.primary,
+          chartColors.humidity.primary,
+          chartColors.wind.primary,
         ],
+        borderColor: '#ffffff',
+        borderWidth: 2,
       },
     ],
   };
 
   const pieChartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
-      legend: { position: "top" },
+      legend: { 
+        position: "right",
+        labels: {
+          padding: 15,
+          font: {
+            size: 12
+          }
+        }
+      },
       title: {
         display: true,
-        text: "Temperature Distribution Over 3 Days",
+        text: "Temperature Distribution",
+        font: {
+          size: 16,
+          weight: 'bold'
+        },
+        padding: {
+          top: 10,
+          bottom: 20
+        }
       },
-    },
+      tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        titleFont: {
+          size: 14
+        },
+        bodyFont: {
+          size: 13
+        },
+        padding: 15,
+        cornerRadius: 6
+      }
+    }
   };
 
   const barChartData = {
@@ -172,20 +262,69 @@ const WeatherTrends = () => {
       {
         label: "Wind Speed (kph)",
         data: weatherData.map((day) => day.maxwind_kph),
-        backgroundColor: "rgba(255, 159, 64, 0.6)",
+        backgroundColor: chartColors.wind.primary,
+        borderColor: 'rgba(0, 0, 0, 0.1)',
+        borderWidth: 1,
+        borderRadius: 8,
+        barThickness: 25,
       },
     ],
   };
 
   const barChartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
-      legend: { position: "top" },
+      legend: { 
+        position: "top",
+        labels: {
+          usePointStyle: true,
+          padding: 15,
+          font: {
+            size: 12
+          }
+        }
+      },
       title: {
         display: true,
-        text: "Wind Speed Over 3 Days",
+        text: "Wind Speed Over Time",
+        font: {
+          size: 16,
+          weight: 'bold'
+        },
+        padding: {
+          top: 10,
+          bottom: 20
+        }
       },
+      tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        bodyFont: {
+          size: 13
+        },
+        padding: 15,
+        cornerRadius: 6
+      }
     },
+    scales: {
+      y: {
+        beginAtZero: true,
+        grid: {
+          color: 'rgba(200, 200, 200, 0.2)'
+        },
+        ticks: {
+          padding: 10
+        }
+      },
+      x: {
+        grid: {
+          display: false
+        },
+        ticks: {
+          padding: 10
+        }
+      }
+    }
   };
 
   const donutChartData = {
@@ -199,23 +338,56 @@ const WeatherTrends = () => {
           weatherData.reduce((sum, day) => sum + parseFloat(day.maxwind_kph), 0) / weatherData.length,
         ],
         backgroundColor: [
-          "rgba(255, 99, 132, 0.6)",
-          "rgba(54, 162, 235, 0.6)",
-          "rgba(255, 206, 86, 0.6)",
+          chartColors.temperature.primary,
+          chartColors.humidity.primary,
+          chartColors.wind.primary,
         ],
+        borderColor: '#ffffff',
+        borderWidth: 2,
+        hoverOffset: 15,
       },
     ],
   };
 
   const donutChartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
+    cutout: '65%',
     plugins: {
-      legend: { position: "top" },
+      legend: { 
+        position: "bottom",
+        labels: {
+          padding: 20,
+          usePointStyle: true,
+          font: {
+            size: 12
+          }
+        }
+      },
       title: {
         display: true,
         text: "Weather Metrics Distribution",
+        font: {
+          size: 16,
+          weight: 'bold'
+        },
+        padding: {
+          top: 10,
+          bottom: 10
+        }
       },
-    },
+      tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        titleFont: {
+          size: 14
+        },
+        bodyFont: {
+          size: 13
+        },
+        padding: 15,
+        cornerRadius: 6
+      }
+    }
   };
 
   const historicalData = useMemo(() => ({
@@ -272,334 +444,441 @@ const WeatherTrends = () => {
   const safeValueFormatter = (value, unit = '') =>
     value !== null && value !== undefined ? `${value.toFixed(2)}${unit}` : 'N/A';
 
-  const generatePDF = async () => {
-    const pdf = new jsPDF("p", "mm", "a4");
-    const charts = ["line-chart", "pie-chart", "bar-chart", "donut-chart", "urban-heat-chart"];
-    let yOffset = 20; // Start a bit lower to accommodate the header
-
-    // Add the logo to the header
-    const logoPath = "public/logo (1).png";
-    const logo = await fetch(logoPath).then(res => res.blob()).then(blob => {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.readAsDataURL(blob);
+  // Generate PDF report function
+  const generatePDFReport = async () => {
+    if (!chartsRef.current) return;
+    
+    setGenerating(true);
+    
+    try {
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const width = pdf.internal.pageSize.getWidth();
+      const height = pdf.internal.pageSize.getHeight();
+      
+      // Add header to PDF
+      pdf.setFontSize(20);
+      pdf.setTextColor(75, 192, 192);
+      pdf.text('UBheat Philippines', width/2, 15, { align: 'center' });
+      
+      pdf.setFontSize(14);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text('Weather & Climate Trends Analysis Report', width/2, 23, { align: 'center' });
+      
+      pdf.setFontSize(10);
+      pdf.setTextColor(150, 150, 150);
+      const today = new Date();
+      pdf.text(`Generated on: ${today.toLocaleDateString()}`, width/2, 30, { align: 'center' });
+      
+      pdf.line(20, 35, width - 20, 35);
+      
+      // Capture charts section
+      const chartElements = chartsRef.current.querySelectorAll('.MuiCard-root');
+      let verticalPosition = 40;
+      
+      for (let i = 0; i < chartElements.length; i++) {
+        const canvas = await html2canvas(chartElements[i], {
+          scale: 2,
+          logging: false,
+          useCORS: true,
+          allowTaint: true,
         });
-    });
-
-    pdf.addImage(logo, "PNG", 10, 10, 30, 30); // Adjust the position and size as needed
-
-    // Add a professional header
-    pdf.setFontSize(22);
-    pdf.setTextColor(40);
-    pdf.setFont("helvetica", "bold");
-    pdf.text("UBheat: Predictive Analysis of UBHeat in the Philippines", pdf.internal.pageSize.getWidth() / 2, yOffset, { align: "center" });
-    yOffset += 10;
-
-    pdf.setFontSize(14);
-    pdf.setTextColor(100);
-    pdf.setFont("helvetica", "normal");
-    pdf.text("Analysis Range: 2022 - 2030 | Linear Regression Model", pdf.internal.pageSize.getWidth() / 2, yOffset, { align: "center" });
-    yOffset += 15;
-
-    // Add a subtitle
-    pdf.setFontSize(12);
-    pdf.setTextColor(120);
-    pdf.text("This report provides insights into urban heat trends across the Philippines using a linear regression model.", pdf.internal.pageSize.getWidth() / 2, yOffset, { align: "center" });
-    yOffset += 10;
-
-    // Add charts to the PDF
-    for (const chartId of charts) {
-        const chartElement = document.getElementById(chartId);
-        if (chartElement) {
-            const canvas = await html2canvas(chartElement);
-            const imgData = canvas.toDataURL("image/png");
-            const imgProps = pdf.getImageProperties(imgData);
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-if (yOffset + pdfHeight > pdf.internal.pageSize.getHeight()) {
-            pdf.addPage();
-            yOffset = 20; // Reset yOffset after adding a new page
-}
-
-            pdf.addImage(imgData, "PNG", 10, yOffset, pdfWidth - 20, pdfHeight);
-            yOffset += pdfHeight + 10;
-
-            // Add a description for each chart
-            pdf.setFontSize(10);
-            pdf.setTextColor(80);
-            pdf.setFont("helvetica", "italic");
-            const chartDescription = getChartDescription(chartId);
-            pdf.text(chartDescription, 10, yOffset, { maxWidth: pdfWidth - 20, align: "justify" });
-            yOffset += 15;
+        
+        const imgData = canvas.toDataURL('image/png');
+        const imgWidth = width - 40;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        
+        // If chart would go off the page, add a new page
+        if (verticalPosition + imgHeight > height - 20) {
+          pdf.addPage();
+          verticalPosition = 20;
         }
+        
+        // Add chart title
+        const titleElement = chartElements[i].querySelector('.MuiCardHeader-content .MuiTypography-root');
+        if (titleElement) {
+          pdf.setFontSize(12);
+          pdf.setTextColor(50, 50, 50);
+          pdf.text(titleElement.textContent, 20, verticalPosition);
+          verticalPosition += 8;
+        }
+        
+        pdf.addImage(imgData, 'PNG', 20, verticalPosition, imgWidth, imgHeight);
+        verticalPosition += imgHeight + 15;
+      }
+      
+      // Capture Urban Heat Prediction Model section
+      const urbanHeatSection = document.querySelector('#urban-heat-section');
+      if (urbanHeatSection) {
+        const urbanHeatCanvas = await html2canvas(urbanHeatSection, {
+          scale: 2,
+          logging: false,
+          useCORS: true,
+          allowTaint: true,
+        });
+        
+        const urbanHeatImgData = urbanHeatCanvas.toDataURL('image/png');
+        const urbanHeatImgWidth = width - 40;
+        const urbanHeatImgHeight = (urbanHeatCanvas.height * urbanHeatImgWidth) / urbanHeatCanvas.width;
+        
+        // If section would go off the page, add a new page
+        if (verticalPosition + urbanHeatImgHeight > height - 20) {
+          pdf.addPage();
+          verticalPosition = 20;
+        }
+        
+        // Add section title
+        const urbanHeatTitle = urbanHeatSection.querySelector('.MuiTypography-h4');
+        if (urbanHeatTitle) {
+          pdf.setFontSize(12);
+          pdf.setTextColor(50, 50, 50);
+          pdf.text(urbanHeatTitle.textContent, 20, verticalPosition);
+          verticalPosition += 8;
+        }
+        
+        pdf.addImage(urbanHeatImgData, 'PNG', 20, verticalPosition, urbanHeatImgWidth, urbanHeatImgHeight);
+        verticalPosition += urbanHeatImgHeight + 15;
+      }
+      
+      // Add footer
+      pdf.setFontSize(8);
+      pdf.setTextColor(150, 150, 150);
+      pdf.text('© 2025 UBheat Philippines Research Initiative', width/2, height - 10, { align: 'center' });
+      
+      // Save the PDF
+      pdf.save('UBheat_Philippines_Report.pdf');
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    } finally {
+      setGenerating(false);
     }
-
-    // Add a table of predicted data manually
-    pdf.addPage();
-    yOffset = 20;
-    pdf.setFontSize(14);
-    pdf.setTextColor(40);
-    pdf.setFont("helvetica", "bold");
-    pdf.text("Predicted Data (2024-2030)", pdf.internal.pageSize.getWidth() / 2, yOffset, { align: "center" });
-    yOffset += 10;
-
-    pdf.setFontSize(10);
-    pdf.setTextColor(0);
-    pdf.setFont("helvetica", "normal");
-    const tableColumn = ["Year", "Population", "CO₂ Emissions (MtCO2)", "Temperature (°C)"];
-    const tableRows = futureData.years.map((year, index) => [
-        year,
-        futureData.population[index].toLocaleString(),
-        allMtCO2[historicalData.years.length + index].toFixed(2),
-        allTemps[historicalData.years.length + index].toFixed(2)
-    ]);
-
-    // Add table header
-    pdf.setFont("helvetica", "bold");
-    pdf.text(tableColumn.join(" | "), 10, yOffset);
-    yOffset += 10;
-
-    // Add table rows
-    pdf.setFont("helvetica", "normal");
-    tableRows.forEach(row => {
-        pdf.text(row.join(" | "), 10, yOffset);
-        yOffset += 10;
-    });
-
-    // Add additional content on a new page
-    pdf.addPage();
-    yOffset = 20;
-    pdf.setFontSize(14);
-    pdf.setTextColor(40);
-    pdf.setFont("helvetica", "bold");
-    pdf.text("Predictive Analysis of Urban Heat in the Philippines", pdf.internal.pageSize.getWidth() / 2, yOffset, { align: "center" });
-    yOffset += 10;
-
-    pdf.setFontSize(10);
-    pdf.setTextColor(0);
-    pdf.setFont("helvetica", "normal");
-    const additionalContent = [
-       
-        "Year\tAnnual Mean\t5-Year Smooth",
-        "2015\t26.45\t26.41",
-        "2016\t26.8\t26.47",
-        "2017\t26.35\t26.53",
-        "2018\t26.54\t26.58",
-        "2019\t26.6\t26.63",
-        "2020\t26.71\t26.67",
-        "2021\t26.68\t26.71",
-        "2022\t26.61\t26.74",
-        "2023\t26.91\t26.78",
-        "Philippine Population Data (2015 - 2025)",
-        "Key data points include:",
-        "2025: 116,786,962 (0.81% growth),",
-        "2024: 115,843,670,",
-        "2023: 114,891,199,",
-        "2022: 113,964,338,",
-        "2020: 112,081,264,",
-        "2015: 105,312,992.",
-        "Fossil Carbon Dioxide (CO₂) Emissions of the Philippines",
-        "YearFossil CO₂ Emissions (tons)CO₂ Emissions ChangeCO₂ Emissions per Capita",
-        "2022\t155,380,930\t6.32%\t1.36",
-        "2021\t146,142,190\t6.92%\t1.29",
-        "2020\t136,678,980\t-8.15%\t1.22",
-        "2019\t148,800,700\t4.56%\t1.34",
-        "2018\t142,309,430\t4.19%\t1.30",
-        "2017\t136,583,970\t11.76%\t1.26",
-        "2016\t122,214,770\t7.29%\t1.15",
-        "2015\t113,908,720\t8.71%\t1.08"
-    ];
-
-    additionalContent.forEach(line => {
-        pdf.text(line, 10, yOffset, { maxWidth: pdf.internal.pageSize.getWidth() - 20, align: "justify" });
-        yOffset += 5;
-    });
-
-    // Add sources
-    yOffset += 10;
-    pdf.setFontSize(12);
-    pdf.setTextColor(40);
-    pdf.setFont("helvetica", "bold");
-    pdf.text("Sources", pdf.internal.pageSize.getWidth() / 2, yOffset, { align: "center" });
-    yOffset += 10;
-
-    pdf.setFontSize(10);
-    pdf.setTextColor(0);
-    pdf.setFont("helvetica", "normal");
-    const sources = [
-        "Wikipedia - List of Cities in the Philippines",
-        "Worldometers - Philippines CO₂ Emissions",
-        "ArcGIS - Urban Heat Island Effect",
-        "Worldometers - Philippines Population",
-        "Worldpopulationreview - Philippines Population Per Cities",
-        "Macrotrends - Philippines Population Growth Rate"
-    ];
-
-    sources.forEach((source, index) => {
-        pdf.text(`${index + 1}. ${source}`, 10, yOffset);
-        yOffset += 5;
-    });
-
-    // Add a professional footer
-    pdf.setFontSize(10);
-    pdf.setTextColor(150);
-    pdf.setFont("helvetica", "normal");
-    pdf.text(`Generated on ${new Date().toLocaleDateString()} | UBheat Report`, pdf.internal.pageSize.getWidth() / 2, pdf.internal.pageSize.getHeight() - 10, { align: "center" });
-
-    pdf.save("UBheat_report.pdf");
-};
-
-// Function to get chart descriptions
-const getChartDescription = (chartId) => {
-    switch (chartId) {
-        case "line-chart":
-            return "Line Chart: Displays the trend of urban heat (in °C) over time (2015-2023) based on observed annual average mean surface air temperature data. This chart helps in understanding the historical temperature trends and predicting future temperatures.";
-        case "pie-chart":
-            return "Pie Chart: Represents the distribution of CO₂ emissions across major cities in the Philippines for the year 2022. This chart provides a visual representation of how different cities contribute to the overall CO₂ emissions.";
-        case "bar-chart":
-            return "Bar Chart: Compares CO₂ emissions (in metric tons) and urban heat (in °C) across major cities in the Philippines. This chart helps in identifying the correlation between CO₂ emissions and urban heat in different cities.";
-        case "donut-chart":
-            return "Donut Chart: Shows the percentage contribution of different sectors to total CO₂ emissions in the Philippines. This chart provides insights into which sectors are the major contributors to CO₂ emissions.";
-        case "urban-heat-chart":
-            return "Urban Heat Chart: Visualizes the urban heat island effect across major cities in the Philippines. This chart helps in understanding the impact of urbanization on temperature increases in different cities.";
-        default:
-            return "";
-    }
-};
+  };
 
   if (loading) {
-    return <div>Loading weather data...</div>;
+    return (
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        flexDirection: 'column',
+        gap: 2
+      }}>
+        <Typography variant="h5" color="primary">
+          Loading weather data...
+        </Typography>
+        <Box sx={{ 
+          width: 60, 
+          height: 60, 
+          border: '5px solid rgba(75, 192, 192, 0.2)', 
+          borderTop: '5px solid rgba(75, 192, 192, 1)', 
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite',
+          '@keyframes spin': {
+            '0%': { transform: 'rotate(0deg)' },
+            '100%': { transform: 'rotate(360deg)' }
+          }
+        }} />
+      </Box>
+    );
   }
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h5" gutterBottom>
-        Weather Trends in the Philippines
-      </Typography>
-
-      {/* Download PDF Button */}
-      <Box sx={{ mb: 3 }}>
-        <Button variant="contained" color="primary" onClick={generatePDF}>
-          Download PDF Report
-        </Button>
+    <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Box sx={{ 
+        mb: 5, 
+        textAlign: 'center',
+        background: 'linear-gradient(135deg, rgba(75,192,192,0.1) 0%, rgba(255,99,132,0.1) 100%)',
+        p: 3,
+        borderRadius: 2,
+        boxShadow: '0 4px 20px rgba(0,0,0,0.05)'
+      }}>
+        <Typography variant="h3" gutterBottom fontWeight="bold" color="primary">
+          UBheat Philippines
+        </Typography>
+        <Typography variant="h5" color="textSecondary" gutterBottom>
+          Weather & Climate Trends Analysis
+        </Typography>
+        <Divider sx={{ my: 2, mx: 'auto', width: '40%', borderColor: 'primary.main' }} />
+        <Typography variant="body1" color="textSecondary">
+          Analyzing temperature patterns, humidity levels, and climate forecasts across the Philippines
+        </Typography>
+        
+        {/* PDF Report Generation Button */}
+        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}>
+          <Button 
+            variant="contained" 
+            color="primary"
+            size="large"
+            startIcon={<DownloadIcon />}
+            onClick={generatePDFReport}
+            disabled={generating}
+            sx={{
+              px: 4,
+              py: 1.5,
+              borderRadius: 2,
+              boxShadow: '0 4px 10px rgba(75,192,192,0.3)',
+              transition: 'all 0.3s',
+              '&:hover': {
+                transform: 'translateY(-3px)',
+                boxShadow: '0 6px 15px rgba(75,192,192,0.4)',
+              }
+            }}
+          >
+            {generating ? 'Generating PDF...' : 'Download PDF Report'}
+          </Button>
+        </Box>
       </Box>
 
-      <Grid container spacing={3}>
-        {/* Line Chart */}
-        <Grid item xs={12} md={6}>
-          <Box id="line-chart" sx={{ p: 2, border: "1px solid #ddd", borderRadius: 2, height: 300 }}>
-            <Typography variant="h6" gutterBottom>
-              Weather Trends
-            </Typography>
-            <Line data={lineChartData} options={{ ...lineChartOptions, maintainAspectRatio: false }} />
-          </Box>
-        </Grid>
+      <Box sx={{ mb: 5 }} ref={chartsRef}>
+        <Typography variant="h4" gutterBottom sx={{ fontWeight: 'medium', color: 'text.primary', mb: 3 }}>
+          Current Weather Conditions
+        </Typography>
+        <Divider sx={{ mb: 4 }} />
+        
+        <Grid container spacing={4}>
+          {/* First row of charts */}
+          <Grid item xs={12} md={6}>
+            <Card elevation={3} sx={{ 
+              height: '100%', 
+              borderRadius: 2,
+              transition: 'transform 0.3s, box-shadow 0.3s',
+              '&:hover': {
+                transform: 'translateY(-5px)',
+                boxShadow: '0 8px 25px rgba(0,0,0,0.1)',
+              }
+            }}>
+              <CardHeader 
+                title="Weather Trends" 
+                titleTypographyProps={{ 
+                  variant: 'h6', 
+                  fontWeight: 'bold',
+                  color: 'primary.main' 
+                }}
+                subheader="Temperature, Humidity, Wind"
+                sx={{ pb: 0 }}
+              />
+              <CardContent sx={{ height: 350 }}>
+                <Line data={lineChartData} options={lineChartOptions} />
+              </CardContent>
+            </Card>
+          </Grid>
 
-        {/* Pie Chart */}
-        <Grid item xs={12} md={6}>
-          <Box id="pie-chart" sx={{ p: 2, border: "1px solid #ddd", borderRadius: 2, height: 300 }}>
-            <Typography variant="h6" gutterBottom>
-              Temperature Distribution
-            </Typography>
-            <Pie data={pieChartData} options={{ ...pieChartOptions, maintainAspectRatio: false }} />
-          </Box>
-        </Grid>
+          <Grid item xs={12} md={6}>
+            <Card elevation={3} sx={{ 
+              height: '100%', 
+              borderRadius: 2,
+              transition: 'transform 0.3s, box-shadow 0.3s',
+              '&:hover': {
+                transform: 'translateY(-5px)',
+                boxShadow: '0 8px 25px rgba(0,0,0,0.1)',
+              }
+            }}>
+              <CardHeader 
+                title="Wind Speed Analysis" 
+                titleTypographyProps={{ 
+                  variant: 'h6', 
+                  fontWeight: 'bold',
+                  color: 'primary.main' 
+                }}
+                subheader="Daily measurements (kph)"
+                sx={{ pb: 0 }}
+              />
+              <CardContent sx={{ height: 350 }}>
+                <Bar data={barChartData} options={barChartOptions} />
+              </CardContent>
+            </Card>
+          </Grid>
 
-        {/* Bar Chart */}
-        <Grid item xs={12} md={6}>
-          <Box id="bar-chart" sx={{ p: 2, border: "1px solid #ddd", borderRadius: 2, height: 300 }}>
-            <Typography variant="h6" gutterBottom>
-              Wind Speed Over 6 Days
-            </Typography>
-            <Bar data={barChartData} options={{ ...barChartOptions, maintainAspectRatio: false }} />
-          </Box>
-        </Grid>
+          {/* Second row of charts */}
+          <Grid item xs={12} md={6}>
+            <Card elevation={3} sx={{ 
+              height: '100%', 
+              borderRadius: 2,
+              transition: 'transform 0.3s, box-shadow 0.3s',
+              '&:hover': {
+                transform: 'translateY(-5px)',
+                boxShadow: '0 8px 25px rgba(0,0,0,0.1)',
+              }
+            }}>
+              <CardHeader 
+                title="Temperature Distribution" 
+                titleTypographyProps={{ 
+                  variant: 'h6', 
+                  fontWeight: 'bold',
+                  color: 'primary.main' 
+                }}
+                subheader="Daily temperature averages"
+                sx={{ pb: 0 }}
+              />
+              <CardContent sx={{ height: 350 }}>
+                <Pie data={pieChartData} options={pieChartOptions} />
+              </CardContent>
+            </Card>
+          </Grid>
 
-        {/* Donut Chart */}
-        <Grid item xs={12} md={6}>
-          <Box id="donut-chart" sx={{ p: 2, border: "1px solid #ddd", borderRadius: 2, height: 300 }}>
-            <Typography variant="h6" gutterBottom>
-              Weather Metrics Distribution
-            </Typography>
-            <Doughnut data={donutChartData} options={{ ...donutChartOptions, maintainAspectRatio: false }} />
-          </Box>
+          <Grid item xs={12} md={6}>
+            <Card elevation={3} sx={{ 
+              height: '100%', 
+              borderRadius: 2,
+              transition: 'transform 0.3s, box-shadow 0.3s',
+              '&:hover': {
+                transform: 'translateY(-5px)',
+                boxShadow: '0 8px 25px rgba(0,0,0,0.1)',
+              }
+            }}>
+              <CardHeader 
+                title="Weather Metrics Distribution" 
+                titleTypographyProps={{ 
+                  variant: 'h6', 
+                  fontWeight: 'bold',
+                  color: 'primary.main' 
+                }}
+                subheader="Comparative analysis"
+                sx={{ pb: 0 }}
+              />
+              <CardContent sx={{ height: 350 }}>
+                <Doughnut data={donutChartData} options={donutChartOptions} />
+              </CardContent>
+            </Card>
+          </Grid>
         </Grid>
+      </Box>
 
-        {/* Urban Heat Prediction Model */}
-        <Grid item xs={12}>
-          <Box id="urban-heat-chart" sx={{ mt: 4 }}>
-            <Typography variant="h5" gutterBottom>
-              Philippines Urban Heat Prediction Model (2015-2030)
-            </Typography>
-            <LineChart
-              width={600}
-              height={300}
-              series={[
-                { 
-                  data: allTemps,
-                  label: 'Observed & Projected Temperature (°C)',
-                  yAxisKey: 'temp',
-                  color: '#ff6384',
-                  valueFormatter: (value) => safeValueFormatter(value, '°C'),
-                },
-                { 
-                  data: regressionLine,
-                  label: 'Linear Trend Line',
-                  yAxisKey: 'temp',
-                  color: '#ff0000',
-                  dashStyle: '5 5',
-                  valueFormatter: (value) => safeValueFormatter(value, '°C'),
-                },
-                {
-                  data: allMtCO2,
-                  label: 'CO₂ Emissions (MtCO2)',
-                  yAxisKey: 'co2',
-                  color: '#4bc0c0',
-                  valueFormatter: (value) => safeValueFormatter(value, ' Mt'),
-                },
-              ]}
-              xAxis={[{
-                data: allYears,
-                scaleType: 'band',
-                label: 'Year',
-                valueFormatter: (value) => value.toString(),
-              }]}
-              yAxis={[
-                { 
-                  id: 'temp', 
-                  label: 'Temperature (°C)',
-                  min: 26,
-                  max: 28,
-                  tickNumber: 8,
-                  labelStyle: { 
-                      writingMode: 'vertical-rl',  
-                      textAlign: 'center', 
-                      transform: 'translate(-30px, 0px)', 
-                      fontSize: '1rem'
-                    }
-                },
-                { 
-                  id: 'co2', 
-                  label: 'CO₂ Emissions (MtCO2)', 
-                  position: 'right',
-                  min: 100,
-                  max: 200,
-                  tickNumber: 5,
-                },
-              ]}
-              margin={{ left: 90, right: 90, top: 40, bottom: 60 }}
-              sx={{
-                '.MuiLineElement-root': { strokeWidth: 2.5 },
-                '.MuiMarkElement-root': { display: 'none' },
-                '.MuiChartsAxis-tickLabel': { fontSize: '0.875rem' }
-              }}
-            />
-          </Box>
-        </Grid>
-      </Grid>
-    </Box>
+      {/* Urban Heat Prediction Section */}
+      <Box id="urban-heat-section" sx={{ mt: 6, mb: 4 }}>
+  <Typography variant="h4" gutterBottom sx={{ fontWeight: 'medium', color: 'text.primary', mb: 3 }}>
+    Urban Heat Prediction Model
+  </Typography>
+  <Divider sx={{ mb: 4 }} />
+  
+  <Card elevation={4} sx={{ 
+    borderRadius: 2, 
+    overflow: 'hidden',
+    background: 'linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(240,249,255,1) 100%)',
+    boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
+  }}>
+    <CardContent>
+      <Box sx={{ p: 2 }}>
+        <Typography variant="h5" gutterBottom fontWeight="bold" color="primary.dark" textAlign="center">
+          Philippines Urban Heat Prediction Model (2015-2030)
+        </Typography>
+        <Typography variant="body2" color="text.secondary" paragraph textAlign="center" sx={{ mb: 4 }}>
+          Projecting temperature trends based on CO₂ emissions and historical data
+        </Typography>
+        
+        <Box sx={{ 
+          width: '100%', 
+          height: isMobile ? 400 : 500,
+          display: 'flex',
+          justifyContent: 'center',
+          mt: 2 
+        }}>
+          <LineChart
+            width={isMobile ? 350 : 900}
+            height={isMobile ? 350 : 450}
+            series={[
+              { 
+                data: allTemps,
+                label: 'Observed & Projected Temperature (°C)',
+                yAxisKey: 'temp',
+                color: chartColors.temperature.primary,
+                valueFormatter: (value) => safeValueFormatter(value, '°C'),
+                showMark: true,
+                lineWidth: 3,
+              },
+              { 
+                data: regressionLine,
+                label: 'Linear Trend Line',
+                yAxisKey: 'temp',
+                color: 'rgba(128, 128, 128, 0.7)',
+                valueFormatter: (value) => safeValueFormatter(value, '°C'),
+                lineWidth: 2,
+                showMark: false,
+              },
+              {
+                data: allMtCO2,
+                label: 'CO₂ Emissions (MtCO2)',
+                yAxisKey: 'co2',
+                color: chartColors.co2.primary,
+                valueFormatter: (value) => safeValueFormatter(value, ' Mt'),
+                lineWidth: 3,
+              },
+            ]}
+            xAxis={[{
+              data: allYears,
+              scaleType: 'band',
+              label: 'Year',
+              tickInterval: isMobile ? 3 : 1,
+              valueFormatter: (value) => value.toString(),
+            }]}
+            yAxis={[
+              { 
+                id: 'temp', 
+                label: 'Temperature (°C)',
+                min: 26,
+                max: 28,
+                tickNumber: 8,
+                labelStyle: { 
+                  fontSize: '0.875rem'
+                }
+              },
+              { 
+                id: 'co2', 
+                label: 'CO₂ Emissions (MtCO2)', 
+                position: 'right',
+                min: 100,
+                max: 200,
+                tickNumber: 5,
+              },
+            ]}
+            margin={{ left: 70, right: 70, top: 50, bottom: 70 }}
+            sx={{
+              '.MuiLineElement-root': { strokeWidth: 2.5 },
+              '.MuiMarkElement-root': { 
+                stroke: 'white',
+                scale: '0.6',
+                strokeWidth: 2,
+              },
+              '.MuiChartsAxis-tickLabel': { 
+                fontSize: '0.875rem',
+                fontWeight: 500 
+              },
+              '.MuiChartsAxis-label': { 
+                fontSize: '1rem',
+                fontWeight: 600,
+                fill: theme.palette.text.primary
+              }
+            }}
+            legend={{ 
+              direction: 'row',
+              position: { vertical: 'bottom', horizontal: 'middle' },
+              padding: 20,
+            }}
+            tooltip={{ trigger: 'item' }}
+          />
+        </Box>
+        
+        <Box sx={{ mt: 3, px: 2 }}>
+          <Typography variant="body2" color="text.secondary">
+            This model demonstrates the correlation between rising CO₂ emissions and temperature increases 
+            in urban areas across the Philippines. Historical data (2015-2023) is used to project future 
+            trends through 2030, showing potential climate impacts.
+          </Typography>
+        </Box>
+      </Box>
+    </CardContent>
+  </Card>
+</Box>
+      
+      <Box sx={{ mt: 6, textAlign: 'center', color: 'text.secondary', p: 3 }}>
+        <Typography variant="body2">
+          Data sources: OpenWeather API, Historical Philippines Climate Records
+        </Typography>
+        <Typography variant="body2" sx={{ mt: 1 }}>
+          © 2025 UBheat Philippines Research Initiative
+        </Typography>
+      </Box>
+    </Container>
   );
 };
 
