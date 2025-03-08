@@ -5,7 +5,8 @@ import "./index.css";
 // UI Components
 import { AuroraBackground } from "./components/ui/aurora-background";
 import { ModalProvider } from "./components/ui/animated-modal";
-import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from 'react-toastify';
 
 // Page Imports
 import Dashboard from "./components/pages/Dashboard";
@@ -30,7 +31,6 @@ import { checkAuthStatus, handleLogout } from './utils/userauth.js';
 import ProtectedRoute from './components/common/protectedroute.jsx';
 
 function App() {
-
   // Authentication
   const [isAuthenticated, setIsAuthenticated] = useState(() => checkAuthStatus);
   const [user, setUser] = useState(() => JSON.parse(localStorage.getItem('user')));
@@ -62,7 +62,17 @@ function App() {
     <Router>
       <AuroraBackground className="fixed inset-0 z-0" />
       <ModalProvider>
-        <ToastContainer />
+      <ToastContainer
+          position="top-right"
+          autoClose={2000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+      />
         <div className="relative z-10">
           <Routes>
             {/* User / Non User Routes */}

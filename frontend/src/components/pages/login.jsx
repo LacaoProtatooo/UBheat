@@ -4,9 +4,7 @@ import * as Yup from "yup";
 import { Label } from "../../components/ui/label";
 import { Input } from "../../components/ui/input";
 import { cn } from "../../utils/cn";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import GoogleLoginButton from "../../components/ui/GoogleLoginButton";
+import { toast } from "react-toastify";
 import { IconBrandGoogle } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 
@@ -116,7 +114,6 @@ export function LoginForm({ onLogin }) {
       }}
     >
       <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
-        <ToastContainer />
         <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
           Welcome Back to UBheat
         </h2>
