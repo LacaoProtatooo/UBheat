@@ -85,7 +85,6 @@ const UserProfile = () => {
       const { data } = await axios.put("http://localhost:5000/api/auth/update", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-
       toast.success("Profile updated successfully!");
       setUser(data.user);
     } catch (error) {

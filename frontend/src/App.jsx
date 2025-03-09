@@ -60,18 +60,18 @@ function App() {
   return (
     <Router>
       <AuroraBackground className="fixed inset-0 z-0" />
-      <ModalProvider>
       <ToastContainer
-          position="top-right"
-          autoClose={2000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
       />
+      <ModalProvider>
         <div className="relative z-10">
           <Routes>
             {/* User / Non User Routes */}
