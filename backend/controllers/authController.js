@@ -139,7 +139,8 @@ export const login = async (req, res) => {
 
 export const googlelogin = async (req, res) => {
   const { idToken } = req.body;
-  
+  // const response = await axios.post(`${API_URL}/api/auth/google-login`, { idToken }, { withCredentials: true });
+
   try {
     // Verify the token using Firebase Admin SDK
     const decodedToken = await auth.verifyIdToken(idToken);
