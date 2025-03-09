@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
 const allowedOrigins = [
     "http://localhost:5173", // Development origin
-    "https://ubheat.vercel.app" // Production origin
+     // Production origin
   ];
 
 app.use(cors({
