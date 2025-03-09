@@ -7,20 +7,6 @@
     },
     "installCommand": "npm install --legacy-peer-deps && cd frontend && npm install --legacy-peer-deps",
     "buildCommand": "cd frontend && npm run build",
-<<<<<<< HEAD
-    "outputDirectory": "frontend/dist",
-    "rewrites": [
-      {
-        "source": "/api/(.*)",
-        "destination": "/api/$1"
-      },
-      {
-        "source": "/(.*)",
-        "destination": "/index.html"
-      }
-    ]
-=======
     "outputDirectory": "frontend/src/assets"
->>>>>>> parent of 7132974 (fixing domains)
   }
   
