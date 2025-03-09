@@ -9,6 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 import VerificationModal from "../common/verificationModal";
 import { useNavigate } from "react-router-dom";
 import { useModal } from "../ui/animated-modal";
+import FloatingDockUBheat from "../common/floatingdock";
 
 export function Signup() {
   const navigate = useNavigate();
@@ -220,6 +221,7 @@ export function Signup() {
         </form>
         <VerificationModal onVerify={handleVerifyEmail} />
       </div>
+      <FloatingDockUBheat />
     </div>
   );
 }

@@ -310,7 +310,7 @@ const Comparison = () => {
     >
       {/* Top Section (Rows 1–2) */}
       <Box sx={{ gridColumn: '1 / 3', gridRow: '1 / 3' }}>
-        <Card variant="outlined" sx={{ mb: 1, height: '48%' }}>
+        <Card variant="outlined" sx={{ mb: 1, height: '48%', borderRadius: '16px' }}>
           <CardContent>
             <Typography variant="h6" gutterBottom sx={{ fontFamily: "'Libre Baskerville', serif" }}>
               1st City Selection
@@ -324,7 +324,7 @@ const Comparison = () => {
           </CardContent>
         </Card>
         {city1Data ? (
-          <Card variant="outlined" sx={{ height: '50%' }}>
+          <Card variant="outlined" sx={{ height: '50%', borderRadius: '16px' }}>
             <CardContent>
               <Typography variant="subtitle1" sx={{ fontFamily: "'Libre Baskerville', serif" }}>
                 1st City Details
@@ -347,7 +347,7 @@ const Comparison = () => {
 
       {/* Parameters Section (Cols 3–4) */}
       <Box sx={{ gridColumn: '3 / 5', gridRow: '1 / 3' }}>
-        <Card variant="outlined" sx={{ height: '100%' }}>
+        <Card variant="outlined" sx={{ height: '100%', borderRadius: '16px' }}>
           <CardContent sx={{ overflow: 'auto', maxHeight: '280px' }}>
             <Typography variant="h6" gutterBottom sx={{ fontFamily: "'Libre Baskerville', serif" }}>
               Parameters
@@ -397,7 +397,7 @@ const Comparison = () => {
 
       {/* City 2 Selection & Details (Cols 5–6) */}
       <Box sx={{ gridColumn: '5 / 7', gridRow: '1 / 3' }}>
-        <Card variant="outlined" sx={{ mb: 1, height: '48%' }}>
+        <Card variant="outlined" sx={{ mb: 1, height: '48%', borderRadius: '16px' }}>
           <CardContent>
             <Typography variant="h6" sx={{ fontFamily: "'Libre Baskerville', serif" }}>
               2nd City Selection
@@ -411,7 +411,7 @@ const Comparison = () => {
           </CardContent>
         </Card>
         {city2Data ? (
-          <Card variant="outlined" sx={{ height: '50%' }}>
+          <Card variant="outlined" sx={{ height: '50%', borderRadius: '16px' }}>
             <CardContent>
               <Typography variant="subtitle1" sx={{ fontFamily: "'Libre Baskerville', serif" }}>
                 2nd City Details
@@ -436,7 +436,7 @@ const Comparison = () => {
       {/* Temperature Projection Chart (Rows 3–6, Cols 1–2) */}
       <Box sx={{ gridColumn: '1 / 3', gridRow: '3 / 7' }}>
         {city1Data && city2Data ? (
-          <Card variant="outlined" sx={{ height: '90%' }}>
+          <Card variant="outlined" sx={{ height: '90%', borderRadius: '16px' }}>
             <CardContent sx={{ height: '100%', p: 1 }}>
               <TemperatureChart city1Data={city1Data} city2Data={city2Data} />
             </CardContent>
@@ -451,7 +451,7 @@ const Comparison = () => {
       {/* Population Projection Chart (Rows 3–6, Cols 3–4) */}
       <Box sx={{ gridColumn: '3 / 5', gridRow: '3 / 7' }}>
         {city1Pop && city2Pop ? (
-          <Card variant="outlined" sx={{ height: '90%' }}>
+          <Card variant="outlined" sx={{ height: '90%', borderRadius: '16px' }}>
             <CardContent sx={{ height: '100%', p: 1 }}>
               <PopulationChart city1Pop={city1Pop} city2Pop={city2Pop} />
             </CardContent>
@@ -466,7 +466,7 @@ const Comparison = () => {
       {/* CO₂ Projection Chart (Rows 3–6, Cols 5–6) */}
       <Box sx={{ gridColumn: '5 / 7', gridRow: '3 / 7' }}>
         {city1Data && city2Data ? (
-          <Card variant="outlined" sx={{ height: '90%' }}>
+          <Card variant="outlined" sx={{ height: '90%', borderRadius: '16px' }}>
             <CardContent sx={{ height: '100%', p: 1 }}>
               <CO2Chart emissionRate={emissionRate} />
             </CardContent>

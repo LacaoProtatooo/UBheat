@@ -5,6 +5,9 @@ import { toast } from "react-toastify";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import Loading from "./loading";
+import FloatingDockUBheat from "../common/floatingdock";
+import { useNavigate } from "react-router-dom";
+import { checkAuthStatus, handleLogout } from "../../utils/userauth";
 
 const UserProfile = () => {
   const [user, setUser] = useState({
@@ -17,13 +20,18 @@ const UserProfile = () => {
     isActive: false,
     isAdmin: false,
   });
-
   const [imageFile, setImageFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
+  // Check if user is authenticated; if not, redirect to login.
   useEffect(() => {
-    getProfile();
-  }, []);
+    if (!checkAuthStatus()) {
+      navigate("/login");
+    } else {
+      getProfile();
+    }
+  }, [navigate]);
 
   const getProfile = async () => {
     setLoading(true);
@@ -35,7 +43,7 @@ const UserProfile = () => {
     } finally {
       setLoading(false);
     }
-  };  
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -43,10 +51,10 @@ const UserProfile = () => {
       setImageFile(file);
       const reader = new FileReader();
       reader.onload = () => {
-        setUser({
-          ...user,
-          image: { ...user.image, url: reader.result },
-        });
+        setUser((prevUser) => ({
+          ...prevUser,
+          image: { ...prevUser.image, url: reader.result },
+        }));
       };
       reader.readAsDataURL(file);
     }
@@ -77,14 +85,25 @@ const UserProfile = () => {
     }
   };
 
-  // Formik initial values now reflect the user model properties.
+  // New logout handler using handleLogout from userauth.
+  const logout = async () => {
+    try {
+      await handleLogout();
+      toast.success("Logged out successfully!");
+      navigate("/login");
+    } catch (error) {
+      toast.error(`Error logging out: ${error.message}`);
+    }
+  };
+
+  // Formik initial values reflect the current user data.
   const initialValues = {
     firstName: user.firstName || "",
     lastName: user.lastName || "",
     email: user.email || "",
   };
 
-  // Validation Schema using Yup
+  // Validation Schema using Yup.
   const validationSchema = Yup.object({
     firstName: Yup.string().required("First Name is required"),
     lastName: Yup.string().required("Last Name is required"),
@@ -145,8 +164,8 @@ const UserProfile = () => {
                 {/* Profile Image */}
                 <Box
                   sx={{
-                    width: 250,
-                    height: 250,
+                    width: 350,
+                    height: 350,
                     borderRadius: "50%",
                     backgroundImage: `url(${user.image?.url || ""})`,
                     backgroundSize: "cover",
@@ -177,7 +196,7 @@ const UserProfile = () => {
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z"
+                          d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316"
                         />
                         <path
                           strokeLinecap="round"
@@ -194,14 +213,7 @@ const UserProfile = () => {
 
                 {/* Form Fields */}
                 <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mt: 4 }}>
-                  <Field
-                    as={TextField}
-                    fullWidth
-                    label="Email"
-                    name="email"
-                    disabled
-                    value={user.email}
-                  />
+                  <Field as={TextField} fullWidth label="Email" name="email" disabled value={user.email} />
                 </Box>
                 <Box sx={{ display: "flex", gap: 2, mt: 4 }}>
                   <Field
@@ -223,15 +235,21 @@ const UserProfile = () => {
                     onChange={handleChange}
                   />
                 </Box>
-                <Button variant="contained" type="submit" fullWidth sx={{ mt: 4, backgroundColor: "black", color: "white" }}>
-                  Save Changes
-                </Button>
+                {/* Two buttons side by side */}
+                <Box sx={{ display: "flex", gap: 2, mt: 4 }}>
+                  <Button variant="contained" type="submit" fullWidth sx={{ backgroundColor: "black", color: "white" }}>
+                    Save Changes
+                  </Button>
+                  <Button variant="contained" type="button" onClick={logout} fullWidth sx={{ backgroundColor: "red", color: "white" }}>
+                    Log Out
+                  </Button>
+                </Box>
               </Form>
             )}
           </Formik>
         </Box>
       </Box>
-
+      <FloatingDockUBheat />
     </Box>
   );
 };

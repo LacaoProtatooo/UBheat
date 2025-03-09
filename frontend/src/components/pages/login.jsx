@@ -7,6 +7,7 @@ import { cn } from "../../utils/cn";
 import { toast } from "react-toastify";
 import { IconBrandGoogle } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
+import FloatingDockUBheat from "../common/floatingdock.jsx";
 
 // Firebase imports from your previous project
 import { auth, googleProvider } from "../../utils/firebaseConfig.js";
@@ -41,17 +42,15 @@ export function LoginForm({ onLogin }) {
 
         if (response.status === 200) {
           const user = response.data.user;
-          if (onLogin) {
-            onLogin(user);
-          }
+          onLogin(user);
           localStorage.setItem("user", JSON.stringify(user));
           localStorage.setItem("isAuthenticated", "true");
           localStorage.setItem("isAdmin", user.isAdmin.toString());
 
           if (user.isAdmin) {
-            navigate("/admin");
+            navigate("/dashboard");
           } else {
-            navigate("/");
+            navigate("/v2");
             toast.success("Login successfully!");
           }
         }
@@ -87,7 +86,7 @@ export function LoginForm({ onLogin }) {
         localStorage.setItem("isAuthenticated", "true");
         localStorage.setItem("isAdmin", user.isAdmin.toString());
         if (user.isAdmin) {
-          navigate("/admin");
+          navigate("/dashboard");
           toast.success("Login Success!");
         } else {
           navigate("/v2");
@@ -174,6 +173,7 @@ export function LoginForm({ onLogin }) {
             </span>
           </button>
       </div>
+      <FloatingDockUBheat />
     </div>
   );
 }

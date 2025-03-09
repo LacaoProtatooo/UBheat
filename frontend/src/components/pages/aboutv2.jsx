@@ -9,6 +9,7 @@ import { CardJuliana } from "../ui/CardJuliana";
 import { TextGenerateEffect } from "../ui/text-generate";
 import { TracingBeam } from "../ui/tracing-beam";
 import { Navbar } from "../ui/navbar";
+import FloatingDockUBheat from "../common/floatingdock";
 
 // Modified MeteorCard component with header text absolutely positioned
 const MeteorCard = ({ title, description, logo, headerText, customPadding }) => {
@@ -240,6 +241,7 @@ const AboutV2 = () => {
           </div>
         </div>
       </div>
+      <FloatingDockUBheat />
     </div>
   );
 };

@@ -76,7 +76,7 @@ function App() {
         <div className="relative z-10">
           <Routes>
             {/* User / Non User Routes */}
-            <Route path="/" element={<Main />} />
+            <Route path="/" element={<Main isAuthenticated={isAuthenticated} user={user}/>} />
             <Route path="/information" element={<Information />} />
             <Route path="/about" element={<AboutV2 />} />
             <Route path="/signup" element={<Signup />} />
@@ -85,7 +85,7 @@ function App() {
             <Route path="/chatbot" element={<Chatbot />} />
           
             {/* User Routes */}
-            <Route path="/profilev2" element={<ProtectedRoute element={<UserProfile />} isAuthenticated={isAuthenticated} />} />
+            <Route path="/profilev2" element={<ProtectedRoute element={<UserProfile />} isAuthenticated={isAuthenticated} handleLogout={() => handleLogout=(setIsAuthenticated, setUser, setIsAdmin)} />} />
             <Route path="/v2" element={<StaticMain isAuthenticated={isAuthenticated} user={user} handleLogout={() => handleLogout(setIsAuthenticated, setUser, setIsAdmin)} />} />
             <Route path="/comparison" element={<ProtectedRoute element={<Comparison />} isAuthenticated={isAuthenticated} />} />
 
