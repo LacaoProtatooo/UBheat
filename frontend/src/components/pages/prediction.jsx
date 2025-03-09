@@ -10,15 +10,17 @@ const PredictionChart = () => {
       105312992, 106735719, 108119693, 109465287, 110804683,
       112081264, 113100950, 113964338, 114891199
     ],
-    co2Emissions: [113908720, 122214770, 136583970, 142309430, 148800700, 
-                  136678980, 146142190, 155380930, 163150976],
+    co2Emissions: [
+      113908720, 122214770, 136583970, 142309430, 148800700, 
+      136678980, 146142190, 155380930, 163150976
+    ],
     temperatures: [26.41, 26.47, 26.53, 26.58, 26.63, 26.67, 26.71, 26.74, 26.78]
   }), []);
 
   const futureData = useMemo(() => ({
     years: [2024, 2025, 2026, 2027, 2028, 2029, 2030],
     population: [115843670, 116786962, 117729254, 118671546, 
-                119613838, 120556130, 121498422]
+                 119613838, 120556130, 121498422]
   }), []);
 
   const { allYears, allTemps, allMtCO2, regressionLine } = useMemo(() => {
@@ -34,7 +36,7 @@ const PredictionChart = () => {
 
     const futureMtCO2 = futureData.population.map((pop, i) => {
       const growthRate = 1.015;
-      return mtco2[mtco2.length-1] * Math.pow(growthRate, i+1);
+      return mtco2[mtco2.length - 1] * Math.pow(growthRate, i + 1);
     });
 
     const futureYears = futureData.years;
@@ -60,7 +62,11 @@ const PredictionChart = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h5" gutterBottom>
+      <Typography
+        variant="h5"
+        gutterBottom
+        sx={{ fontFamily: "'Libre Baskerville', serif" }}
+      >
         Philippines Urban Heat Prediction Model (2015-2030)
       </Typography>
       
@@ -105,11 +111,12 @@ const PredictionChart = () => {
             max: 28,
             tickNumber: 8,
             labelStyle: { 
-                writingMode: 'vertical-rl',  
-                textAlign: 'center', 
-                transform: 'translate(-30px, 0px)', 
-                fontSize: '1rem'
-              }
+              writingMode: 'vertical-rl',  
+              textAlign: 'center', 
+              transform: 'translate(-30px, 0px)', 
+              fontSize: '1rem',
+              fontFamily: "'Libre Baskerville', serif"
+            }
           },
           { 
             id: 'co2', 
@@ -118,20 +125,31 @@ const PredictionChart = () => {
             min: 100,
             max: 200,
             tickNumber: 5,
+            labelStyle: {
+              fontFamily: "'Libre Baskerville', serif"
+            }
           },
         ]}
         margin={{ left: 90, right: 90, top: 40, bottom: 60 }}
         sx={{
           '.MuiLineElement-root': { strokeWidth: 2.5 },
           '.MuiMarkElement-root': { display: 'none' },
-          '.MuiChartsAxis-tickLabel': { fontSize: '0.875rem' }
+          '.MuiChartsAxis-tickLabel': { fontSize: '0.875rem', fontFamily: "'Libre Baskerville', serif" },
+          '.MuiChartsAxis-label': { fontFamily: "'Libre Baskerville', serif" },
+          '.MuiChartsLegend-label': { fontFamily: "'Libre Baskerville', serif" }
         }}
       />
       
-      <Typography variant="caption" display="block" sx={{ mt: 2, color: 'text.secondary' }}>
-        Linear trend based on 2015-2023 data (R² = {regression.linear(
+      <Typography
+        variant="caption"
+        display="block"
+        sx={{ mt: 2, color: 'text.secondary', fontFamily: "'Libre Baskerville', serif" }}
+      >
+        Linear trend based on 2015-2023 data (R² ={" "}
+        {regression.linear(
           historicalData.years.map((y, i) => [y, historicalData.temperatures[i]])
-        ).r2.toFixed(3)})
+        ).r2.toFixed(3)}
+        )
       </Typography>
     </Box>
   );

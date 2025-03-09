@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, TextField, Button } from "@mui/material";
+import { Box, Typography, TextField, Button, CircularProgress } from "@mui/material";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { Formik, Form, Field } from "formik";
@@ -8,6 +8,16 @@ import Loading from "./loading";
 import FloatingDockUBheat from "../common/floatingdock";
 import { useNavigate } from "react-router-dom";
 import { checkAuthStatus, handleLogout } from "../../utils/userauth";
+
+const textFieldStyles = {
+  "& .MuiOutlinedInput-root": {
+    "& fieldset": { borderColor: "#333" }, 
+    "&:hover fieldset": { borderColor: "rgb(0, 119, 255)" },
+    "&.Mui-focused fieldset": { borderColor: "#8EC0F9" },
+  },
+  input: { color: "black" }, 
+  label: { color: "black" },
+};
 
 const UserProfile = () => {
   const [user, setUser] = useState({
@@ -24,7 +34,7 @@ const UserProfile = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Check if user is authenticated; if not, redirect to login.
+  // Redirect if not authenticated.
   useEffect(() => {
     if (!checkAuthStatus()) {
       navigate("/login");
@@ -128,10 +138,13 @@ const UserProfile = () => {
           sx={{
             width: { lg: "88%", md: "80%", sm: "88%", xs: "100%" },
             mx: "auto",
-            boxShadow: 3,
+            boxShadow: 10,
             p: 4,
             borderRadius: 2,
-            backgroundColor: (theme) => (theme.palette.mode === "dark" ? "grey.800" : "white"),
+            backgroundColor: "#ECECEC",
+            transition: "transform 0.3s, box-shadow 0.3s",
+            "&:hover": { transform: "translateY(-5px)" },
+            color: "black",
           }}
         >
           <Typography
@@ -139,9 +152,8 @@ const UserProfile = () => {
             sx={{
               fontSize: { lg: "2rem", md: "1.75rem", sm: "1.5rem", xs: "1.5rem" },
               fontWeight: "bold",
-              fontFamily: "serif",
+              fontFamily: "'Libre Baskerville', serif",
               mb: 2,
-              color: (theme) => (theme.palette.mode === "dark" ? "white" : "black"),
             }}
           >
             Profile
@@ -153,7 +165,7 @@ const UserProfile = () => {
               Account Verified
             </Typography>
           ) : (
-            <Typography variant="body1" sx={{ mb: 2, color: "red" }}>
+            <Typography variant="body1" sx={{ mb: 2, color: "salmon" }}>
               Account Not Verified
             </Typography>
           )}
@@ -176,16 +188,19 @@ const UserProfile = () => {
                     position: "relative",
                     mx: "auto",
                     mb: 2,
+                    transition: "transform 0.2s, box-shadow 0.2s",
+                    boxShadow: 5,
+                    "&:hover": { transform: "scale(1.1)", boxShadow: 10 },
                   }}
                 >
                   <input type="file" id="upload_profile" hidden onChange={handleImageChange} />
                   <label htmlFor="upload_profile">
                     <Box
                       sx={{
-                        backgroundColor: "white",
-                        width: 32,
-                        height: 32,
-                        borderRadius: "50%",
+                        backgroundColor: "transparent",
+                        width: 40,
+                        height: 40,
+                        borderRadius: "80%",
                         display: "flex",
                         justifyContent: "center",
                         alignItems: "center",
@@ -207,13 +222,21 @@ const UserProfile = () => {
                     </Box>
                   </label>
                 </Box>
-                <Typography variant="subtitle1" sx={{ textAlign: "center", mt: 1, fontWeight: "bold" }}>
+                <Typography variant="subtitle1" sx={{ textAlign: "center", mt: 1, fontWeight: "bold", fontFamily: "'Libre Baskerville', serif" }}>
                   Upload Profile Image
                 </Typography>
 
                 {/* Form Fields */}
                 <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mt: 4 }}>
-                  <Field as={TextField} fullWidth label="Email" name="email" disabled value={user.email} />
+                  <Field
+                    as={TextField}
+                    fullWidth
+                    label="Email"
+                    name="email"
+                    disabled
+                    value={user.email}
+                    sx={textFieldStyles}
+                  />
                 </Box>
                 <Box sx={{ display: "flex", gap: 2, mt: 4 }}>
                   <Field
@@ -224,6 +247,7 @@ const UserProfile = () => {
                     error={touched.firstName && !!errors.firstName}
                     helperText={touched.firstName && errors.firstName}
                     onChange={handleChange}
+                    sx={textFieldStyles}
                   />
                   <Field
                     as={TextField}
@@ -233,14 +257,31 @@ const UserProfile = () => {
                     error={touched.lastName && !!errors.lastName}
                     helperText={touched.lastName && errors.lastName}
                     onChange={handleChange}
+                    sx={textFieldStyles}
                   />
                 </Box>
                 {/* Two buttons side by side */}
                 <Box sx={{ display: "flex", gap: 2, mt: 4 }}>
-                  <Button variant="contained" type="submit" fullWidth sx={{ backgroundColor: "black", color: "white" }}>
+                  <Button
+                    variant="contained"
+                    type="submit"
+                    fullWidth
+                    sx={{
+                      backgroundColor: "#6C9EF0",
+                      color: "white",
+                      fontWeight: "bold",
+                      "&:hover": { backgroundColor: "rgb(0,119,255)" },
+                    }}
+                  >
                     Save Changes
                   </Button>
-                  <Button variant="contained" type="button" onClick={logout} fullWidth sx={{ backgroundColor: "red", color: "white" }}>
+                  <Button
+                    variant="contained"
+                    type="button"
+                    onClick={logout}
+                    fullWidth
+                    sx={{ backgroundColor: "red", color: "white" }}
+                  >
                     Log Out
                   </Button>
                 </Box>

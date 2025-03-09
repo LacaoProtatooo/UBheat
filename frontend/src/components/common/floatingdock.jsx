@@ -89,7 +89,7 @@ const FloatingDockUBheat = () => {
           { 
             title: "Profile", 
             icon: <FaUserGear className="h-8 w-8 text-neutral-500 dark:text-neutral-300" />,
-            href: "/profilev2" 
+            href: "/profile" 
           },
           { 
             title: "V2 Map", 

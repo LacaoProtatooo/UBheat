@@ -154,20 +154,17 @@ const AboutV2 = () => {
       <div className="py-10">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Left Card: Our History */}
             <MeteorCard
-              title="Our History"
+              title="Who are we?"
               description="We are a team of third-year students from Technological University of the Philippines – Taguig, dedicated to developing innovative solutions in data visualization. Under the guidance of Prof. Pops Madriaga, we created this heatmap simulation to analyze and predict urban heat distribution, contributing to research on climate and environmental trends."
             />
-            {/* Middle Card: Logo with header text and additional description */}
             <MeteorCard
               logo="./UB_Logo_animated.gif"
               headerText="Our Identity"
               description="Our logo represents the heat and dynamic transition of urban heat and emissions data. It symbolizes our commitment to innovation and sustainability."
             />
-            {/* Right Card: Who are we? */}
             <MeteorCard
-              title="Who are we?"
+              title="Our History"
               description="CO₂ Emissions and Forecasted Heat Temperature: Our simulation leverages real-time data and advanced forecasting to provide insights on CO₂ emissions and projected heat levels, ensuring you stay informed about environmental trends and potential risks."
               customPadding="py-20"
             />

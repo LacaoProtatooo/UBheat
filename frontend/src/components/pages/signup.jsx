@@ -33,7 +33,10 @@ export function Signup() {
         .min(8, "Password must be at least 8 characters")
         .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
         .matches(/[a-z]/, "Password must contain at least one lowercase letter")
-        .matches(/[~!@#$%^&*()_\-+={[}\]|\\:;"'<,>.?/]/, "Password must contain at least one special character.")
+        .matches(
+          /[~!@#$%^&*()_\-+={[}\]|\\:;"'<,>.?/]/,
+          "Password must contain at least one special character."
+        )
         .required("Password is required"),
       confirmPassword: Yup.string()
         .oneOf([Yup.ref("password")], "Passwords do not match")
@@ -218,6 +221,20 @@ export function Signup() {
           </button>
 
           <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-8 h-[1px] w-full" />
+
+          {/* Already have an account? Login button */}
+          <div className="text-center mt-4">
+            <p className="text-sm text-neutral-600 dark:text-neutral-300">
+              Already have an account?{" "}
+              <button
+                type="button"
+                onClick={() => navigate("/login")}
+                className="underline font-semibold text-blue-600 dark:text-blue-400"
+              >
+                Login
+              </button>
+            </p>
+          </div>
         </form>
         <VerificationModal onVerify={handleVerifyEmail} />
       </div>

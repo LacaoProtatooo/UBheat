@@ -17,7 +17,6 @@ import Heatmap from "./components/pages/Heatmap";
 import Main from "./components/pages/main";
 import Signup from "./components/pages/signup";
 import Login from "./components/pages/login";
-import ProfilePage from "./components/pages/ProfilePage";
 import Prediction from "./components/pages/prediction";
 import SampleHeatmap from "./components/pages/sampleheatmap";
 import UserLogsPage from "./components/pages/UserLogsPage";
@@ -85,7 +84,7 @@ function App() {
             <Route path="/chatbot" element={<Chatbot />} />
           
             {/* User Routes */}
-            <Route path="/profilev2" element={<ProtectedRoute element={<UserProfile />} isAuthenticated={isAuthenticated} handleLogout={() => handleLogout=(setIsAuthenticated, setUser, setIsAdmin)} />} />
+            <Route path="/profile" element={<ProtectedRoute element={<UserProfile />} isAuthenticated={isAuthenticated} handleLogout={() => handleLogout=(setIsAuthenticated, setUser, setIsAdmin)} />} />
             <Route path="/v2" element={<StaticMain isAuthenticated={isAuthenticated} user={user} handleLogout={() => handleLogout(setIsAuthenticated, setUser, setIsAdmin)} />} />
             <Route path="/comparison" element={<ProtectedRoute element={<Comparison />} isAuthenticated={isAuthenticated} />} />
 
@@ -94,7 +93,6 @@ function App() {
             <Route path="/logs" element={<ProtectedRoute element={<UserLogsPage />} isAuthenticated={isAuthenticated} isAdmin={isAdmin} adminOnly={true} />} />
 
             {/* Trashed? */}
-            <Route path="/profile" element={<ProfilePage />} />
             <Route path="/landing" element={<About />} />
             <Route path="/heatmap" element={<Heatmap />} />
             <Route path="/sampleheatmap" element={<SampleHeatmap />} />
