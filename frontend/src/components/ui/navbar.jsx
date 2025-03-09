@@ -37,8 +37,8 @@ export const Navbar = () => {
             Login
           </Link>
         ) : (
-          <Link to="/profile" className="hover:opacity-80">
-            Profile
+          <Link to="/" className="hover:opacity-80">
+            Home
           </Link>
         )}
       </div>
@@ -59,7 +59,7 @@ export const Navbar = () => {
             className="bg-zinc-50 dark:bg-slate-900 text-black dark:text-white border-neutral-200 dark:border-slate-800"
             onClick={() => navigate("/profile")}
           >
-            Dashboard
+            Go to Profile
           </Button>
         )}
       </div>
