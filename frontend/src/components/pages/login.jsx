@@ -71,11 +71,13 @@ export function LoginForm({ onLogin }) {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
+      const API_URL = import.meta.env.VITE_API_URL || "";
       const response = await axios.post(
-        "http://localhost:5000/api/auth/google-login",
+        `${API_URL}/api/auth/google-login`,
         { idToken },
         { withCredentials: true }
       );
+         
 
       if (response.status === 200) {
         const user = response.data.user;
