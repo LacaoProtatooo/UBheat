@@ -13,7 +13,7 @@ import axios from "axios";
 import { checkAuthStatus, handleLogout } from "../../utils/userauth";
 import { AiOutlineLogout } from "react-icons/ai";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 // Header component receives the logout function as a prop.
 const Header = ({ logout }) => {
@@ -35,6 +35,7 @@ const Header = ({ logout }) => {
 
 const Dashboard = () => {
   const [activeComponent, setActiveComponent] = useState("Home"); // Default to Home
+  const location = useLocation();
   const [city, setCity] = useState("");
   const [cityWeather, setCityWeather] = useState(null);
   const API_KEY = "b05f228625b60990de863e6193f998af"; // OpenWeather API key
@@ -59,6 +60,12 @@ const Dashboard = () => {
       console.error("Error fetching city weather data:", error);
     }
   };
+
+  useEffect(() => {
+    if (location.state?.activeComponent) {
+      setActiveComponent(location.state.activeComponent);
+    }
+  }, [location.state]);
 
   // Fetch auth info and users on component mount
   useEffect(() => {

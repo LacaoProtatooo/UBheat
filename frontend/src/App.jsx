@@ -24,6 +24,7 @@ import StaticMain from "./components/pages/staticmain";
 import Information from "./components/pages/information";
 import Comparison from "./components/pages/comparison";
 import UserProfile from "./components/common/profile";
+import AdminProfile from './components/common/adminprofile.jsx';
 
 // User Authentication
 import { checkAuthStatus, handleLogout } from './utils/userauth.js';
@@ -91,6 +92,7 @@ function App() {
             {/* Admin Routes */}
             <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} isAuthenticated={isAuthenticated} isAdmin={isAdmin} adminOnly={true} />} />
             <Route path="/logs" element={<ProtectedRoute element={<UserLogsPage />} isAuthenticated={isAuthenticated} isAdmin={isAdmin} adminOnly={true} />} />
+            <Route path="/adminprofile" element={<ProtectedRoute element={<AdminProfile />} isAuthenticated={isAuthenticated} isAdmin={isAdmin} adminOnly={true} />} />
 
             {/* Trashed? */}
             <Route path="/landing" element={<About />} />

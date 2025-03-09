@@ -22,7 +22,7 @@ const Sidebar = ({ setActiveComponent, activeComponent }) => {
   const handleMouseLeave = () => setIsExpanded(false);
 
   const goToProfile = () => {
-    navigate("/profile");
+    navigate("/adminprofile");
   };
 
   return (

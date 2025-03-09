@@ -109,6 +109,11 @@ export const login = async (req, res) => {
     if (!user.isVerified) {
       return res.status(400).json({ success: false, message: "Email not verified" });
     }
+    if (!user.isActive) {
+      return res
+        .status(403)
+        .json({ success: false, message: "Your account is inactive. Please contact support." });
+    }
     
     // Generate JWT and set cookie
     generateTokenAndSetCookie(res, user._id);
@@ -122,9 +127,14 @@ export const login = async (req, res) => {
         password: undefined,
       },
     });
-  } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+  } catch (err) {
+    if (err.response && err.response.data && err.response.data.message) {
+      setFieldError("email", err.response.data.message);
+    } else {
+      toast.error("Login failed. Please try again.");
+    }
   }
+  
 };
 
 export const googlelogin = async (req, res) => {
@@ -162,6 +172,12 @@ export const googlelogin = async (req, res) => {
       await user.save();
     }
 
+    if (!user.isActive) {
+      return res
+        .status(403)
+        .json({ success: false, message: "Your account is inactive. Please contact support." });
+    }
+
     // Generate JWT and set cookie
     generateTokenAndSetCookie(res, user._id);
     
@@ -172,10 +188,14 @@ export const googlelogin = async (req, res) => {
         password: undefined,
       },
     });
-  } catch (error) {
-    console.error("Error verifying Google ID token:", error);
-    res.status(400).json({ success: false, message: "Invalid Google ID token" });
+  } catch (err) {
+    if (err.response && err.response.data && err.response.data.message) {
+      toast.error(err.response.data.message);
+    } else {
+      toast.error("Google sign-in failed. Please try again.");
+    }
   }
+  
 };
 
 export const logout = async (req, res) => {
@@ -355,7 +375,10 @@ export const resetPassword = async (req, res) => {
 
 export const getUsers = async (req, res, next) => {
   try {
-    const users = await User.find();
+    const currentUserId = req.user ? req.user.id : null;
+    const query = currentUserId ? { _id: { $ne: currentUserId } } : {};
+
+    const users = await User.find(query);
     res.status(200).json({
       success: true,
       count: users.length,
@@ -366,6 +389,7 @@ export const getUsers = async (req, res, next) => {
     next(new ErrorHandler("Error fetching users", 500));
   }
 };
+
 
 export const updateUserStatus = async (req, res) => {
   const { id } = req.params;

@@ -58,7 +58,7 @@ export function LoginForm({ onLogin }) {
         if (err.response && err.response.data && err.response.data.message) {
           setFieldError("email", err.response.data.message);
         } else {
-          toast.error("Login failed. Please try again.");
+          toast.error("Login failed. Please contact support.");
         }
       } finally {
         setLoading(false);
@@ -95,7 +95,7 @@ export function LoginForm({ onLogin }) {
       }
     } catch (error) {
       console.error("Google sign-in error:", error);
-      toast.error("Google sign-in failed. Please try again.");
+      toast.error("Google sign-in failed. Please contact support", error.message);
     }
   };
 

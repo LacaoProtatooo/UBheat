@@ -18,14 +18,13 @@ router.get('/current-user', isAuthenticatedUser, getCurrentUser);
 router.put('/update', upload.single("upload_profile"), updateProfile);
 
 // Admin routes
-router.get('/users', getUsers);
-router.get('/users/:id', getUserById);
-router.patch('/users/:id', updateUserStatus);
-router.get('/notifications', getUserNotifications);
-
-// router.get('/users', isAuthenticatedUser ,getUsers, authorizeAdmin);
-// router.get('/users/:id', isAuthenticatedUser, getUserById, authorizeAdmin);
-// router.patch('/users/:id', isAuthenticatedUser, authorizeAdmin, updateUserStatus);
+// router.get('/users', getUsers);
+// router.get('/users/:id', getUserById);
+// router.patch('/users/:id', updateUserStatus);
+router.get('/notifications', getUserNotifications, authorizeAdmin);
+router.get('/users', isAuthenticatedUser, getUsers, authorizeAdmin);
+router.get('/users/:id', isAuthenticatedUser, getUserById, authorizeAdmin);
+router.patch('/users/:id', isAuthenticatedUser, authorizeAdmin, updateUserStatus);
 
 
 export default router;
