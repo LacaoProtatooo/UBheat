@@ -7,6 +7,10 @@
     },
     "installCommand": "npm install --legacy-peer-deps && cd frontend && npm install --legacy-peer-deps",
     "buildCommand": "cd frontend && npm run build",
-    "outputDirectory": "frontend/src/assets"
-  }
-  
+    "rewrites": [
+      {
+        "source": "/api/(.*)",
+        "destination": "/api/$1"
+      }
+    ]
+}
