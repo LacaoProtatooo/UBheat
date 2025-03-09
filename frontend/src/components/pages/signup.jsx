@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Label } from "../../components/ui/label";
@@ -8,12 +8,12 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import VerificationModal from "../common/verificationModal";
 import { useNavigate } from "react-router-dom";
-import { useModal } from "../ui/animated-modal";
 import FloatingDockUBheat from "../common/floatingdock";
 
 export function Signup() {
   const navigate = useNavigate();
-  const { setOpen } = useModal();
+  // Local state for verification modal
+  const [isVerificationOpen, setVerificationOpen] = useState(false);
 
   const formik = useFormik({
     initialValues: {
@@ -64,7 +64,7 @@ export function Signup() {
             isLoading: false,
             autoClose: 5000,
           });
-          setOpen(true); // Open the verification modal
+          setVerificationOpen(true); // Open the verification modal
         } else {
           toast.update(loadingToastId, {
             render: data.msg || "Registration failed",
@@ -98,7 +98,7 @@ export function Signup() {
       if (data.success) {
         toast.success("Email verified successfully!");
         navigate("/login");
-        setOpen(false);
+        setVerificationOpen(false);
       } else {
         console.error("Error verifying email:", data.message);
         toast.error("Wrong Verification Code Provided.");
@@ -236,7 +236,12 @@ export function Signup() {
             </p>
           </div>
         </form>
-        <VerificationModal onVerify={handleVerifyEmail} />
+        {/* Pass the modal state and close handler */}
+        <VerificationModal
+          open={isVerificationOpen}
+          onClose={() => setVerificationOpen(false)}
+          onVerify={handleVerifyEmail}
+        />
       </div>
       <FloatingDockUBheat />
     </div>

@@ -84,7 +84,7 @@ function App() {
             <Route path="/chatbot" element={<Chatbot />} />
           
             {/* User Routes */}
-            <Route path="/profile" element={<ProtectedRoute element={<UserProfile />} isAuthenticated={isAuthenticated} handleLogout={() => handleLogout=(setIsAuthenticated, setUser, setIsAdmin)} />} />
+            <Route path="/profile" element={<ProtectedRoute element={<UserProfile />} isAuthenticated={isAuthenticated} handleLogout={() => handleLogout(setIsAuthenticated, setUser, setIsAdmin)} />} />
             <Route path="/v2" element={<StaticMain isAuthenticated={isAuthenticated} user={user} handleLogout={() => handleLogout(setIsAuthenticated, setUser, setIsAdmin)} />} />
             <Route path="/comparison" element={<ProtectedRoute element={<Comparison />} isAuthenticated={isAuthenticated} />} />
 

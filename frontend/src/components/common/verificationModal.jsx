@@ -1,16 +1,20 @@
 import React, { useState } from "react";
 import {
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  useModal,
-} from "../ui/animated-modal";
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+  Typography,
+  CircularProgress,
+} from "@mui/material";
+import { toast } from "react-toastify";
 
-const VerificationModal = ({ onVerify }) => {
+const VerificationModal = ({ open, onClose, onVerify }) => {
   const [verificationCode, setVerificationCode] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // Track loading state
-  const { setOpen } = useModal();
+  const [loading, setLoading] = useState(false);
 
   const handleVerify = async () => {
     // Basic validation
@@ -21,6 +25,8 @@ const VerificationModal = ({ onVerify }) => {
     setLoading(true);
     try {
       await onVerify(verificationCode);
+      onClose(); // Optionally close the modal on success
+      toast.success("Email verified successfully!");
     } catch (err) {
       setError(err.message || "Verification failed. Please try again.");
       toast.error("Verification failed. Please try again.");
@@ -30,35 +36,46 @@ const VerificationModal = ({ onVerify }) => {
   };
 
   return (
-    <ModalBody>
-      <ModalContent>
-        <h2 className="text-xl font-semibold text-center mb-4">Verify Your Email</h2>
-        <p className="text-sm text-gray-600 mb-6 text-center">
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
+      <DialogTitle>Verify Your Email</DialogTitle>
+      <DialogContent>
+        <Typography variant="body2" align="center" gutterBottom>
           Enter the 6-digit verification code sent to your email.
-        </p>
-        <input
+        </Typography>
+        <TextField
+          autoFocus
+          margin="dense"
+          label="Verification Code"
           type="text"
-          maxLength={6}
+          fullWidth
+          variant="outlined"
           value={verificationCode}
-          onChange={(e) => setVerificationCode(e.target.value)}
-          className="w-full border border-gray-300 rounded-md px-4 py-2 text-center text-lg tracking-widest"
+          onChange={(e) => {
+            setVerificationCode(e.target.value);
+            if (error) setError("");
+          }}
+          inputProps={{
+            maxLength: 6,
+            style: { textAlign: "center", fontSize: "1.5rem", letterSpacing: "0.3rem" },
+          }}
+          disabled={loading}
           placeholder="123456"
-          disabled={loading}
         />
-        {error && <p className="text-red-500 text-sm mt-2 text-center">{error}</p>}
-      </ModalContent>
-      <ModalFooter>
-        <button
-          onClick={handleVerify}
-          className={`bg-blue-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-700 transition ${
-            loading && "opacity-50 pointer-events-none"
-          }`}
-          disabled={loading}
-        >
-          {loading ? "Verifying..." : "Verify"}
-        </button>
-      </ModalFooter>
-    </ModalBody>
+        {error && (
+          <Typography variant="body2" color="error" align="center" sx={{ mt: 1 }}>
+            {error}
+          </Typography>
+        )}
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} disabled={loading}>
+          Cancel
+        </Button>
+        <Button onClick={handleVerify} variant="contained" color="primary" disabled={loading}>
+          {loading ? <CircularProgress size={24} /> : "Verify"}
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 };
 
