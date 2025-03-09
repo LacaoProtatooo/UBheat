@@ -140,7 +140,7 @@ export const login = async (req, res) => {
 export const googlelogin = async (req, res) => {
   const { idToken } = req.body;
 
-  const API_URL = "https://ubheat.vercel.app" || "http://localhost:5000";
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   // When calling the endpoint:
   const response = await axios.post(`${API_URL}/api/auth/google-login`, { idToken }, { withCredentials: true });
