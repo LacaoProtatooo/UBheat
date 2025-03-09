@@ -366,3 +366,22 @@ export const getUsers = async (req, res, next) => {
     next(new ErrorHandler("Error fetching users", 500));
   }
 };
+
+export const updateUserStatus = async (req, res) => {
+  const { id } = req.params;
+  const { isActive, activationExpires } = req.body;
+  try {
+    const user = await User.findByIdAndUpdate(
+      id,
+      { isActive, activationExpires },
+      { new: true }
+    );
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    res.status(200).json({ success: true, user });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+

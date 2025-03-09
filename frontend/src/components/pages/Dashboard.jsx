@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import Sidebar from "../Sidebar";
 import WeatherTrends from "../WeatherTrends";
 import HeatPredictionModel from "../HeatPredictionModel";
@@ -7,8 +6,11 @@ import TemperatureDistribution from "../TemperatureDistribution";
 import ThreeDayForecast from "../ThreeDayForecast";
 import NewsSection from "../NewsSection";
 import UserList from "../UserList";
-import Home from "../Home"; // Import the new Home component
+import Home from "../Home"; // Import the Home component
 import UserLogsPage from "./UserLogsPage";
+import { useUserStore } from "../store/zuser";
+import axios from "axios";
+
 const Header = () => {
   return (
     <header className="bg-gray-800 text-white p-4 shadow-md">
@@ -16,8 +18,9 @@ const Header = () => {
         <h1 className="text-2xl font-bold">Admin Dashboard</h1>
         <nav>
           <ul className="flex space-x-4">
-            
-            <li><a href="#" className="hover:underline">Logout</a></li>
+            <li>
+              <a href="#" className="hover:underline">Logout</a>
+            </li>
           </ul>
         </nav>
       </div>
@@ -29,10 +32,12 @@ const Dashboard = () => {
   const [activeComponent, setActiveComponent] = useState("Home"); // Default to Home
   const [city, setCity] = useState("");
   const [cityWeather, setCityWeather] = useState(null);
-  const [users, setUsers] = useState([]); // State for user list
   const API_KEY = "b05f228625b60990de863e6193f998af"; // OpenWeather API key
 
-  // Fetch city weather data
+  // Use zustand store for users
+  const { users, fetchUsers } = useUserStore();
+
+  // Fetch city weather data from OpenWeather API
   const fetchCityWeather = async () => {
     try {
       const response = await axios.get(
@@ -44,20 +49,10 @@ const Dashboard = () => {
     }
   };
 
-  // Fetch users
-  const fetchUsers = async () => {
-    try {
-      const response = await axios.get("/api/users"); // Replace with your API endpoint
-      setUsers(response.data);
-    } catch (error) {
-      console.error("Error fetching users:", error);
-    }
-  };
-
-  // Fetch users on component mount
+  // Fetch users on component mount using the zustand store function
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [fetchUsers]);
 
   const renderComponent = () => {
     switch (activeComponent) {
@@ -84,7 +79,7 @@ const Dashboard = () => {
       case "UserLogsPage":
         return <UserLogsPage />;
       case "UserList":
-        return <UserList users={users} />;
+        return <UserList />;
       default:
         return <Home />;
     }

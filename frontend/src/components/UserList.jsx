@@ -10,8 +10,10 @@ import {
   Block, Edit, Delete, CheckCircle, Cancel
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
+import { useUserStore } from './store/zuser';
+import { toast } from 'react-toastify'; // Ensure you import toast if you use it
 
-// Styled components
+// Styled components (unchanged)
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
   borderRadius: '12px',
@@ -74,26 +76,27 @@ const NameCell = styled(Box)({
 });
 
 const UserList = () => {
-  const [users, setUsers] = useState([]);
+  // Use local state only for loading, search term, and confirmation dialog.
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [confirmDialog, setConfirmDialog] = useState({ open: false, userId: null, action: '' });
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  // Destructure users and fetchUsers from your Zustand store.
+  const { users, fetchUsers, setUsers } = useUserStore();
 
-  const fetchUsers = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get('/api/users');
-      setUsers(response.data);
-    } catch (error) {
-      console.error('Error fetching users:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    const getUsers = async () => {
+      try {
+        await fetchUsers();
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        toast.error("Failed to fetch users.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    getUsers();
+  }, []); // Only run once on mount
 
   const handleActivationToggle = async (userId, isActive) => {
     setConfirmDialog({
@@ -107,11 +110,12 @@ const UserList = () => {
   const confirmActivationToggle = async () => {
     const { userId, isActive } = confirmDialog;
     try {
-      await axios.patch(`/api/users/${userId}`, { 
+      await axios.patch(`/api/auth/users/${userId}`, { 
         isActive: !isActive, 
         activationExpires: new Date(Date.now() + 24 * 60 * 60 * 1000) 
       });
       
+      // Update the user status in your Zustand store.
       setUsers(users.map(user => 
         user._id === userId ? { 
           ...user, 
@@ -123,8 +127,9 @@ const UserList = () => {
       setConfirmDialog({ open: false, userId: null, action: '' });
     } catch (error) {
       console.error('Error updating user status:', error);
+      toast.error("Failed to update user status.");
     }
-  };
+  };  
 
   const getInitials = (firstName, lastName) => {
     return `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
@@ -228,7 +233,6 @@ const UserList = () => {
                     </UserCell>
                     <UserCell align="center">
                       <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
-                        
                         <Tooltip title={user.isActive ? "Deactivate user" : "Activate user"}>
                           <IconButton 
                             size="small"
@@ -238,7 +242,6 @@ const UserList = () => {
                             {user.isActive ? <Block fontSize="small" /> : <Check fontSize="small" />}
                           </IconButton>
                         </Tooltip>
-                        
                       </Box>
                     </UserCell>
                   </UserRow>
