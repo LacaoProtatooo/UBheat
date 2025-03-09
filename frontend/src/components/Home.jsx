@@ -104,7 +104,7 @@ const Home = ({ users, cityWeather, fetchCityWeather, city, setCity }) => {
   const [performanceStats, setPerformanceStats] = useState({
     loadTime: 0,
     memoryUsage: 0,
-    cpuUsage: 'N/A'
+    cpuUsage: '0%'
   });
 
   useEffect(() => {
@@ -115,12 +115,53 @@ const Home = ({ users, cityWeather, fetchCityWeather, city, setCity }) => {
       ? (window.performance.memory.usedJSHeapSize / 1024 / 1024).toFixed(2) + ' MB' 
       : 'N/A';
 
-    setPerformanceStats({
+    setPerformanceStats(prev => ({
+      ...prev,
       loadTime,
       memoryUsage,
-      cpuUsage: 'N/A' // Placeholder as browser API doesn't provide this directly
-    });
+    }));
+
+    // Start monitoring CPU usage
+    monitorCPUUsage();
   }, []);
+
+  // Function to monitor CPU usage
+  const monitorCPUUsage = () => {
+    // Counter for frames rendered in last second
+    let lastFrameTime = performance.now();
+    let frameCount = 0;
+    
+    // Update function that measures frame rate as an approximation of CPU usage
+    const updateCPUUsage = () => {
+      const now = performance.now();
+      frameCount++;
+      
+      // Calculate FPS every second
+      if (now - lastFrameTime >= 1000) {
+        // Calculate frame rate - more frames means less CPU pressure
+        const fps = frameCount;
+        frameCount = 0;
+        lastFrameTime = now;
+        
+        // Convert frame rate to a CPU usage approximation
+        // Lower frame rate means higher CPU usage
+        // This is a rough approximation since browsers don't expose actual CPU usage
+        const maxFPS = 60; // Assume 60fps is standard
+        let estimatedCPUUsage = Math.min(100, Math.max(0, 100 - (fps / maxFPS * 100)));
+        
+        // Update state with the approximated CPU usage
+        setPerformanceStats(prev => ({
+          ...prev,
+          cpuUsage: `${Math.round(estimatedCPUUsage)}%`
+        }));
+      }
+      
+      requestAnimationFrame(updateCPUUsage);
+    };
+    
+    // Start the monitoring loop
+    requestAnimationFrame(updateCPUUsage);
+  };
 
   // Weather icon mapping
   const getWeatherIcon = (description) => {
@@ -382,7 +423,6 @@ const Home = ({ users, cityWeather, fetchCityWeather, city, setCity }) => {
                             <p className="text-xs text-gray-500">
                               {new Date(notification.timestamp).toLocaleString()}
                             </p>
-                            <button className="text-xs text-gray-600 hover:text-gray-800">Mark as read</button>
                           </div>
                         </div>
                       </div>
@@ -435,20 +475,7 @@ const Home = ({ users, cityWeather, fetchCityWeather, city, setCity }) => {
               </div>
             </div>
             
-            <div className="bg-purple-50 rounded-lg p-4">
-              <div className="flex items-center">
-                <div className="rounded-full bg-purple-100 p-3 mr-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-purple-800">CPU Usage</p>
-                  <p className="text-2xl font-bold text-purple-900">{performanceStats.cpuUsage}</p>
-                </div>
-              </div>
-            </div>
+            
           </div>
         </div>
       </div>
