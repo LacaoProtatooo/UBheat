@@ -13,9 +13,7 @@ const __dirname = path.resolve();
 connectDB();
 app.use(express.json()); // Allows JSON data in req.body
 
-
 console.log(process.env.MONGO_URI);
-
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "/frontend/dist")));
