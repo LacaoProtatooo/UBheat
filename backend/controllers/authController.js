@@ -139,32 +139,26 @@ export const login = async (req, res) => {
 
 export const googlelogin = async (req, res) => {
   const { idToken } = req.body;
-
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-
-  // When calling the endpoint:
-  const response = await axios.post(`${API_URL}/api/auth/google-login`, { idToken }, { withCredentials: true });
-
+  
   try {
+    // Verify the token using Firebase Admin SDK
     const decodedToken = await auth.verifyIdToken(idToken);
     const email = decodedToken.email;
 
+    // Look up the user or create a new one if needed
     let user = await User.findOne({ email });
     if (!user) {
       const fullName = decodedToken.name || "Google User";
       const [firstName, lastName = ""] = fullName.split(" ", 2);
-
       let username = fullName.replace(/\s+/g, "_").toLowerCase();
       let usernameExists = await User.findOne({ username });
       while (usernameExists) {
         username = `${username}_${crypto.randomBytes(3).toString("hex")}`;
         usernameExists = await User.findOne({ username });
       }
-
-      // Generate a secure random password
+      // Generate a random password
       const randomPassword = crypto.randomBytes(8).toString("hex");
-
-      // Create a new user if not found
+      // Create new user (auto-verified)
       user = new User({
         username,
         firstName,
@@ -173,20 +167,20 @@ export const googlelogin = async (req, res) => {
         password: randomPassword,
         isVerified: true,
       });
-
       await user.save();
     }
 
     if (!user.isActive) {
-      return res
-        .status(403)
-        .json({ success: false, message: "Your account is inactive. Please contact support." });
+      return res.status(403).json({
+        success: false,
+        message: "Your account is inactive. Please contact support.",
+      });
     }
 
     // Generate JWT and set cookie
     generateTokenAndSetCookie(res, user._id);
-    
-    res.status(200).json({
+
+    return res.status(200).json({
       success: true,
       user: {
         ...user._doc,
@@ -194,14 +188,14 @@ export const googlelogin = async (req, res) => {
       },
     });
   } catch (err) {
-    if (err.response && err.response.data && err.response.data.message) {
-      toast.error(err.response.data.message);
-    } else {
-      toast.error("Google sign-in failed. Please try again.");
-    }
+    console.error("Google sign-in error:", err);
+    return res.status(400).json({
+      success: false,
+      message: "Google sign-in failed. Please try again.",
+    });
   }
-  
 };
+
 
 export const logout = async (req, res) => {
   res.clearCookie('token');
