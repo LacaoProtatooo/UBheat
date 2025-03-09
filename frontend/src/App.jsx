@@ -90,8 +90,8 @@ function App() {
             <Route path="/comparison" element={<ProtectedRoute element={<Comparison />} isAuthenticated={isAuthenticated} />} />
 
             {/* Admin Routes */}
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/logs" element={<UserLogsPage />} />
+            <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} isAuthenticated={isAuthenticated} isAdmin={isAdmin} adminOnly={true} />} />
+            <Route path="/logs" element={<ProtectedRoute element={<UserLogsPage />} isAuthenticated={isAuthenticated} isAdmin={isAdmin} adminOnly={true} />} />
 
             {/* Trashed? */}
             <Route path="/profile" element={<ProfilePage />} />
