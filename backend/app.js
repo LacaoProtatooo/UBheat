@@ -17,13 +17,21 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
 const allowedOrigins = [
     "http://localhost:5173", // Development origin
-    "https://ubheat.vercel.app/" // Production origin
+    "https://ubheat.vercel.app" // Production origin
   ];
 
-app.use(cors({
-    origin: allowedOrigins,
+  app.use(cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
-}));
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+  }));
 
 // Middleware for setting security headers
 app.use((req, res, next) => {

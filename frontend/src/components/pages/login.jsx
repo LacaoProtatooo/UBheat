@@ -35,7 +35,7 @@ export function LoginForm({ onLogin }) {
       setLoading(true);
       try {
         const response = await axios.post(
-          "http://localhost:5000/api/auth/login",
+          "https://ubheat.vercel.app/api/auth/login",
           values,
           { withCredentials: true }
         );
@@ -72,7 +72,7 @@ export function LoginForm({ onLogin }) {
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
       const response = await axios.post(
-        "http://localhost:5000/api/auth/google-login",
+        "https://ubheat.vercel.app/auth/google-login",
         { idToken },
         { withCredentials: true }
       );
