@@ -17,8 +17,9 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
 const allowedOrigins = [
     "http://localhost:5173", // Development
-    "https://ubheat.vercel.app", // Production (no trailing slash)
-    "https://ubheat-axejk44s8-lacaoprotatooos-projects.vercel.app/"
+    "https://ubheat.vercel.app", // Production
+    "https://vercel.com/lacaoprotatooos-projects/ubheat/7NmxYjqK3kxQtAGM1pmLiNuynsLT",
+    "https://ubheat-lacaoprotatooos-projects.vercel.app/"
   ];
   
   app.use(cors({
