@@ -6,6 +6,7 @@ import Heatmap from "./Heatmap";
 import { Card } from "../ui/card";
 import { CardHenrich } from "../ui/CardHenrich";
 import { CardJuliana } from "../ui/CardJuliana";
+import { CardPops } from "../ui/CardPops";
 import { TextGenerateEffect } from "../ui/text-generate";
 import { TracingBeam } from "../ui/tracing-beam";
 import { Navbar } from "../ui/navbar";
@@ -104,6 +105,12 @@ const teamMembers = [
     designation: "Resource Manager",
     image: "./juliana.png",
   },
+  {
+    id: 4,
+    name: "Pops Madriaga",
+    designation: "Adviser",
+    image: "./pops.jpg",
+  },
 ];
 
 const AboutV2 = () => {
@@ -192,7 +199,7 @@ const AboutV2 = () => {
           <h2 className="text-3xl font-bold text-center mb-8 text-blue-600">
             Team
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card
               key={teamMembers[0].id}
               className="flex flex-col items-center p-4 bg-white rounded-lg shadow-md border border-blue-100"
@@ -235,6 +242,20 @@ const AboutV2 = () => {
               </h3>
               <p className="text-white">{teamMembers[2].designation}</p>
             </CardJuliana>
+            <CardPops
+              key={teamMembers[3].id}
+              className="flex flex-col items-center p-4 bg-white rounded-lg shadow-md border border-blue-100"
+            >
+              <img
+                src={teamMembers[3].image}
+                alt={teamMembers[3].name}
+                className="w-56 h-56 rounded-full object-cover mb-4"
+              />
+              <h3 className="text-outline-blue text-xl font-bold mb-2">
+                {teamMembers[3].name}
+              </h3>
+              <p className="text-white">{teamMembers[3].designation}</p>
+            </CardPops>
           </div>
         </div>
       </div>
