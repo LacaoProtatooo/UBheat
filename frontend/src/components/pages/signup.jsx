@@ -9,6 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 import VerificationModal from "../common/verificationModal";
 import { useNavigate } from "react-router-dom";
 import FloatingDockUBheat from "../common/floatingdock";
+import axios from "axios";
 
 export function Signup() {
   const navigate = useNavigate();
@@ -31,8 +32,14 @@ export function Signup() {
         .required("Email is required"),
       password: Yup.string()
         .min(8, "Password must be at least 8 characters")
-        .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
-        .matches(/[a-z]/, "Password must contain at least one lowercase letter")
+        .matches(
+          /[A-Z]/,
+          "Password must contain at least one uppercase letter"
+        )
+        .matches(
+          /[a-z]/,
+          "Password must contain at least one lowercase letter"
+        )
         .matches(
           /[~!@#$%^&*()_\-+={[}\]|\\:;"'<,>.?/]/,
           "Password must contain at least one special character."
@@ -56,8 +63,8 @@ export function Signup() {
           },
           { withCredentials: true }
         );
-        const data = await response.json();
-        if (response.ok) {
+
+        if (response.data.success) {
           toast.update(loadingToastId, {
             render:
               "Signup successful! Please check your email to verify your account.",
@@ -68,16 +75,18 @@ export function Signup() {
           setVerificationOpen(true); // Open the verification modal
         } else {
           toast.update(loadingToastId, {
-            render: data.msg || "Registration failed",
+            render: response.data.message || "Registration failed",
             type: "error",
             isLoading: false,
             autoClose: 5000,
           });
         }
       } catch (error) {
-        console.error("Error:", error);
+        console.error("Error during signup:", error);
         toast.update(loadingToastId, {
-          render: "An error occurred. Please try again.",
+          render:
+            error.response?.data?.message ||
+            "An error occurred. Please try again.",
           type: "error",
           isLoading: false,
           autoClose: 5000,
@@ -96,18 +105,17 @@ export function Signup() {
         { code },
         { withCredentials: true }
       );
-      const data = await response.json();
-      console.log("Verification response:", data);
-      if (data.success) {
+      console.log("Verification response:", response.data);
+      if (response.data.success) {
         toast.success("Email verified successfully!");
         navigate("/login");
         setVerificationOpen(false);
       } else {
-        console.error("Error verifying email:", data.message);
+        console.error("Error verifying email:", response.data.message);
         toast.error("Wrong Verification Code Provided.");
       }
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error during email verification:", error);
       toast.error("An error occurred.");
     }
   };
@@ -148,7 +156,9 @@ export function Signup() {
                 onBlur={formik.handleBlur}
               />
               {formik.touched.firstname && formik.errors.firstname && (
-                <p className="text-red-500 text-sm">{formik.errors.firstname}</p>
+                <p className="text-red-500 text-sm">
+                  {formik.errors.firstname}
+                </p>
               )}
             </LabelInputContainer>
             <LabelInputContainer>
@@ -163,7 +173,9 @@ export function Signup() {
                 onBlur={formik.handleBlur}
               />
               {formik.touched.lastname && formik.errors.lastname && (
-                <p className="text-red-500 text-sm">{formik.errors.lastname}</p>
+                <p className="text-red-500 text-sm">
+                  {formik.errors.lastname}
+                </p>
               )}
             </LabelInputContainer>
           </div>
@@ -208,9 +220,12 @@ export function Signup() {
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
             />
-            {formik.touched.confirmPassword && formik.errors.confirmPassword && (
-              <p className="text-red-500 text-sm">{formik.errors.confirmPassword}</p>
-            )}
+            {formik.touched.confirmPassword &&
+              formik.errors.confirmPassword && (
+                <p className="text-red-500 text-sm">
+                  {formik.errors.confirmPassword}
+                </p>
+              )}
           </LabelInputContainer>
 
           <button
@@ -239,7 +254,7 @@ export function Signup() {
             </p>
           </div>
         </form>
-        {/* Pass the modal state and close handler */}
+        {/* Verification Modal */}
         <VerificationModal
           open={isVerificationOpen}
           onClose={() => setVerificationOpen(false)}
