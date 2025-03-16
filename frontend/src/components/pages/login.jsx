@@ -68,8 +68,7 @@ export function LoginForm({ onLogin }) {
       }
     },
   });
-  
-  // Google login function
+
   const handleLoginWithGoogle = async () => {
     try {
       console.log("API URL:", import.meta.env.VITE_API_URL);
