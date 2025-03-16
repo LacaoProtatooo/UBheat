@@ -7,20 +7,21 @@ import app from "./app.js";
 
 dotenv.config();
 
-const PORT = process.env.PORT || 5000
+const PORT = process.env.PORT || 5000;
 const __dirname = path.resolve();
 
+// Connect to your database once
 connectDB();
-app.use(express.json()); // Allows JSON data in req.body
 
+// Middleware to parse JSON bodies
+app.use(express.json());
 
 console.log(process.env.MONGO_URI);
 
-
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "/frontend/dist")));
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
   app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+    res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
   });
 } else {
   app.get("/", (req, res) => {
@@ -28,7 +29,7 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
+
 app.listen(PORT, () => {
-  connectDB();
   console.log("Server Started at http://localhost:" + PORT);
 });
