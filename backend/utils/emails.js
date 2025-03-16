@@ -24,7 +24,7 @@ export const sendVerificationEmail = async (email, verificationToken) => {
 export const sendWelcomeEmail = async (email, name) => {
     try {
         const subject = "Welcome to ActionStop!";
-        const htmlContent = WELCOME_EMAIL_TEMPLATE.replace("{name}", name).replace("{href}", "http://localhost:5173/");
+        const htmlContent = WELCOME_EMAIL_TEMPLATE.replace("{name}", name).replace("{href}", `${process.env.CLIENT_URL}`);
         
         await sendEmail(email, subject, htmlContent);
         console.log("Welcome email sent successfully");

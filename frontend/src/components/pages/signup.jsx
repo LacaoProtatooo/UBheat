@@ -45,16 +45,17 @@ export function Signup() {
     onSubmit: async (values, { setSubmitting }) => {
       const loadingToastId = toast.loading("Signing up...");
       try {
-        const response = await fetch("http://localhost:5000/api/auth/signup", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
+        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+        const response = await axios.post(
+          `${apiUrl}/api/auth/signup`,
+          {
             firstName: values.firstname,
             lastName: values.lastname,
             email: values.email,
             password: values.password,
-          }),
-        });
+          },
+          { withCredentials: true }
+        );
         const data = await response.json();
         if (response.ok) {
           toast.update(loadingToastId, {
@@ -88,11 +89,12 @@ export function Signup() {
 
   const handleVerifyEmail = async (code) => {
     try {
-      const response = await fetch("http://localhost:5173/api/auth/verifyemail", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }),
-      });
+      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5173";
+      const response = await axios.post(
+        `${apiUrl}/api/auth/verifyemail`,
+        { code },
+        { withCredentials: true }
+      );
       const data = await response.json();
       console.log("Verification response:", data);
       if (data.success) {

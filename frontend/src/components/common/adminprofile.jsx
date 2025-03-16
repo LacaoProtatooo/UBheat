@@ -48,7 +48,8 @@ const AdminProfile = () => {
   const getProfile = async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get("http://localhost:5000/api/auth/current-user", {
+      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      const { data } = await axios.get(`${apiUrl}/api/auth/current-user`, {
         withCredentials: true,
       });
       setUser(data.user);
@@ -92,9 +93,12 @@ const AdminProfile = () => {
         formData.append("upload_profile", imageFile);
       }
 
-      const { data } = await axios.put("http://localhost:5000/api/auth/update", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      const { data } = await axios.put(
+        `${apiUrl}/api/auth/update`,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
       toast.success("Profile updated successfully!");
       setUser(data.user);
     } catch (error) {
