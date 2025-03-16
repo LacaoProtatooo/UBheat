@@ -9,7 +9,7 @@ import { IconBrandGoogle } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import FloatingDockUBheat from "../common/floatingdock.jsx";
 
-// Firebase imports from your previous project
+// Firebase imports 
 import { auth, googleProvider } from "../../utils/firebaseConfig.js";
 import { signInWithPopup } from "firebase/auth";
 import axios from "axios";
