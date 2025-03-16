@@ -75,6 +75,7 @@ export function Signup() {
           });
         }
       } catch (error) {
+        console.error("Error:", error);
         toast.update(loadingToastId, {
           render: "An error occurred. Please try again.",
           type: "error",
