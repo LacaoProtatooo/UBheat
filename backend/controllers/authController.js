@@ -110,16 +110,14 @@ export const login = async (req, res) => {
       return res.status(400).json({ success: false, message: "Email not verified" });
     }
     if (!user.isActive) {
-      return res
-        .status(403)
-        .json({ success: false, message: "Your account is inactive. Please contact support." });
+      return res.status(403).json({ success: false, message: "Your account is inactive. Please contact support." });
     }
     
     // Generate JWT and set cookie
     generateTokenAndSetCookie(res, user._id);
     await user.save();
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: user.isAdmin ? "Logged in successfully as admin" : "Logged in successfully as user",
       user: {
@@ -128,13 +126,9 @@ export const login = async (req, res) => {
       },
     });
   } catch (err) {
-    if (err.response && err.response.data && err.response.data.message) {
-      setFieldError("email", err.response.data.message);
-    } else {
-      toast.error("Login failed. Please try again.");
-    }
+    console.error("Error during login:", err);
+    return res.status(500).json({ success: false, message: err.message || "Login failed. Please try again." });
   }
-  
 };
 
 export const googlelogin = async (req, res) => {
@@ -172,15 +166,13 @@ export const googlelogin = async (req, res) => {
     }
 
     if (!user.isActive) {
-      return res
-        .status(403)
-        .json({ success: false, message: "Your account is inactive. Please contact support." });
+      return res.status(403).json({ success: false, message: "Your account is inactive. Please contact support." });
     }
 
     // Generate JWT and set cookie
     generateTokenAndSetCookie(res, user._id);
     
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       user: {
         ...user._doc,
@@ -188,14 +180,11 @@ export const googlelogin = async (req, res) => {
       },
     });
   } catch (err) {
-    if (err.response && err.response.data && err.response.data.message) {
-      toast.error(err.response.data.message);
-    } else {
-      toast.error("Google sign-in failed. Please try again.");
-    }
+    console.error("Error during Google login:", err);
+    return res.status(500).json({ success: false, message: err.message || "Google sign-in failed. Please try again." });
   }
-  
 };
+
 
 export const logout = async (req, res) => {
   res.clearCookie('token');
