@@ -16,14 +16,14 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 // Middleware
 app.use(cookieParser());
 const allowedOrigins = [
-    "http://localhost:5173", // Development origin
-     // Production origin
+    "http://localhost:5173", // development
+    "https://ubheat-sia2.vercel.app" // production
   ];
 
 app.use(cors({
     origin: allowedOrigins,
     credentials: true,
-}));
+  }));
 
 // Middleware for setting security headers
 app.use((req, res, next) => {
