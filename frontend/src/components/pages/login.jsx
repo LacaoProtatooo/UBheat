@@ -34,6 +34,7 @@ export function LoginForm({ onLogin }) {
     onSubmit: async (values, { setSubmitting, setFieldError }) => {
       setLoading(true);
       try {
+        console.log("API URL:", import.meta.env.VITE_API_URL);
         const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
         const response = await axios.post(
           `${apiUrl}/api/auth/login`,
@@ -70,6 +71,7 @@ export function LoginForm({ onLogin }) {
 
   const handleLoginWithGoogle = async () => {
     try {
+      console.log("API URL:", import.meta.env.VITE_API_URL);
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
       const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
