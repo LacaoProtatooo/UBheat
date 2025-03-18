@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, TextField, Button, CircularProgress } from "@mui/material";
+import { Box, Typography, TextField, Button } from "@mui/material";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { Formik, Form, Field } from "formik";
@@ -11,11 +11,11 @@ import { checkAuthStatus, handleLogout } from "../../utils/userauth";
 
 const textFieldStyles = {
   "& .MuiOutlinedInput-root": {
-    "& fieldset": { borderColor: "#333" }, 
+    "& fieldset": { borderColor: "#333" },
     "&:hover fieldset": { borderColor: "rgb(0, 119, 255)" },
     "&.Mui-focused fieldset": { borderColor: "#8EC0F9" },
   },
-  input: { color: "black" }, 
+  input: { color: "black" },
   label: { color: "black" },
 };
 
@@ -25,6 +25,7 @@ const UserProfile = () => {
     firstName: "",
     lastName: "",
     email: "",
+    gender: "",
     image: { public_id: "", url: "" },
     isVerified: false,
     isActive: false,
@@ -77,6 +78,9 @@ const UserProfile = () => {
       formData.append("userId", user._id);
       formData.append("firstName", values.firstName || "");
       formData.append("lastName", values.lastName || "");
+      // Append gender. If "Other" is selected, use the custom field.
+      const genderValue = values.gender === "Other" ? values.customGender : values.gender;
+      formData.append("gender", genderValue);
 
       if (imageFile) {
         formData.append("upload_profile", imageFile);
@@ -94,7 +98,7 @@ const UserProfile = () => {
     }
   };
 
-  // New logout handler using handleLogout from userauth.
+  // Logout handler using handleLogout from userauth.
   const logout = async () => {
     try {
       await handleLogout();
@@ -105,17 +109,23 @@ const UserProfile = () => {
     }
   };
 
-  // Formik initial values reflect the current user data.
+  // Formik initial values now include logic to handle custom gender.
   const initialValues = {
     firstName: user.firstName || "",
     lastName: user.lastName || "",
     email: user.email || "",
+    gender: ["Male", "Female", "Prefer not to say", ""].includes(user.gender) ? user.gender : "Other",
+    customGender: ["Male", "Female", "Prefer not to say", ""].includes(user.gender) ? "" : user.gender,
   };
 
-  // Validation Schema using Yup.
+  // Yup validation schema using function syntax for conditional validation.
   const validationSchema = Yup.object({
     firstName: Yup.string().required("First Name is required"),
     lastName: Yup.string().required("Last Name is required"),
+    gender: Yup.string().required("Gender is required"),
+    customGender: Yup.string().when("gender", (gender, schema) => {
+      return gender === "Other" ? schema.required("Please specify your gender") : schema;
+    }),
   });
 
   return (
@@ -170,7 +180,7 @@ const UserProfile = () => {
           )}
 
           <Formik initialValues={initialValues} validationSchema={validationSchema} enableReinitialize onSubmit={handleSubmit}>
-            {({ errors, touched, handleChange }) => (
+            {({ errors, touched, handleChange, values }) => (
               <Form>
                 {/* Profile Image */}
                 <Box
@@ -227,15 +237,7 @@ const UserProfile = () => {
 
                 {/* Form Fields */}
                 <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mt: 4 }}>
-                  <Field
-                    as={TextField}
-                    fullWidth
-                    label="Email"
-                    name="email"
-                    disabled
-                    value={user.email}
-                    sx={textFieldStyles}
-                  />
+                  <Field as={TextField} fullWidth label="Email" name="email" disabled value={user.email} sx={textFieldStyles} />
                 </Box>
                 <Box sx={{ display: "flex", gap: 2, mt: 4 }}>
                   <Field
@@ -259,6 +261,41 @@ const UserProfile = () => {
                     sx={textFieldStyles}
                   />
                 </Box>
+                {/* Gender selection dropdown */}
+                <Box sx={{ display: "flex", gap: 2, mt: 4 }}>
+                  <Field
+                    as={TextField}
+                    select
+                    fullWidth
+                    label="Gender"
+                    name="gender"
+                    onChange={handleChange}
+                    value={values.gender}
+                    sx={textFieldStyles}
+                    SelectProps={{ native: true }}
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Prefer not to say">Prefer not to say</option>
+                    <option value="Other">Other</option>
+                  </Field>
+                </Box>
+                {/* Conditional field for "Other" gender */}
+                {values.gender === "Other" && (
+                  <Box sx={{ display: "flex", gap: 2, mt: 4 }}>
+                    <Field
+                      as={TextField}
+                      fullWidth
+                      label="Please specify"
+                      name="customGender"
+                      error={touched.customGender && !!errors.customGender}
+                      helperText={touched.customGender && errors.customGender}
+                      onChange={handleChange}
+                      sx={textFieldStyles}
+                    />
+                  </Box>
+                )}
                 {/* Two buttons side by side */}
                 <Box sx={{ display: "flex", gap: 2, mt: 4 }}>
                   <Button
