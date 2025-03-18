@@ -25,6 +25,7 @@ const AdminProfile = () => {
     firstName: "",
     lastName: "",
     email: "",
+    gender: "",
     image: { public_id: "", url: "" },
     isVerified: false,
     isActive: false,
@@ -49,9 +50,7 @@ const AdminProfile = () => {
     setLoading(true);
     try {
       const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
-      const { data } = await axios.get(`${apiUrl}/api/auth/current-user`, {
-        withCredentials: true,
-      });
+      const { data } = await axios.get(`${apiUrl}/api/auth/current-user`, { withCredentials: true });
       setUser(data.user);
     } catch (error) {
       toast.error(`An error occurred: ${error.message}`);
@@ -88,6 +87,9 @@ const AdminProfile = () => {
       formData.append("userId", user._id);
       formData.append("firstName", values.firstName || "");
       formData.append("lastName", values.lastName || "");
+      // Append gender. If "Other" is selected, use the custom field.
+      const genderValue = values.gender === "Other" ? values.customGender : values.gender;
+      formData.append("gender", genderValue);
 
       if (imageFile) {
         formData.append("upload_profile", imageFile);
@@ -108,7 +110,7 @@ const AdminProfile = () => {
     }
   };
 
-  // New logout handler using handleLogout from userauth.
+  // Logout handler using handleLogout from userauth.
   const logout = async () => {
     try {
       await handleLogout();
@@ -119,26 +121,36 @@ const AdminProfile = () => {
     }
   };
 
-  // Formik initial values reflect the current user data.
+  // Formik initial values reflect the current user data, with gender handling.
   const initialValues = {
     firstName: user.firstName || "",
     lastName: user.lastName || "",
     email: user.email || "",
+    gender: ["Male", "Female", "Prefer not to say", ""].includes(user.gender)
+      ? user.gender
+      : "Other",
+    customGender: ["Male", "Female", "Prefer not to say", ""].includes(user.gender)
+      ? ""
+      : user.gender,
   };
 
-  // Validation Schema using Yup.
+  // Yup validation schema.
   const validationSchema = Yup.object({
     firstName: Yup.string().required("First Name is required"),
     lastName: Yup.string().required("Last Name is required"),
+    gender: Yup.string().required("Gender is required"),
+    customGender: Yup.string().when("gender", (gender, schema) => {
+      return gender === "Other" ? schema.required("Please specify your gender") : schema;
+    }),
   });
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100">
+    <div className="flex flex-col min-h-screen bg-transparent">
       <div className="flex flex-1">
         {/* Sidebar with activeComponent passed in */}
         <Sidebar 
-            setActiveComponent={handleSetActiveComponent}
-            activeComponent={activeComponent} 
+          setActiveComponent={handleSetActiveComponent}
+          activeComponent={activeComponent} 
         />
         {/* Main content area with margin-left to avoid overlap */}
         <div className="flex-1 p-4 ml-16">
@@ -151,7 +163,7 @@ const AdminProfile = () => {
               boxShadow: 10,
               p: 4,
               borderRadius: 2,
-              backgroundColor: "#ECECEC",
+              backgroundColor: "transparent",
               transition: "transform 0.3s, box-shadow 0.3s",
               "&:hover": { transform: "translateY(-5px)" },
               color: "black",
@@ -187,7 +199,7 @@ const AdminProfile = () => {
               enableReinitialize
               onSubmit={handleSubmit}
             >
-              {({ errors, touched, handleChange }) => (
+              {({ errors, touched, handleChange, values }) => (
                 <Form>
                   {/* Profile Image */}
                   <Box
@@ -259,15 +271,7 @@ const AdminProfile = () => {
 
                   {/* Form Fields */}
                   <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mt: 4 }}>
-                    <Field
-                      as={TextField}
-                      fullWidth
-                      label="Email"
-                      name="email"
-                      disabled
-                      value={user.email}
-                      sx={textFieldStyles}
-                    />
+                    <Field as={TextField} fullWidth label="Email" name="email" disabled value={user.email} sx={textFieldStyles} />
                   </Box>
                   <Box sx={{ display: "flex", gap: 2, mt: 4 }}>
                     <Field
@@ -291,6 +295,41 @@ const AdminProfile = () => {
                       sx={textFieldStyles}
                     />
                   </Box>
+                  {/* Gender selection dropdown */}
+                  <Box sx={{ display: "flex", gap: 2, mt: 4 }}>
+                    <Field
+                      as={TextField}
+                      select
+                      fullWidth
+                      label="Gender"
+                      name="gender"
+                      onChange={handleChange}
+                      value={values.gender}
+                      sx={textFieldStyles}
+                      SelectProps={{ native: true }}
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Prefer not to say">Prefer not to say</option>
+                      <option value="Other">Other</option>
+                    </Field>
+                  </Box>
+                  {/* Conditional field for "Other" gender */}
+                  {values.gender === "Other" && (
+                    <Box sx={{ display: "flex", gap: 2, mt: 4 }}>
+                      <Field
+                        as={TextField}
+                        fullWidth
+                        label="Please specify"
+                        name="customGender"
+                        error={touched.customGender && !!errors.customGender}
+                        helperText={touched.customGender && errors.customGender}
+                        onChange={handleChange}
+                        sx={textFieldStyles}
+                      />
+                    </Box>
+                  )}
                   <Box sx={{ display: "flex", gap: 2, mt: 4 }}>
                     <Button
                       variant="contained"

@@ -34,6 +34,7 @@ export const signup = async (req, res) => {
       firstName, 
       lastName, 
       email,
+      gender: "Prefer not to say",
       password: hashedPassword,
       verificationToken,
       verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24 hours expiry
@@ -158,6 +159,7 @@ export const googlelogin = async (req, res) => {
         firstName,
         lastName,
         email,
+        gender: "Prefer not to say",
         password: randomPassword,
         isVerified: true,
       });
@@ -195,7 +197,7 @@ export const logout = async (req, res) => {
 };
 
 export const updateProfile = async (req, res) => {
-  const { userId, firstName, lastName, email, phone } = req.body;
+  const { userId, firstName, lastName, email, phone, gender } = req.body;
   const image = req.file;
 
   console.log("Image:", image);
@@ -216,6 +218,7 @@ export const updateProfile = async (req, res) => {
     user.lastName = lastName || user.lastName;
     user.email = email || user.email;
     user.phone = phone || user.phone;
+    user.gender = gender || user.gender;
 
     if (image) {
       if (user.image?.public_id) {
