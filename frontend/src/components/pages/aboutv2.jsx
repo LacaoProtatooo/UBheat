@@ -108,7 +108,7 @@ const teamMembers = [
   {
     id: 4,
     name: "Pops Madriaga",
-    designation: "Adviser",
+    designation: "Project Adviser",
     image: "./pops.jpg",
   },
 ];
@@ -202,7 +202,7 @@ const AboutV2 = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card
               key={teamMembers[0].id}
-              className="flex flex-col items-center p-4 bg-white rounded-lg shadow-md border border-blue-100"
+              className="flex flex-col items-center p-4 bg-gray-500 rounded-lg shadow-md border border-blue-100"
             >
               <img
                 src={teamMembers[0].image}
@@ -216,7 +216,7 @@ const AboutV2 = () => {
             </Card>
             <CardHenrich
               key={teamMembers[1].id}
-              className="flex flex-col items-center p-4 bg-white rounded-lg shadow-md border border-blue-100"
+              className="flex flex-col items-center p-4 bg-gray-500 rounded-lg shadow-md border border-blue-100"
             >
               <img
                 src={teamMembers[1].image}
@@ -230,7 +230,7 @@ const AboutV2 = () => {
             </CardHenrich>
             <CardJuliana
               key={teamMembers[2].id}
-              className="flex flex-col items-center p-4 bg-white rounded-lg shadow-md border border-blue-100"
+              className="flex flex-col items-center p-4 bg-gray-500 rounded-lg shadow-md border border-blue-100"
             >
               <img
                 src={teamMembers[2].image}
@@ -244,7 +244,7 @@ const AboutV2 = () => {
             </CardJuliana>
             <CardPops
               key={teamMembers[3].id}
-              className="flex flex-col items-center p-4 bg-white rounded-lg shadow-md border border-blue-100"
+              className="flex flex-col items-center p-4 bg-gray-500 rounded-lg shadow-md border border-blue-100"
             >
               <img
                 src={teamMembers[3].image}

@@ -144,34 +144,34 @@ const ProfilePage = () => {
           <h2 className="text-3xl font-bold text-center mb-8 text-blue-600">Team</h2> {/* Changed to blue */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Card key={teamMembers[0].id} className="flex flex-col items-center p-4 bg-white rounded-lg shadow-md border border-blue-100"> {/* Added blue border */}
-              <img
+              {/* <img
                 src='https://i.pinimg.com/736x/b2/ae/40/b2ae40091e18730921c79241f25e7cff.jpg'
                 alt={teamMembers[0].name}
                 className="w-20 h-20 rounded-full object-cover mb-4"
                 style={{ marginBottom: '1rem' }} // Add margin to separate the images
-              />
+              /> */}
               <h3 className="text-xl font-bold mb-2 text-blue-600">{teamMembers[0].name}</h3> {/* Changed to blue */}
-              <p className="text-red-100">{teamMembers[0].designation}</p> {/* Changed text color to dark gray */}
+              <p className="text-slate-900">{teamMembers[0].designation}</p> {/* Changed text color to dark gray */}
             </Card>
             <CardHenrich key={teamMembers[1].id} className="flex flex-col items-center p-4 bg-white rounded-lg shadow-md border border-blue-100"> {/* Added blue border */}
-              <img
+              {/* <img
                 src='https://i.pinimg.com/736x/6d/a0/80/6da080bd51bee5b43437aa47256625c9.jpg'
                 alt={teamMembers[1].name}
                 className="w-20 h-20 rounded-full object-cover mb-4"
                 style={{ marginBottom: '1rem' }} // Add margin to separate the images
-              />
+              /> */}
               <h3 className="text-xl font-bold mb-2 text-blue-600">{teamMembers[1].name}</h3> {/* Changed to blue */}
-              <p className="text-red-600">{teamMembers[1].designation}</p> {/* Changed text color to dark gray */}
+              <p className="text-slate-900">{teamMembers[1].designation}</p> {/* Changed text color to dark gray */}
             </CardHenrich>
             <CardJuliana key={teamMembers[2].id} className="flex flex-col items-center p-4 bg-white rounded-lg shadow-md border border-blue-100"> {/* Added blue border */}
-              <img
+              {/* <img
                 src='https://i.pinimg.com/736x/67/28/1b/67281b6fc7082231dc3a62fefb04ad77.jpg'
                 alt={teamMembers[2].name}
                 className="w-20 h-20 rounded-full object-cover mb-4"
                 style={{ marginBottom: '1rem' }} // Add margin to separate the images
-              />
+              /> */}
               <h3 className="text-xl font-bold mb-2 text-blue-600">{teamMembers[2].name}</h3> {/* Changed to blue */}
-              <p className="text-green-600">{teamMembers[2].designation}</p> {/* Changed text color to dark gray */}
+              <p className="text-slate-900">{teamMembers[2].designation}</p> {/* Changed text color to dark gray */}
             </CardJuliana>
           </div>
         </div>
