@@ -101,23 +101,50 @@ const Main = () => {
   }, [selectedYear, yearIndex, allTemps, allMtCO2]);
 
   const fetchAIConclusion = async (type, temp, co2, historicalContext) => {
-    const prompt = `Analyze environmental impacts for the Philippines in ${selectedYear} with:
-  - Temperature: ${temp.toFixed(2)}°C (${historicalContext.tempTrend})
+    const positivePrompt = `Analyze potential environmental improvements for the Philippines in ${selectedYear} with:
+  - Current Temperature: ${temp.toFixed(2)}°C (${historicalContext.tempTrend})
   - CO2 Emissions: ${co2.toFixed(2)} MtCO2 (${historicalContext.co2Trend})
   - Emission Rate: ${emissionRate}%
-  - Baseline: ${baseMtCO2.toFixed(2)} MtCO2
-  - Historical Baseline: ${historicalContext.baseTemp.toFixed(2)}°C
-  - Linear Trend: 0.5°C/decade
-
-  Provide ${type === 'positive' ? "benefits" : "risks"} considering:
-  1. Emission rate impact
-  2. Sector impacts
-  3. Regional variations
-  4. Economic factors
-  5. Mitigation strategies
+  - Baseline Comparison: ${baseMtCO2.toFixed(2)} MtCO2
   
-  Note that we focus on Urban Heat which is more concentrated in cities and urban areas. rather than climate which is more general and global or weather.`;
-
+  Identify and prioritize opportunities in:
+  1. **Most Promising Improvement Areas** (Where can we get >10% impact?)
+  2. **Key Sector Opportunities** (Transportation/Energy/Urban Planning):
+     - Top 3 actionable solutions per sector
+     - Estimated benefit magnitude
+  3. **Regional Priority Zones** (Which cities/areas have highest improvement potential?)
+  4. **Economic Optimization** (Best ROI mitigation strategies)
+  5. **Innovation Potential** (Emerging tech/local solutions)
+  
+  Focus on urban heat mitigation in cities through:
+  - Scalable green infrastructure solutions
+  - Energy efficiency maximization
+  - Community-driven initiatives
+  - Public-private partnership models`;
+  
+    const negativePrompt = `Analyze environmental risks for the Philippines in ${selectedYear} with:
+  - Current Temperature: ${temp.toFixed(2)}°C (${historicalContext.tempTrend})
+  - CO2 Emissions: ${co2.toFixed(2)} MtCO2 (${historicalContext.co2Trend})
+  - Emission Rate: ${emissionRate}%
+  - Baseline Comparison: ${baseMtCO2.toFixed(2)} MtCO2
+  
+  Evaluate critical threats in:
+  1. **Immediate Consequences** (0-2 year timeframe)
+  2. **Systemic Vulnerabilities**:
+     - Top 3 at-risk sectors
+     - Worst-case scenario impacts
+  3. **High-Risk Zones** (Specific cities/regions in danger)
+  4. **Economic Threats** (Direct costs & hidden liabilities)
+  5. **Cascade Risks** (Secondary impacts across systems)
+  
+  Focus on urban heat consequences in cities:
+  - Health emergency risks
+  - Infrastructure failure points
+  - Economic loss drivers
+  - Social inequality exacerbation`;
+  
+    const prompt = type === 'positive' ? positivePrompt : negativePrompt;
+  
     try {
       const response = await axios.post("api/chat", { 
         message: prompt,
@@ -252,7 +279,7 @@ const Main = () => {
           <GoodEffectsTextField
             text={goodEffects}
             speed={5} // Adjust typing speed
-            label="Positive Environmental Impacts"
+            label="Possible Environmental Insights"
             variant="outlined"
             fullWidth
           />
