@@ -151,18 +151,75 @@ const ResponsiveLineChart = (props) => {
 ---------------------------------*/
 
 // Temperature Chart (2022–2030)
-const TemperatureChart = ({ city1Data, city2Data }) => {
-  if (!city1Data || !city2Data) return null;
+// Temperature Chart (2022–2030) - Updated with Regression Projections
+const TemperatureChart = ({ city1Data, city2Data, emissionRate }) => {
+  // Historical data from your regression model
+  const historicalData = useMemo(() => ({
+    years: [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023],
+    co2Emissions: [113908720, 122214770, 136583970, 142309430, 148800700, 
+                   136678980, 146142190, 155380930, 163150976],
+    temperatures: [26.41, 26.47, 26.53, 26.58, 26.63, 26.67, 26.71, 26.74, 26.78]
+  }), []);
+
+  // Create regression models
+  const { yearTempModel, co2TempModel } = useMemo(() => {
+    const mtco2 = historicalData.co2Emissions.map(x => x / 1000000);
+    
+    return {
+      yearTempModel: regression.linear(
+        historicalData.years.map((y, i) => [y, historicalData.temperatures[i]])
+      ),
+      co2TempModel: regression.linear(
+        mtco2.map((v, i) => [v, historicalData.temperatures[i]])
+      )
+    };
+  }, [historicalData]);
+
+  // Get CO2 projections including emission rate impact
+  const co2Series = useMemo(() => computeCO2Series(emissionRate), [emissionRate]);
+
+  // Calculate temperature projections using both regression models
+  const calculateTemperatures = (baseMtCO2, resultMtCO2, years) => {
+    return years.map((year, index) => {
+      // Get CO2 values from projections
+      const co2 = resultMtCO2[index];
+      
+      // Get base temperature from year-based regression
+      const yearTemp = yearTempModel.predict([year])[1];
+      
+      // Get CO2-based temperature
+      const co2Temp = co2TempModel.predict([co2])[1];
+      
+      // Combine models and add urban heat adjustment
+      return ((yearTemp + co2Temp) / 2) + 0.5; // 0.5°C urban heat adjustment
+    });
+  };
+
+  // Generate temperature series for both cities
   const years = Array.from({ length: 9 }, (_, i) => 2022 + i);
-  const city1APITemp = years.map(() => parseFloat(city1Data.apiTemperature));
-  const city1AdjustedTemp = years.map(() => city1Data.adjustedTemp);
-  const city2APITemp = years.map(() => parseFloat(city2Data.apiTemperature));
-  const city2AdjustedTemp = years.map(() => city2Data.adjustedTemp);
+  const city1Temps = calculateTemperatures(co2Series.predicted, co2Series.result, years);
+  const city2Temps = calculateTemperatures(co2Series.predicted, co2Series.result, years);
+
   const series = [
-    { data: city1APITemp, label: `${city1Data.city} API Temp (°C)`, yAxisKey: 'temp', color: '#FF6384' },
-    { data: city1AdjustedTemp, label: `${city1Data.city} Adjusted Temp (°C)`, yAxisKey: 'temp', color: '#FF9F40' },
-    { data: city2APITemp, label: `${city2Data.city} API Temp (°C)`, yAxisKey: 'temp', color: '#36A2EB' },
-    { data: city2AdjustedTemp, label: `${city2Data.city} Adjusted Temp (°C)`, yAxisKey: 'temp', color: '#4BC0C0' },
+    { 
+      data: city1Temps, 
+      label: `${city1Data?.city || 'City 1'} Projected Temp (°C)`, 
+      yAxisKey: 'temp', 
+      color: '#FF9F40' 
+    },
+    { 
+      data: city2Temps, 
+      label: `${city2Data?.city || 'City 2'} Projected Temp (°C)`, 
+      yAxisKey: 'temp', 
+      color: '#4BC0C0' 
+    },
+    { 
+      data: years.map(() => yearTempModel.predict([2023])[1] + 0.5), // Baseline trend line
+      label: 'Baseline Trend (0.5°C/decade)',
+      yAxisKey: 'temp',
+      color: '#FF0000',
+      dashStyle: '5 5'
+    }
   ];
 
   return (
@@ -172,9 +229,25 @@ const TemperatureChart = ({ city1Data, city2Data }) => {
       </Typography>
       <ResponsiveLineChart 
         series={series}
-        xAxis={[{ data: years, scaleType: 'band', label: 'Year', valueFormatter: (v) => v.toString() }]}
-        yAxis={[{ id: 'temp', label: 'Temperature (°C)', min: 15, max: 50, tickNumber: 8 }]}
+        xAxis={[{ 
+          data: years, 
+          scaleType: 'band', 
+          label: 'Year', 
+          valueFormatter: (v) => v.toString() 
+        }]}
+        yAxis={[{ 
+          id: 'temp', 
+          label: 'Temperature (°C)', 
+          min: Math.min(...city1Temps, ...city2Temps) - 1,
+          max: Math.max(...city1Temps, ...city2Temps) + 1,
+          tickNumber: 8 
+        }]}
         margin={{ left: 50, right: 50, top: 20, bottom: 20 }}
+        sx={{
+          '.MuiLineElement-root': { strokeWidth: 2.5 },
+          '.MuiMarkElement-root': { display: 'none' },
+          '.MuiChartsAxis-tickLabel': { fontSize: '0.875rem' },
+        }}
       />
     </Box>
   );
@@ -438,7 +511,11 @@ const Comparison = () => {
         {city1Data && city2Data ? (
           <Card variant="outlined" sx={{ height: '90%', borderRadius: '16px' }}>
             <CardContent sx={{ height: '100%', p: 1 }}>
-              <TemperatureChart city1Data={city1Data} city2Data={city2Data} />
+            <TemperatureChart 
+              city1Data={city1Data} 
+              city2Data={city2Data} 
+              emissionRate={emissionRate}
+            />
             </CardContent>
           </Card>
         ) : (
